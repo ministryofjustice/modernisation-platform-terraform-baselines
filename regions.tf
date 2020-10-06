@@ -21,7 +21,7 @@ resource "local_file" "baselines" {
   for_each = toset(local.baselines)
   filename = "${path.module}/${each.value}-generated.tf"
   content = templatefile("${path.module}/templates/${each.value}.tmpl", {
-    account_regions: data.aws_regions.current.names,
-    service_regions: jsondecode(file("${path.module}/regions/${each.value}.json"))
+    account_regions : data.aws_regions.current.names,
+    service_regions : jsondecode(file("${path.module}/regions/${each.value}.json"))
   })
 }
