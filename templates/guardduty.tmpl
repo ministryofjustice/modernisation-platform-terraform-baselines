@@ -3,8 +3,8 @@
 %{ for account_region in account_regions ~}
 %{ if contains(service_regions, account_region) ~}
 # Enable GuardDuty in each available region
-resource "aws_guardduty_detector" "${account_region}" {
-  provider = aws.${account_region}
+resource "aws_guardduty_detector" "${baseline_provider_key}-${account_region}" {
+  provider = aws.${baseline_provider_key}-${account_region}
   enable   = true
 }
 
