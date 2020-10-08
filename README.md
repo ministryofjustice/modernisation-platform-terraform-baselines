@@ -1,15 +1,19 @@
-# Ministry of Justice Template Repository
+# modernisation-platform-terraform-baselines
 
-Use this template to [create a repository] with the default initial files for a Ministry of Justice Github repository, including:
+Terrafor module for enabling and creating baseline rules from the [MoJ Security Guidance](https://ministryofjustice.github.io/security-guidance/baseline-aws-accounts/#baseline-for-amazon-web-services-accounts).
 
-* The correct LICENSE
-* Github actions
-* .gitignore file
+## Usage
+```
+module "baselines" {
+  source = "github.com/ministryofjustice/modernisation-platform-terraform-baselines"
+}
+```
 
-Once you have created your repository, please:
+## Inputs
+None
 
-* Edit the copy of this README.md file to document your project
-* Grant permissions to the appropriate MoJ teams
-* Setup branch protection
+## Outputs
+None
 
-[create a repository]: https://github.com/ministryofjustice/template-repository/generate
+## Looking for issues?
+If you're looking to raise an issue with this module, please create a new issue in the [Modernisation Platform repository](https://github.com/ministryofjustice/modernisation-platform/issues).
