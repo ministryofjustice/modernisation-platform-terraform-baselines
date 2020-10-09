@@ -4,11 +4,11 @@
 provider "aws" {
   region = "${region}"
   alias  = "${baseline_provider_key}-${region}"
-  %{ if baseline_assume_role }
+  %{~ if baseline_assume_role }
   assume_role {
     role_arn = var.baseline_assume_role
   }
-  %{ endif }
+  %{~ endif ~}
 }
 
 %{ endfor }
