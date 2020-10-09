@@ -4,8 +4,10 @@
 %{ if contains(service_regions, account_region) ~}
 # Enable GuardDuty in each available region
 resource "aws_guardduty_detector" "${baseline_provider_key}-${account_region}" {
-  provider = aws.${baseline_provider_key}-${account_region}
-  enable   = true
+  provider                     = aws.${baseline_provider_key}-${account_region}
+  enable                       = true
+  finding_publishing_frequency = "FIFTEEN_MINUTES"
+  tags                         = var.baseline_tags
 }
 
 %{ else ~}
