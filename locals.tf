@@ -1,3 +1,3 @@
 locals {
-  baselines = ["securityhub", "guardduty"]
+  baselines = ["securityhub", "guardduty", "config"]
 }
