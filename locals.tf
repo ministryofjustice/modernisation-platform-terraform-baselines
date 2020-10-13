@@ -1,3 +1,8 @@
 locals {
-  baselines = ["securityhub", "guardduty"]
+  baselines = [
+    "cloudtrail",
+    "guardduty",
+    "kms",
+    "securityhub"
+  ]
 }
