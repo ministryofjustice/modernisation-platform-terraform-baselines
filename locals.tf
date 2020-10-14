@@ -1,3 +1,9 @@
 locals {
-  baselines = ["securityhub", "guardduty", "config"]
+  baselines = [
+    "cloudtrail",
+    "config",
+    "guardduty",
+    "kms",
+    "securityhub"
+  ]
 }
