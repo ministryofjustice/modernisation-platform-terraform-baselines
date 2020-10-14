@@ -398,8 +398,7 @@ resource "aws_config_config_rule" "iam-password-policy" {
     RequireSymbols : "true",
     RequireNumbers : "true",
     MinimumPasswordLength : "8",
-    PasswordReusePrevention : "5",
-    MaxPasswordAge : "0",
+    PasswordReusePrevention : "5"
   })
 
   source {
