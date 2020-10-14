@@ -309,6 +309,56 @@ resource "aws_config_config_rule" "cloud-trail-log-file-validation-enabled" {
   tags = var.baseline_tags
 }
 
+resource "aws_config_config_rule" "cloudtrail-enabled" {
+  provider                    = aws.${baseline_provider_key}-${account_region}
+  name                        = "cloudtrail-enabled"
+  maximum_execution_frequency = "TwentyFour_Hours"
+
+  input_parameters = jsonencode({
+    s3BucketName : aws_s3_bucket.cloudtrail.id,
+    cloudWatchLogsLogGroupArn : aws_cloudwatch_log_group.cloudtrail.arn
+  })
+
+  source {
+    owner             = "AWS"
+    source_identifier = "CLOUD_TRAIL_ENABLED"
+  }
+
+  depends_on = [aws_config_configuration_recorder.${baseline_provider_key}-${account_region}]
+
+  tags = var.baseline_tags
+}
+
+resource "aws_config_config_rule" "cloudtrail-s3-dataevents-enabled" {
+  provider                    = aws.${baseline_provider_key}-${account_region}
+  name                        = "cloudtrail-s3-dataevents-enabled"
+  maximum_execution_frequency = "TwentyFour_Hours"
+
+  source {
+    owner             = "AWS"
+    source_identifier = "CLOUDTRAIL_S3_DATAEVENTS_ENABLED"
+  }
+
+  depends_on = [aws_config_configuration_recorder.${baseline_provider_key}-${account_region}]
+
+  tags = var.baseline_tags
+}
+
+resource "aws_config_config_rule" "cloudtrail-security-trail-enabled" {
+  provider                    = aws.${baseline_provider_key}-${account_region}
+  name                        = "cloudtrail-security-trail-enabled"
+  maximum_execution_frequency = "TwentyFour_Hours"
+
+  source {
+    owner             = "AWS"
+    source_identifier = "CLOUDTRAIL_SECURITY_TRAIL_ENABLED"
+  }
+
+  depends_on = [aws_config_configuration_recorder.${baseline_provider_key}-${account_region}]
+
+  tags = var.baseline_tags
+}
+
 resource "aws_config_config_rule" "iam-group-has-users-check" {
   provider = aws.${baseline_provider_key}-${account_region}
   name     = "iam-group-has-users-check"
@@ -419,6 +469,28 @@ resource "aws_config_config_rule" "mfa-enabled-for-iam-console-access" {
   source {
     owner             = "AWS"
     source_identifier = "MFA_ENABLED_FOR_IAM_CONSOLE_ACCESS"
+  }
+
+  depends_on = [aws_config_configuration_recorder.${baseline_provider_key}-${account_region}]
+
+  tags = var.baseline_tags
+}
+
+resource "aws_config_config_rule" "multi-region-cloudtrail-enabled" {
+  provider                    = aws.${baseline_provider_key}-${account_region}
+  name                        = "multi-region-cloudtrail-enabled"
+  maximum_execution_frequency = "TwentyFour_Hours"
+
+  input_parameters = jsonencode({
+    s3BucketName : aws_s3_bucket.cloudtrail.id,
+    cloudWatchLogsLogGroupArn : aws_cloudwatch_log_group.cloudtrail.arn,
+    includeManagementEvents : "true",
+    readWriteType : "ALL"
+  })
+
+  source {
+    owner             = "AWS"
+    source_identifier = "MULTI_REGION_CLOUD_TRAIL_ENABLED"
   }
 
   depends_on = [aws_config_configuration_recorder.${baseline_provider_key}-${account_region}]
