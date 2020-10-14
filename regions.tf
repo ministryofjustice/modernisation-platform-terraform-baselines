@@ -23,7 +23,8 @@ resource "local_file" "baselines" {
   content = templatefile("${path.module}/templates/${each.value}.tmpl", {
     account_regions : data.aws_regions.current.names,
     service_regions : jsondecode(file("${path.module}/regions/${each.value}.json")),
-    baseline_provider_key : var.baseline_provider_key
+    baseline_provider_key : var.baseline_provider_key,
+    module_path : path.module
   })
 }
 
