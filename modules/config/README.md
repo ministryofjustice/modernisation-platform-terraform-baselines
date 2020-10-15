@@ -1,6 +1,6 @@
 # Config Rules
 
-The [config.tmpl](templates/config.tmpl) template enables the following AWS Config [managed rules](https://docs.aws.amazon.com/config/latest/developerguide/managed-rules-by-aws-config.html).
+This module enables the following AWS Config [managed rules](https://docs.aws.amazon.com/config/latest/developerguide/managed-rules-by-aws-config.html).
 
 - [x] [access-keys-rotated](https://docs.aws.amazon.com/config/latest/developerguide/access-keys-rotated.html)
 - [x] [account-part-of-organizations](https://docs.aws.amazon.com/config/latest/developerguide/account-part-of-organizations.html)

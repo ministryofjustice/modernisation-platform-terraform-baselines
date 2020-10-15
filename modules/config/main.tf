@@ -4,10 +4,9 @@ data "aws_caller_identity" "current" {}
 
 # AWS Config: Configure a role using eu-west-2
 resource "aws_iam_role" "config" {
-  provider           = aws.${baseline_provider_key}-eu-west-2
   name               = "AWSConfig"
   assume_role_policy = data.aws_iam_policy_document.assume_role_policy.json
-  tags               = var.baseline_tags
+  tags               = var.tags
 }
 
 data "aws_iam_policy_document" "assume_role_policy" {
@@ -25,14 +24,12 @@ data "aws_iam_policy_document" "assume_role_policy" {
 }
 
 resource "aws_iam_role_policy_attachment" "managed_policy" {
-  provider   = aws.${baseline_provider_key}-eu-west-2
   role       = aws_iam_role.config.name
   policy_arn = "arn:aws:iam::aws:policy/service-role/AWSConfigRole"
 }
 
 # AWS Config: Configure an S3 bucket in eu-west-2
 resource "aws_s3_bucket" "config" {
-  provider      = aws.${baseline_provider_key}-eu-west-2
   bucket_prefix = "config-"
   acl           = "private"
 
@@ -52,11 +49,10 @@ resource "aws_s3_bucket" "config" {
     prevent_destroy = true
   }
 
-  tags = var.baseline_tags
+  tags = var.tags
 }
 
 resource "aws_s3_bucket_public_access_block" "config" {
-  provider                = aws.${baseline_provider_key}-eu-west-2
   bucket                  = aws_s3_bucket.config.bucket
   block_public_acls       = true
   block_public_policy     = true
@@ -65,9 +61,8 @@ resource "aws_s3_bucket_public_access_block" "config" {
 }
 
 resource "aws_s3_bucket_policy" "config_bucket" {
-  provider = aws.${baseline_provider_key}-eu-west-2
-  bucket   = aws_s3_bucket.config.bucket
-  policy   = data.aws_iam_policy_document.config_bucket.json
+  bucket = aws_s3_bucket.config.bucket
+  policy = data.aws_iam_policy_document.config_bucket.json
 }
 
 data "aws_iam_policy_document" "config_bucket" {
@@ -97,7 +92,7 @@ data "aws_iam_policy_document" "config_bucket" {
     effect  = "Allow"
     actions = ["s3:PutObject"]
     resources = [
-      "$${aws_s3_bucket.config.arn}/*"
+      "${aws_s3_bucket.config.arn}/*"
     ]
 
     principals {
@@ -123,7 +118,7 @@ data "aws_iam_policy_document" "config_bucket" {
     effect  = "Deny"
     actions = ["s3:*"]
     resources = [
-      "$${aws_s3_bucket.config.arn}/*"
+      "${aws_s3_bucket.config.arn}/*"
     ]
     principals {
       identifiers = ["*"]
@@ -137,11 +132,8 @@ data "aws_iam_policy_document" "config_bucket" {
   }
 }
 
-%{ for account_region in account_regions ~}
-%{ if contains(service_regions, account_region) ~}
 # Enable Config in each available region
-resource "aws_config_configuration_recorder" "${baseline_provider_key}-${account_region}" {
-  provider = aws.${baseline_provider_key}-${account_region}
+resource "aws_config_configuration_recorder" "aws-eu-west-2" {
   name     = "config"
   role_arn = aws_iam_role.config.arn
 
@@ -151,41 +143,37 @@ resource "aws_config_configuration_recorder" "${baseline_provider_key}-${account
   }
 }
 
-resource "aws_config_delivery_channel" "${baseline_provider_key}-${account_region}" {
-  provider       = aws.${baseline_provider_key}-${account_region}
+resource "aws_config_delivery_channel" "aws-eu-west-2" {
   name           = "config"
   s3_bucket_name = aws_s3_bucket.config.id
-  s3_key_prefix  = "${baseline_provider_key}-${account_region}"
-  sns_topic_arn  = aws_sns_topic.${baseline_provider_key}-${account_region}.arn
+  s3_key_prefix  = "aws-eu-west-2"
+  sns_topic_arn  = aws_sns_topic.aws-eu-west-2.arn
 
   snapshot_delivery_properties {
     delivery_frequency = "Three_Hours"
   }
 
-  depends_on = [aws_config_configuration_recorder.${baseline_provider_key}-${account_region}]
+  depends_on = [aws_config_configuration_recorder.aws-eu-west-2]
 }
 
-resource "aws_config_configuration_recorder_status" "${baseline_provider_key}-${account_region}" {
-  provider   = aws.${baseline_provider_key}-${account_region}
+resource "aws_config_configuration_recorder_status" "aws-eu-west-2" {
   name       = "config"
   is_enabled = true
-  depends_on = [aws_config_delivery_channel.${baseline_provider_key}-${account_region}]
+  depends_on = [aws_config_delivery_channel.aws-eu-west-2]
 }
 
 # Create an SNS topic for each region
-resource "aws_sns_topic" "${baseline_provider_key}-${account_region}" {
-  provider = aws.${baseline_provider_key}-${account_region}
-  name     = "config"
-  tags     = var.baseline_tags
+resource "aws_sns_topic" "aws-eu-west-2" {
+  name = "config"
+  tags = var.tags
 }
 
-resource "aws_sns_topic_policy" "${baseline_provider_key}-${account_region}" {
-  provider = aws.${baseline_provider_key}-${account_region}
-  arn      = aws_sns_topic.${baseline_provider_key}-${account_region}.arn
-  policy   = data.aws_iam_policy_document.sns_topic_policy-${baseline_provider_key}-${account_region}.json
+resource "aws_sns_topic_policy" "aws-eu-west-2" {
+  arn    = aws_sns_topic.aws-eu-west-2.arn
+  policy = data.aws_iam_policy_document.sns_topic_policy-aws-eu-west-2.json
 }
 
-data "aws_iam_policy_document" "sns_topic_policy-${baseline_provider_key}-${account_region}" {
+data "aws_iam_policy_document" "sns_topic_policy-aws-eu-west-2" {
   statement {
     actions = [
       "SNS:Subscribe",
@@ -209,7 +197,7 @@ data "aws_iam_policy_document" "sns_topic_policy-${baseline_provider_key}-${acco
       type        = "AWS"
       identifiers = ["*"]
     }
-    resources = [aws_sns_topic.${baseline_provider_key}-${account_region}.arn]
+    resources = [aws_sns_topic.aws-eu-west-2.arn]
     sid       = "DefaultSNSPolicy"
   }
 
@@ -220,14 +208,13 @@ data "aws_iam_policy_document" "sns_topic_policy-${baseline_provider_key}-${acco
       type        = "AWS"
       identifiers = [aws_iam_role.config.arn]
     }
-    resources = [aws_sns_topic.${baseline_provider_key}-${account_region}.arn]
+    resources = [aws_sns_topic.aws-eu-west-2.arn]
     sid       = "AWSConfigSNSPolicyAllowRole"
   }
 }
 
 # Configure AWS Config rules
 resource "aws_config_config_rule" "access-keys-rotated" {
-  provider                    = aws.${baseline_provider_key}-${account_region}
   name                        = "access-keys-rotated"
   maximum_execution_frequency = "TwentyFour_Hours"
 
@@ -240,18 +227,17 @@ resource "aws_config_config_rule" "access-keys-rotated" {
     source_identifier = "ACCESS_KEYS_ROTATED"
   }
 
-  depends_on = [aws_config_configuration_recorder.${baseline_provider_key}-${account_region}]
+  depends_on = [aws_config_configuration_recorder.aws-eu-west-2]
 
-  tags = var.baseline_tags
+  tags = var.tags
 }
 
 resource "aws_config_config_rule" "account-part-of-organizations" {
-  provider                    = aws.${baseline_provider_key}-${account_region}
   name                        = "account-part-of-organizations"
   maximum_execution_frequency = "TwentyFour_Hours"
 
   input_parameters = jsonencode({
-    MasterAccountId : var.baseline_root_account_id
+    MasterAccountId : var.root_account_id
   })
 
   source {
@@ -259,13 +245,12 @@ resource "aws_config_config_rule" "account-part-of-organizations" {
     source_identifier = "ACCOUNT_PART_OF_ORGANIZATIONS"
   }
 
-  depends_on = [aws_config_configuration_recorder.${baseline_provider_key}-${account_region}]
+  depends_on = [aws_config_configuration_recorder.aws-eu-west-2]
 
-  tags = var.baseline_tags
+  tags = var.tags
 }
 
 resource "aws_config_config_rule" "cloud-trail-cloud-watch-logs-enabled" {
-  provider                    = aws.${baseline_provider_key}-${account_region}
   name                        = "cloud-trail-cloud-watch-logs-enabled"
   maximum_execution_frequency = "TwentyFour_Hours"
 
@@ -274,13 +259,12 @@ resource "aws_config_config_rule" "cloud-trail-cloud-watch-logs-enabled" {
     source_identifier = "CLOUD_TRAIL_CLOUD_WATCH_LOGS_ENABLED"
   }
 
-  depends_on = [aws_config_configuration_recorder.${baseline_provider_key}-${account_region}]
+  depends_on = [aws_config_configuration_recorder.aws-eu-west-2]
 
-  tags = var.baseline_tags
+  tags = var.tags
 }
 
 resource "aws_config_config_rule" "cloud-trail-encryption-enabled" {
-  provider                    = aws.${baseline_provider_key}-${account_region}
   name                        = "cloud-trail-encryption-enabled"
   maximum_execution_frequency = "TwentyFour_Hours"
 
@@ -289,13 +273,12 @@ resource "aws_config_config_rule" "cloud-trail-encryption-enabled" {
     source_identifier = "CLOUD_TRAIL_ENCRYPTION_ENABLED"
   }
 
-  depends_on = [aws_config_configuration_recorder.${baseline_provider_key}-${account_region}]
+  depends_on = [aws_config_configuration_recorder.aws-eu-west-2]
 
-  tags = var.baseline_tags
+  tags = var.tags
 }
 
 resource "aws_config_config_rule" "cloud-trail-log-file-validation-enabled" {
-  provider                    = aws.${baseline_provider_key}-${account_region}
   name                        = "cloud-trail-log-file-validation-enabled"
   maximum_execution_frequency = "TwentyFour_Hours"
 
@@ -304,20 +287,19 @@ resource "aws_config_config_rule" "cloud-trail-log-file-validation-enabled" {
     source_identifier = "CLOUD_TRAIL_LOG_FILE_VALIDATION_ENABLED"
   }
 
-  depends_on = [aws_config_configuration_recorder.${baseline_provider_key}-${account_region}]
+  depends_on = [aws_config_configuration_recorder.aws-eu-west-2]
 
-  tags = var.baseline_tags
+  tags = var.tags
 }
 
 resource "aws_config_config_rule" "cloudtrail-enabled" {
-  provider                    = aws.${baseline_provider_key}-${account_region}
   name                        = "cloudtrail-enabled"
   maximum_execution_frequency = "TwentyFour_Hours"
 
   input_parameters = jsonencode({
-    cloudWatchLogsLogGroupArn : aws_cloudwatch_log_group.cloudtrail.arn,
-    s3BucketName : aws_s3_bucket.cloudtrail.id,
-    snsTopicArn : aws_sns_topic.cloudtrail.arn
+    cloudWatchLogsLogGroupArn : var.cloudtrail.cloudwatch_log_group_arn,
+    s3BucketName : var.cloudtrail.s3_bucket_id,
+    snsTopicArn : var.cloudtrail.sns_topic_arn
   })
 
   source {
@@ -325,13 +307,12 @@ resource "aws_config_config_rule" "cloudtrail-enabled" {
     source_identifier = "CLOUD_TRAIL_ENABLED"
   }
 
-  depends_on = [aws_config_configuration_recorder.${baseline_provider_key}-${account_region}]
+  depends_on = [aws_config_configuration_recorder.aws-eu-west-2]
 
-  tags = var.baseline_tags
+  tags = var.tags
 }
 
 resource "aws_config_config_rule" "cloudtrail-s3-dataevents-enabled" {
-  provider                    = aws.${baseline_provider_key}-${account_region}
   name                        = "cloudtrail-s3-dataevents-enabled"
   maximum_execution_frequency = "TwentyFour_Hours"
 
@@ -340,13 +321,12 @@ resource "aws_config_config_rule" "cloudtrail-s3-dataevents-enabled" {
     source_identifier = "CLOUDTRAIL_S3_DATAEVENTS_ENABLED"
   }
 
-  depends_on = [aws_config_configuration_recorder.${baseline_provider_key}-${account_region}]
+  depends_on = [aws_config_configuration_recorder.aws-eu-west-2]
 
-  tags = var.baseline_tags
+  tags = var.tags
 }
 
 resource "aws_config_config_rule" "cloudtrail-security-trail-enabled" {
-  provider                    = aws.${baseline_provider_key}-${account_region}
   name                        = "cloudtrail-security-trail-enabled"
   maximum_execution_frequency = "TwentyFour_Hours"
 
@@ -355,41 +335,38 @@ resource "aws_config_config_rule" "cloudtrail-security-trail-enabled" {
     source_identifier = "CLOUDTRAIL_SECURITY_TRAIL_ENABLED"
   }
 
-  depends_on = [aws_config_configuration_recorder.${baseline_provider_key}-${account_region}]
+  depends_on = [aws_config_configuration_recorder.aws-eu-west-2]
 
-  tags = var.baseline_tags
+  tags = var.tags
 }
 
 resource "aws_config_config_rule" "iam-group-has-users-check" {
-  provider = aws.${baseline_provider_key}-${account_region}
-  name     = "iam-group-has-users-check"
+  name = "iam-group-has-users-check"
 
   source {
     owner             = "AWS"
     source_identifier = "IAM_GROUP_HAS_USERS_CHECK"
   }
 
-  depends_on = [aws_config_configuration_recorder.${baseline_provider_key}-${account_region}]
+  depends_on = [aws_config_configuration_recorder.aws-eu-west-2]
 
-  tags = var.baseline_tags
+  tags = var.tags
 }
 
 resource "aws_config_config_rule" "iam-no-inline-policy-check" {
-  provider = aws.${baseline_provider_key}-${account_region}
-  name     = "iam-no-inline-policy-check"
+  name = "iam-no-inline-policy-check"
 
   source {
     owner             = "AWS"
     source_identifier = "IAM_NO_INLINE_POLICY_CHECK"
   }
 
-  depends_on = [aws_config_configuration_recorder.${baseline_provider_key}-${account_region}]
+  depends_on = [aws_config_configuration_recorder.aws-eu-west-2]
 
-  tags = var.baseline_tags
+  tags = var.tags
 }
 
 resource "aws_config_config_rule" "iam-password-policy" {
-  provider                    = aws.${baseline_provider_key}-${account_region}
   name                        = "iam-password-policy"
   maximum_execution_frequency = "TwentyFour_Hours"
 
@@ -407,13 +384,12 @@ resource "aws_config_config_rule" "iam-password-policy" {
     source_identifier = "IAM_PASSWORD_POLICY"
   }
 
-  depends_on = [aws_config_configuration_recorder.${baseline_provider_key}-${account_region}]
+  depends_on = [aws_config_configuration_recorder.aws-eu-west-2]
 
-  tags = var.baseline_tags
+  tags = var.tags
 }
 
 resource "aws_config_config_rule" "iam-root-access-key-check" {
-  provider                    = aws.${baseline_provider_key}-${account_region}
   name                        = "iam-root-access-key-check"
   maximum_execution_frequency = "TwentyFour_Hours"
 
@@ -422,13 +398,12 @@ resource "aws_config_config_rule" "iam-root-access-key-check" {
     source_identifier = "IAM_ROOT_ACCESS_KEY_CHECK"
   }
 
-  depends_on = [aws_config_configuration_recorder.${baseline_provider_key}-${account_region}]
+  depends_on = [aws_config_configuration_recorder.aws-eu-west-2]
 
-  tags = var.baseline_tags
+  tags = var.tags
 }
 
 resource "aws_config_config_rule" "iam-user-mfa-enabled" {
-  provider                    = aws.${baseline_provider_key}-${account_region}
   name                        = "iam-user-mfa-enabled"
   maximum_execution_frequency = "TwentyFour_Hours"
 
@@ -437,13 +412,12 @@ resource "aws_config_config_rule" "iam-user-mfa-enabled" {
     source_identifier = "IAM_USER_MFA_ENABLED"
   }
 
-  depends_on = [aws_config_configuration_recorder.${baseline_provider_key}-${account_region}]
+  depends_on = [aws_config_configuration_recorder.aws-eu-west-2]
 
-  tags = var.baseline_tags
+  tags = var.tags
 }
 
 resource "aws_config_config_rule" "iam-user-unused-credentials-check" {
-  provider                    = aws.${baseline_provider_key}-${account_region}
   name                        = "iam-user-unused-credentials-check"
   maximum_execution_frequency = "TwentyFour_Hours"
 
@@ -456,13 +430,12 @@ resource "aws_config_config_rule" "iam-user-unused-credentials-check" {
     source_identifier = "IAM_USER_UNUSED_CREDENTIALS_CHECK"
   }
 
-  depends_on = [aws_config_configuration_recorder.${baseline_provider_key}-${account_region}]
+  depends_on = [aws_config_configuration_recorder.aws-eu-west-2]
 
-  tags = var.baseline_tags
+  tags = var.tags
 }
 
 resource "aws_config_config_rule" "mfa-enabled-for-iam-console-access" {
-  provider                    = aws.${baseline_provider_key}-${account_region}
   name                        = "mfa-enabled-for-iam-console-access"
   maximum_execution_frequency = "TwentyFour_Hours"
 
@@ -471,22 +444,21 @@ resource "aws_config_config_rule" "mfa-enabled-for-iam-console-access" {
     source_identifier = "MFA_ENABLED_FOR_IAM_CONSOLE_ACCESS"
   }
 
-  depends_on = [aws_config_configuration_recorder.${baseline_provider_key}-${account_region}]
+  depends_on = [aws_config_configuration_recorder.aws-eu-west-2]
 
-  tags = var.baseline_tags
+  tags = var.tags
 }
 
 resource "aws_config_config_rule" "multi-region-cloudtrail-enabled" {
-  provider                    = aws.${baseline_provider_key}-${account_region}
   name                        = "multi-region-cloudtrail-enabled"
   maximum_execution_frequency = "TwentyFour_Hours"
 
   input_parameters = jsonencode({
-    cloudWatchLogsLogGroupArn : aws_cloudwatch_log_group.cloudtrail.arn,
+    cloudWatchLogsLogGroupArn : var.cloudtrail.cloudwatch_log_group_arn,
     includeManagementEvents : "true",
     readWriteType : "ALL",
-    s3BucketName : aws_s3_bucket.cloudtrail.id,
-    snsTopicArn : aws_sns_topic.cloudtrail.arn
+    s3BucketName : var.cloudtrail.s3_bucket_id,
+    snsTopicArn : var.cloudtrail.sns_topic_arn
   })
 
   source {
@@ -494,14 +466,13 @@ resource "aws_config_config_rule" "multi-region-cloudtrail-enabled" {
     source_identifier = "MULTI_REGION_CLOUD_TRAIL_ENABLED"
   }
 
-  depends_on = [aws_config_configuration_recorder.${baseline_provider_key}-${account_region}]
+  depends_on = [aws_config_configuration_recorder.aws-eu-west-2]
 
-  tags = var.baseline_tags
+  tags = var.tags
 }
 
 resource "aws_config_config_rule" "required-tags" {
-  provider = aws.${baseline_provider_key}-${account_region}
-  name     = "required-tags"
+  name = "required-tags"
 
   input_parameters = jsonencode({
     tag1Key : "business-unit",
@@ -515,13 +486,12 @@ resource "aws_config_config_rule" "required-tags" {
     source_identifier = "REQUIRED_TAGS"
   }
 
-  depends_on = [aws_config_configuration_recorder.${baseline_provider_key}-${account_region}]
+  depends_on = [aws_config_configuration_recorder.aws-eu-west-2]
 
-  tags = var.baseline_tags
+  tags = var.tags
 }
 
 resource "aws_config_config_rule" "root-account-mfa-enabled" {
-  provider                    = aws.${baseline_provider_key}-${account_region}
   name                        = "root-account-mfa-enabled"
   maximum_execution_frequency = "TwentyFour_Hours"
 
@@ -530,83 +500,77 @@ resource "aws_config_config_rule" "root-account-mfa-enabled" {
     source_identifier = "ROOT_ACCOUNT_MFA_ENABLED"
   }
 
-  depends_on = [aws_config_configuration_recorder.${baseline_provider_key}-${account_region}]
+  depends_on = [aws_config_configuration_recorder.aws-eu-west-2]
 
-  tags = var.baseline_tags
+  tags = var.tags
 }
 
 resource "aws_config_config_rule" "s3-account-level-public-access-blocks" {
-  provider = aws.${baseline_provider_key}-${account_region}
-  name     = "s3-account-level-public-access-blocks"
+  name = "s3-account-level-public-access-blocks"
 
   source {
     owner             = "AWS"
     source_identifier = "S3_ACCOUNT_LEVEL_PUBLIC_ACCESS_BLOCKS"
   }
 
-  depends_on = [aws_config_configuration_recorder.${baseline_provider_key}-${account_region}]
+  depends_on = [aws_config_configuration_recorder.aws-eu-west-2]
 
-  tags = var.baseline_tags
+  tags = var.tags
 }
 
 resource "aws_config_config_rule" "s3-bucket-public-read-prohibited" {
-  provider = aws.${baseline_provider_key}-${account_region}
-  name     = "s3-bucket-public-read-prohibited"
+  name = "s3-bucket-public-read-prohibited"
 
   source {
     owner             = "AWS"
     source_identifier = "S3_BUCKET_PUBLIC_READ_PROHIBITED"
   }
 
-  depends_on = [aws_config_configuration_recorder.${baseline_provider_key}-${account_region}]
+  depends_on = [aws_config_configuration_recorder.aws-eu-west-2]
 
-  tags = var.baseline_tags
+  tags = var.tags
 }
 
 resource "aws_config_config_rule" "s3-bucket-public-write-prohibited" {
-  provider = aws.${baseline_provider_key}-${account_region}
-  name     = "s3-bucket-public-write-prohibited"
+  name = "s3-bucket-public-write-prohibited"
 
   source {
     owner             = "AWS"
     source_identifier = "S3_BUCKET_PUBLIC_WRITE_PROHIBITED"
   }
 
-  depends_on = [aws_config_configuration_recorder.${baseline_provider_key}-${account_region}]
+  depends_on = [aws_config_configuration_recorder.aws-eu-west-2]
 
-  tags = var.baseline_tags
+  tags = var.tags
 }
 
 resource "aws_config_config_rule" "s3-bucket-server-side-encryption-enabled" {
-  provider = aws.${baseline_provider_key}-${account_region}
-  name     = "s3-bucket-server-side-encryption-enabled"
+  name = "s3-bucket-server-side-encryption-enabled"
 
   source {
     owner             = "AWS"
     source_identifier = "S3_BUCKET_SERVER_SIDE_ENCRYPTION_ENABLED"
   }
 
-  depends_on = [aws_config_configuration_recorder.${baseline_provider_key}-${account_region}]
+  depends_on = [aws_config_configuration_recorder.aws-eu-west-2]
 
-  tags = var.baseline_tags
+  tags = var.tags
 }
 
 resource "aws_config_config_rule" "s3-bucket-ssl-requests-only" {
-  provider = aws.${baseline_provider_key}-${account_region}
-  name     = "s3-bucket-ssl-requests-only"
+  name = "s3-bucket-ssl-requests-only"
 
   source {
     owner             = "AWS"
     source_identifier = "S3_BUCKET_SSL_REQUESTS_ONLY"
   }
 
-  depends_on = [aws_config_configuration_recorder.${baseline_provider_key}-${account_region}]
+  depends_on = [aws_config_configuration_recorder.aws-eu-west-2]
 
-  tags = var.baseline_tags
+  tags = var.tags
 }
 
 resource "aws_config_config_rule" "securityhub-enabled" {
-  provider                    = aws.${baseline_provider_key}-${account_region}
   name                        = "securityhub-enabled"
   maximum_execution_frequency = "TwentyFour_Hours"
 
@@ -615,25 +579,20 @@ resource "aws_config_config_rule" "securityhub-enabled" {
     source_identifier = "SECURITYHUB_ENABLED"
   }
 
-  depends_on = [aws_config_configuration_recorder.${baseline_provider_key}-${account_region}]
+  depends_on = [aws_config_configuration_recorder.aws-eu-west-2]
 
-  tags = var.baseline_tags
+  tags = var.tags
 }
 
 resource "aws_config_config_rule" "sns-encrypted-kms" {
-  provider = aws.${baseline_provider_key}-${account_region}
-  name     = "sns-encrypted-kms"
+  name = "sns-encrypted-kms"
 
   source {
     owner             = "AWS"
     source_identifier = "SNS_ENCRYPTED_KMS"
   }
 
-  depends_on = [aws_config_configuration_recorder.${baseline_provider_key}-${account_region}]
+  depends_on = [aws_config_configuration_recorder.aws-eu-west-2]
 
-  tags = var.baseline_tags
+  tags = var.tags
 }
-
-%{ else ~}
-%{ endif ~}
-%{ endfor ~}
