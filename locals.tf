@@ -1,7 +1,5 @@
 locals {
   baselines = [
-    "cloudtrail",
-    "config",
-    "kms"
+    "config"
   ]
 }
