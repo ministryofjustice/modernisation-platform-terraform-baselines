@@ -14,6 +14,7 @@ resource "aws_cloudtrail" "cloudtrail" {
   is_multi_region_trail         = true
   kms_key_id                    = aws_kms_key.cloudtrail.arn
   s3_bucket_name                = aws_s3_bucket.cloudtrail.id
+  sns_topic_name                = "cloudtrail"
 
   event_selector {
     include_management_events = true
@@ -25,9 +26,10 @@ resource "aws_cloudtrail" "cloudtrail" {
     }
   }
 
-  tags                          = var.baseline_tags
+  tags = var.baseline_tags
 }
 
+# IAM role for CloudTrail
 resource "aws_iam_role" "cloudtrail" {
   provider           = aws.${baseline_provider_key}-eu-west-2
   name               = "cloudtrail"
@@ -74,6 +76,7 @@ data "aws_iam_policy_document" "cloudtrail_role_policy" {
   }
 }
 
+# CloudWatch log groups & log streams for CloudTrail
 resource "aws_cloudwatch_log_group" "cloudtrail" {
   provider   = aws.${baseline_provider_key}-eu-west-2
   name       = "cloudtrail"
@@ -86,6 +89,7 @@ resource "aws_cloudwatch_log_stream" "cloudtrail_stream" {
   log_group_name = aws_cloudwatch_log_group.cloudtrail.name
 }
 
+# S3 bucket for CloudTrail
 resource "aws_s3_bucket" "cloudtrail" {
   provider      = aws.${baseline_provider_key}-eu-west-2
   bucket_prefix = "cloudtrail-"
@@ -197,4 +201,32 @@ resource "aws_s3_bucket_policy" "cloudtrail" {
   provider = aws.${baseline_provider_key}-eu-west-2
   bucket   = aws_s3_bucket.cloudtrail.id
   policy   = data.aws_iam_policy_document.cloudtrail.json
+}
+
+# SNS for CloudTrail
+resource "aws_sns_topic" "cloudtrail" {
+  provider = aws.${baseline_provider_key}-eu-west-2
+  name     = "cloudtrail"
+  tags     = var.baseline_tags
+}
+
+resource "aws_sns_topic_policy" "cloudtrail" {
+  provider = aws.${baseline_provider_key}-eu-west-2
+  arn      = aws_sns_topic.cloudtrail.arn
+  policy   = data.aws_iam_policy_document.cloudtrail-sns.json
+}
+
+data "aws_iam_policy_document" "cloudtrail-sns" {
+  version = "2012-10-17"
+
+  statement {
+    effect    = "Allow"
+    actions   = ["SNS:Publish"]
+    resources = [aws_sns_topic.cloudtrail.arn]
+
+    principals {
+      type        = "Service"
+      identifiers = ["cloudtrail.amazonaws.com"]
+    }
+  }
 }
