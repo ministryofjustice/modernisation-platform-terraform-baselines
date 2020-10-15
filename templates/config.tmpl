@@ -315,8 +315,9 @@ resource "aws_config_config_rule" "cloudtrail-enabled" {
   maximum_execution_frequency = "TwentyFour_Hours"
 
   input_parameters = jsonencode({
+    cloudWatchLogsLogGroupArn : aws_cloudwatch_log_group.cloudtrail.arn,
     s3BucketName : aws_s3_bucket.cloudtrail.id,
-    cloudWatchLogsLogGroupArn : aws_cloudwatch_log_group.cloudtrail.arn
+    snsTopicArn : aws_sns_topic.cloudtrail.arn
   })
 
   source {
@@ -481,10 +482,11 @@ resource "aws_config_config_rule" "multi-region-cloudtrail-enabled" {
   maximum_execution_frequency = "TwentyFour_Hours"
 
   input_parameters = jsonencode({
-    s3BucketName : aws_s3_bucket.cloudtrail.id,
     cloudWatchLogsLogGroupArn : aws_cloudwatch_log_group.cloudtrail.arn,
     includeManagementEvents : "true",
-    readWriteType : "ALL"
+    readWriteType : "ALL",
+    s3BucketName : aws_s3_bucket.cloudtrail.id,
+    snsTopicArn : aws_sns_topic.cloudtrail.arn
   })
 
   source {
