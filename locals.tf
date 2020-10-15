@@ -2,7 +2,6 @@ locals {
   baselines = [
     "cloudtrail",
     "config",
-    "kms",
-    "securityhub"
+    "kms"
   ]
 }
