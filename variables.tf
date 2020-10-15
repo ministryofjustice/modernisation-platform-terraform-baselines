@@ -13,3 +13,9 @@ variable "baseline_provider_key" {
   type        = string
   description = "A unique provider key to use for provider definitions"
 }
+
+variable "tags" {
+  type        = map
+  default     = {}
+  description = "Tags to apply to resources, where applicable"
+}
