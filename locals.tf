@@ -1,5 +1,0 @@
-locals {
-  baselines = [
-    "config"
-  ]
-}
