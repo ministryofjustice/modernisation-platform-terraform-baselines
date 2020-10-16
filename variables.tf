@@ -3,7 +3,6 @@ variable "root_account_id" {
   description = "The AWS Organisations root account ID that this account should be part of"
 }
 
-
 variable "tags" {
   type        = map
   default     = {}
