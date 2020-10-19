@@ -241,9 +241,10 @@ resource "aws_kms_alias" "cloudtrail" {
 }
 
 # IAM policy for KMS
-# Extrapolated from AWS' default CMK policy, and the SNS policy:
+# Extrapolated from AWS' default CMK policy, the SNS policy, and the CloudWatch logs policy:
 # https://docs.aws.amazon.com/awscloudtrail/latest/userguide/default-cmk-policy.html
 # https://docs.aws.amazon.com/awscloudtrail/latest/userguide/cloudtrail-permissions-for-sns-notifications.html
+# https://docs.aws.amazon.com/AmazonCloudWatch/latest/logs/encrypt-log-data-kms.html
 data "aws_iam_policy_document" "kms" {
   statement {
     effect    = "Allow"
@@ -370,6 +371,30 @@ data "aws_iam_policy_document" "kms" {
     principals {
       type        = "Service"
       identifiers = ["cloudtrail.amazonaws.com"]
+    }
+  }
+
+  # CloudWatch
+  statement {
+    effect = "Allow"
+    actions = [
+      "kms:Encrypt*",
+      "kms:Decrypt*",
+      "kms:ReEncrypt*",
+      "kms:GenerateDataKey*",
+      "kms:Describe*"
+    ]
+    resources = ["*"]
+
+    principals {
+      type        = "Service"
+      identifiers = ["logs.${data.aws_region.current.name}.amazonaws.com"]
+    }
+
+    condition {
+      test     = "ArnLike"
+      variable = "kms:EncryptionContext:aws:logs:arn"
+      values   = ["arn:aws:logs:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:*"]
     }
   }
 }
