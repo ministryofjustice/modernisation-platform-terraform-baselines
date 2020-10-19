@@ -8,4 +8,22 @@ variable "root_account_id" {
   type        = string
 }
 
-variable "tags" {}
+variable "iam_role_arn" {
+  description = "IAM role ARN for AWS Config"
+  type        = string
+}
+
+variable "s3_bucket_id" {
+  description = "S3 bucket ID for AWS Config to publish to"
+  type        = string
+}
+
+variable "home_region" {
+  type        = string
+  description = "Region to enable AWS Config rules for global resources, such as IAM. Currently taken from the calling region"
+}
+
+variable "tags" {
+  type        = map
+  description = "Tags to apply to resources, where applicable"
+}
