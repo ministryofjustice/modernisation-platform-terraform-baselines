@@ -12,4 +12,5 @@ module "config" {
     s3_bucket_id             = module.cloudtrail.s3_bucket_id
     sns_topic_arn            = module.cloudtrail.sns_topic_arn
   }
+  depends_on = [module.cloudtrail]
 }
