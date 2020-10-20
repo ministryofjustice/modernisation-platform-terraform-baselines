@@ -30,8 +30,8 @@ resource "aws_iam_role_policy_attachment" "config-service-role-policy" {
 }
 
 # AWS Config: publish to S3 and SNS policy
-resource "aws_iam_role_policy" "config-publish-policy" {
-  role   = aws_iam_role.config.id
+resource "aws_iam_policy" "config-publish-policy" {
+  name   = "AWSConfigPublishPolicy"
   policy = data.aws_iam_policy_document.config-publish-policy.json
 }
 
@@ -40,10 +40,14 @@ resource "aws_iam_role_policy" "config-publish-policy" {
 # https://docs.aws.amazon.com/config/latest/developerguide/sns-topic-policy.html
 data "aws_iam_policy_document" "config-publish-policy" {
   version = "2012-10-17"
+
   statement {
-    effect    = "Allow"
-    actions   = ["s3:PutObject"]
-    resources = ["arn:aws:s3:::${aws_s3_bucket.config.id}/AWSLogs/${data.aws_caller_identity.current.account_id}/*"]
+    effect = "Allow"
+    actions = [
+      "s3:PutObject",
+      "s3:PutObjectAcl"
+    ]
+    resources = ["${aws_s3_bucket.config.arn}/AWSLogs/${data.aws_caller_identity.current.account_id}/*"]
 
     condition {
       test     = "StringLike"
@@ -58,16 +62,36 @@ data "aws_iam_policy_document" "config-publish-policy" {
       "s3:GetBucketAcl",
       "s3:ListBucket"
     ]
-    resources = ["arn:aws:s3:::${aws_s3_bucket.config.arn}"]
+    resources = [aws_s3_bucket.config.arn]
   }
 
   statement {
     effect  = "Allow"
     actions = ["sns:Publish"]
     resources = [
-      module.config-eu-west-2.sns_topic_arn
+      module.config-ap-northeast-1.sns_topic_arn,
+      module.config-ap-northeast-2.sns_topic_arn,
+      module.config-ap-south-1.sns_topic_arn,
+      module.config-ap-southeast-1.sns_topic_arn,
+      module.config-ap-southeast-2.sns_topic_arn,
+      module.config-ca-central-1.sns_topic_arn,
+      module.config-eu-central-1.sns_topic_arn,
+      module.config-eu-north-1.sns_topic_arn,
+      module.config-eu-west-1.sns_topic_arn,
+      module.config-eu-west-2.sns_topic_arn,
+      module.config-eu-west-3.sns_topic_arn,
+      module.config-sa-east-1.sns_topic_arn,
+      module.config-us-east-1.sns_topic_arn,
+      module.config-us-east-2.sns_topic_arn,
+      module.config-us-west-1.sns_topic_arn,
+      module.config-us-west-2.sns_topic_arn
     ]
   }
+}
+
+resource "aws_iam_role_policy_attachment" "config-publish-policy" {
+  role       = aws_iam_role.config.id
+  policy_arn = aws_iam_policy.config-publish-policy.arn
 }
 
 # AWS Config: configure an S3 bucket
@@ -104,14 +128,46 @@ resource "aws_s3_bucket_public_access_block" "config" {
 
 resource "aws_s3_bucket_policy" "config" {
   bucket = aws_s3_bucket.config.bucket
-  policy = data.aws_iam_policy_document.config.json
+  policy = data.aws_iam_policy_document.config-s3-policy.json
 }
 
 # AWS Config: bucket policy, and require secure transport
 # Extrapolated from:
+# https://docs.aws.amazon.com/config/latest/developerguide/s3-bucket-policy.html
 # https://docs.aws.amazon.com/config/latest/developerguide/iamrole-permissions.html
-data "aws_iam_policy_document" "config" {
+data "aws_iam_policy_document" "config-s3-policy" {
   version = "2012-10-17"
+
+  statement {
+    effect = "Allow"
+    actions = [
+      "s3:GetBucketAcl",
+      "s3:ListBucket"
+    ]
+    resources = [aws_s3_bucket.config.arn]
+
+    principals {
+      identifiers = ["config.amazonaws.com"]
+      type        = "Service"
+    }
+  }
+
+  statement {
+    effect    = "Allow"
+    actions   = ["s3:PutObject"]
+    resources = ["${aws_s3_bucket.config.arn}/AWSLogs/${data.aws_caller_identity.current.account_id}/Config/*"]
+
+    condition {
+      test     = "StringEquals"
+      variable = "s3:x-amz-acl"
+      values   = ["bucket-owner-full-control"]
+    }
+
+    principals {
+      identifiers = ["config.amazonaws.com"]
+      type        = "Service"
+    }
+  }
 
   statement {
     effect = "Allow"
@@ -173,7 +229,7 @@ module "config-ap-northeast-1" {
   cloudtrail = {
     cloudwatch_log_group_arn = module.cloudtrail.cloudwatch_log_group_arn
     s3_bucket_id             = module.cloudtrail.s3_bucket_id
-    sns_topic_arn            = module.cloudtrail.sns_topic_arn
+    sns_topic_arn            = module.cloudtrail.sns_topic_arn,
   }
   tags = var.tags
 }
@@ -190,7 +246,7 @@ module "config-ap-northeast-2" {
   cloudtrail = {
     cloudwatch_log_group_arn = module.cloudtrail.cloudwatch_log_group_arn
     s3_bucket_id             = module.cloudtrail.s3_bucket_id
-    sns_topic_arn            = module.cloudtrail.sns_topic_arn
+    sns_topic_arn            = module.cloudtrail.sns_topic_arn,
   }
   tags = var.tags
 }
@@ -207,7 +263,7 @@ module "config-ap-south-1" {
   cloudtrail = {
     cloudwatch_log_group_arn = module.cloudtrail.cloudwatch_log_group_arn
     s3_bucket_id             = module.cloudtrail.s3_bucket_id
-    sns_topic_arn            = module.cloudtrail.sns_topic_arn
+    sns_topic_arn            = module.cloudtrail.sns_topic_arn,
   }
   tags = var.tags
 }
@@ -224,7 +280,7 @@ module "config-ap-southeast-1" {
   cloudtrail = {
     cloudwatch_log_group_arn = module.cloudtrail.cloudwatch_log_group_arn
     s3_bucket_id             = module.cloudtrail.s3_bucket_id
-    sns_topic_arn            = module.cloudtrail.sns_topic_arn
+    sns_topic_arn            = module.cloudtrail.sns_topic_arn,
   }
   tags = var.tags
 }
@@ -241,7 +297,7 @@ module "config-ap-southeast-2" {
   cloudtrail = {
     cloudwatch_log_group_arn = module.cloudtrail.cloudwatch_log_group_arn
     s3_bucket_id             = module.cloudtrail.s3_bucket_id
-    sns_topic_arn            = module.cloudtrail.sns_topic_arn
+    sns_topic_arn            = module.cloudtrail.sns_topic_arn,
   }
   tags = var.tags
 }
@@ -258,7 +314,7 @@ module "config-ca-central-1" {
   cloudtrail = {
     cloudwatch_log_group_arn = module.cloudtrail.cloudwatch_log_group_arn
     s3_bucket_id             = module.cloudtrail.s3_bucket_id
-    sns_topic_arn            = module.cloudtrail.sns_topic_arn
+    sns_topic_arn            = module.cloudtrail.sns_topic_arn,
   }
   tags = var.tags
 }
@@ -275,7 +331,7 @@ module "config-eu-central-1" {
   cloudtrail = {
     cloudwatch_log_group_arn = module.cloudtrail.cloudwatch_log_group_arn
     s3_bucket_id             = module.cloudtrail.s3_bucket_id
-    sns_topic_arn            = module.cloudtrail.sns_topic_arn
+    sns_topic_arn            = module.cloudtrail.sns_topic_arn,
   }
   tags = var.tags
 }
@@ -292,7 +348,7 @@ module "config-eu-north-1" {
   cloudtrail = {
     cloudwatch_log_group_arn = module.cloudtrail.cloudwatch_log_group_arn
     s3_bucket_id             = module.cloudtrail.s3_bucket_id
-    sns_topic_arn            = module.cloudtrail.sns_topic_arn
+    sns_topic_arn            = module.cloudtrail.sns_topic_arn,
   }
   tags = var.tags
 }
@@ -309,7 +365,7 @@ module "config-eu-west-1" {
   cloudtrail = {
     cloudwatch_log_group_arn = module.cloudtrail.cloudwatch_log_group_arn
     s3_bucket_id             = module.cloudtrail.s3_bucket_id
-    sns_topic_arn            = module.cloudtrail.sns_topic_arn
+    sns_topic_arn            = module.cloudtrail.sns_topic_arn,
   }
   tags = var.tags
 }
@@ -326,7 +382,7 @@ module "config-eu-west-2" {
   cloudtrail = {
     cloudwatch_log_group_arn = module.cloudtrail.cloudwatch_log_group_arn
     s3_bucket_id             = module.cloudtrail.s3_bucket_id
-    sns_topic_arn            = module.cloudtrail.sns_topic_arn
+    sns_topic_arn            = module.cloudtrail.sns_topic_arn,
   }
   tags = var.tags
 }
@@ -343,7 +399,7 @@ module "config-eu-west-3" {
   cloudtrail = {
     cloudwatch_log_group_arn = module.cloudtrail.cloudwatch_log_group_arn
     s3_bucket_id             = module.cloudtrail.s3_bucket_id
-    sns_topic_arn            = module.cloudtrail.sns_topic_arn
+    sns_topic_arn            = module.cloudtrail.sns_topic_arn,
   }
   tags = var.tags
 }
@@ -360,7 +416,7 @@ module "config-sa-east-1" {
   cloudtrail = {
     cloudwatch_log_group_arn = module.cloudtrail.cloudwatch_log_group_arn
     s3_bucket_id             = module.cloudtrail.s3_bucket_id
-    sns_topic_arn            = module.cloudtrail.sns_topic_arn
+    sns_topic_arn            = module.cloudtrail.sns_topic_arn,
   }
   tags = var.tags
 }
@@ -377,7 +433,7 @@ module "config-us-east-1" {
   cloudtrail = {
     cloudwatch_log_group_arn = module.cloudtrail.cloudwatch_log_group_arn
     s3_bucket_id             = module.cloudtrail.s3_bucket_id
-    sns_topic_arn            = module.cloudtrail.sns_topic_arn
+    sns_topic_arn            = module.cloudtrail.sns_topic_arn,
   }
   tags = var.tags
 }
@@ -394,7 +450,7 @@ module "config-us-east-2" {
   cloudtrail = {
     cloudwatch_log_group_arn = module.cloudtrail.cloudwatch_log_group_arn
     s3_bucket_id             = module.cloudtrail.s3_bucket_id
-    sns_topic_arn            = module.cloudtrail.sns_topic_arn
+    sns_topic_arn            = module.cloudtrail.sns_topic_arn,
   }
   tags = var.tags
 }
@@ -411,7 +467,7 @@ module "config-us-west-1" {
   cloudtrail = {
     cloudwatch_log_group_arn = module.cloudtrail.cloudwatch_log_group_arn
     s3_bucket_id             = module.cloudtrail.s3_bucket_id
-    sns_topic_arn            = module.cloudtrail.sns_topic_arn
+    sns_topic_arn            = module.cloudtrail.sns_topic_arn,
   }
   tags = var.tags
 }
@@ -428,7 +484,7 @@ module "config-us-west-2" {
   cloudtrail = {
     cloudwatch_log_group_arn = module.cloudtrail.cloudwatch_log_group_arn
     s3_bucket_id             = module.cloudtrail.s3_bucket_id
-    sns_topic_arn            = module.cloudtrail.sns_topic_arn
+    sns_topic_arn            = module.cloudtrail.sns_topic_arn,
   }
   tags = var.tags
 }
