@@ -54,12 +54,18 @@ data "aws_iam_policy_document" "cloudtrail-assume-role-policy" {
 }
 
 # IAM role: role log policy
-resource "aws_iam_role_policy" "cloudtrail" {
-  name   = "cloudtrail"
-  role   = aws_iam_role.cloudtrail.id
+resource "aws_iam_policy" "cloudtrail" {
+  name   = "AWSCloudTrail"
   policy = data.aws_iam_policy_document.cloudtrail-role-policy.json
 }
 
+resource "aws_iam_role_policy_attachment" "cloudtrail" {
+  role       = aws_iam_role.cloudtrail.id
+  policy_arn = aws_iam_policy.cloudtrail.arn
+}
+
+# Extrapolated from:
+# https://docs.aws.amazon.com/awscloudtrail/latest/userguide/cloudtrail-required-policy-for-cloudwatch-logs.html
 data "aws_iam_policy_document" "cloudtrail-role-policy" {
   statement {
     effect  = "Allow"
@@ -134,6 +140,8 @@ resource "aws_s3_bucket_public_access_block" "cloudtrail" {
   restrict_public_buckets = true
 }
 
+# Extrapolated from:
+# https://docs.aws.amazon.com/awscloudtrail/latest/userguide/create-s3-bucket-policy-for-cloudtrail.html
 data "aws_iam_policy_document" "cloudtrail" {
   statement {
     effect    = "Allow"
@@ -144,18 +152,12 @@ data "aws_iam_policy_document" "cloudtrail" {
       type        = "Service"
       identifiers = ["cloudtrail.amazonaws.com"]
     }
-
-    condition {
-      test     = "Bool"
-      variable = "aws:SecureTransport"
-      values   = ["true"]
-    }
   }
 
   statement {
     effect    = "Allow"
     actions   = ["s3:PutObject"]
-    resources = ["${aws_s3_bucket.cloudtrail.arn}/*"]
+    resources = ["${aws_s3_bucket.cloudtrail.arn}/AWSLogs/${data.aws_caller_identity.current.account_id}/*"]
 
     principals {
       type        = "Service"
@@ -167,19 +169,16 @@ data "aws_iam_policy_document" "cloudtrail" {
       variable = "s3:x-amz-acl"
       values   = ["bucket-owner-full-control"]
     }
-
-    condition {
-      test     = "Bool"
-      variable = "aws:SecureTransport"
-      values   = ["true"]
-    }
   }
 
   statement {
-    sid       = "Require SSL"
-    effect    = "Deny"
-    actions   = ["s3:*"]
-    resources = ["${aws_s3_bucket.cloudtrail.arn}/*"]
+    sid     = "Require SSL"
+    effect  = "Deny"
+    actions = ["s3:*"]
+    resources = [
+      aws_s3_bucket.cloudtrail.arn,
+      "${aws_s3_bucket.cloudtrail.arn}/*"
+    ]
 
     principals {
       identifiers = ["*"]
@@ -216,7 +215,7 @@ data "aws_iam_policy_document" "cloudtrail-sns" {
 
   statement {
     effect    = "Allow"
-    actions   = ["SNS:Publish"]
+    actions   = ["sns:Publish"]
     resources = [aws_sns_topic.cloudtrail.arn]
 
     principals {
