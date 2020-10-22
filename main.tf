@@ -11,3 +11,8 @@ module "support" {
   source = "./modules/support"
   tags   = var.tags
 }
+
+module "securityhub-alarms" {
+  source = "./modules/securityhub-alarms"
+  tags   = var.tags
+}
