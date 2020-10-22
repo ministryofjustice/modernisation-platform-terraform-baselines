@@ -6,3 +6,8 @@ module "cloudtrail" {
 module "iam" {
   source = "./modules/iam"
 }
+  
+module "support" {
+  source = "./modules/support"
+  tags   = var.tags
+}
