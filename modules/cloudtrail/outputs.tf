@@ -3,7 +3,7 @@ output "cloudwatch_log_group_arn" {
 }
 
 output "s3_bucket_id" {
-  value = aws_s3_bucket.cloudtrail.id
+  value = module.cloudtrail-bucket.bucket.id
 }
 
 output "sns_topic_arn" {

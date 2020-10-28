@@ -17,7 +17,7 @@ resource "aws_cloudtrail" "cloudtrail" {
   include_global_service_events = true
   is_multi_region_trail         = true
   kms_key_id                    = aws_kms_key.cloudtrail.arn
-  s3_bucket_name                = aws_s3_bucket.cloudtrail.id
+  s3_bucket_name                = module.cloudtrail-bucket.bucket.id
   sns_topic_name                = aws_sns_topic.cloudtrail.arn
 
   event_selector {
@@ -94,50 +94,24 @@ resource "aws_cloudwatch_log_stream" "cloudtrail-stream" {
   log_group_name = aws_cloudwatch_log_group.cloudtrail.name
 }
 
-# S3 bucket for CloudTrail
-resource "aws_s3_bucket" "cloudtrail" {
-  bucket_prefix = "cloudtrail-"
-  acl           = "log-delivery-write"
-
-  server_side_encryption_configuration {
-    rule {
-      apply_server_side_encryption_by_default {
-        sse_algorithm     = "aws:kms"
-        kms_master_key_id = aws_kms_key.cloudtrail.arn
-      }
-    }
-  }
-
-  lifecycle {
-    prevent_destroy = true
-  }
-
-  lifecycle_rule {
-    enabled = true
-    noncurrent_version_transition {
-      days          = 30
-      storage_class = "GLACIER"
-    }
-
-    transition {
-      days          = 30
-      storage_class = "GLACIER"
-    }
-  }
-
-  versioning {
-    enabled = true
-  }
-
-  tags = var.tags
+# AWS CloudTrail: configure an S3 bucket
+module "cloudtrail-bucket" {
+  source                 = "github.com/ministryofjustice/modernisation-platform-terraform-s3-bucket"
+  acl                    = "log-delivery-write"
+  bucket_policy          = data.aws_iam_policy_document.cloudtrail.json
+  bucket_prefix          = "cloudtrail-"
+  custom_kms_key         = aws_kms_key.cloudtrail.arn
+  enable_lifecycle_rules = true
+  log_bucket             = module.cloudtrail-log-bucket.bucket.id
+  log_prefix             = "cloudtrail/log"
+  tags                   = var.tags
 }
 
-resource "aws_s3_bucket_public_access_block" "cloudtrail" {
-  bucket                  = aws_s3_bucket_policy.cloudtrail.bucket
-  block_public_acls       = true
-  block_public_policy     = true
-  ignore_public_acls      = true
-  restrict_public_buckets = true
+module "cloudtrail-log-bucket" {
+  source        = "github.com/ministryofjustice/modernisation-platform-terraform-s3-bucket"
+  bucket_prefix = "log-bucket"
+  acl           = "log-delivery-write"
+  tags          = var.tags
 }
 
 # Extrapolated from:
@@ -146,7 +120,7 @@ data "aws_iam_policy_document" "cloudtrail" {
   statement {
     effect    = "Allow"
     actions   = ["s3:GetBucketAcl"]
-    resources = [aws_s3_bucket.cloudtrail.arn]
+    resources = [module.cloudtrail-bucket.bucket.arn]
 
     principals {
       type        = "Service"
@@ -157,7 +131,7 @@ data "aws_iam_policy_document" "cloudtrail" {
   statement {
     effect    = "Allow"
     actions   = ["s3:PutObject"]
-    resources = ["${aws_s3_bucket.cloudtrail.arn}/AWSLogs/${data.aws_caller_identity.current.account_id}/*"]
+    resources = ["${module.cloudtrail-bucket.bucket.arn}/AWSLogs/${data.aws_caller_identity.current.account_id}/*"]
 
     principals {
       type        = "Service"
@@ -170,32 +144,6 @@ data "aws_iam_policy_document" "cloudtrail" {
       values   = ["bucket-owner-full-control"]
     }
   }
-
-  statement {
-    sid     = "Require SSL"
-    effect  = "Deny"
-    actions = ["s3:*"]
-    resources = [
-      aws_s3_bucket.cloudtrail.arn,
-      "${aws_s3_bucket.cloudtrail.arn}/*"
-    ]
-
-    principals {
-      identifiers = ["*"]
-      type        = "AWS"
-    }
-
-    condition {
-      test     = "Bool"
-      variable = "aws:SecureTransport"
-      values   = ["false"]
-    }
-  }
-}
-
-resource "aws_s3_bucket_policy" "cloudtrail" {
-  bucket = aws_s3_bucket.cloudtrail.id
-  policy = data.aws_iam_policy_document.cloudtrail.json
 }
 
 # SNS for CloudTrail
