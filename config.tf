@@ -47,7 +47,7 @@ data "aws_iam_policy_document" "config-publish-policy" {
       "s3:PutObject",
       "s3:PutObjectAcl"
     ]
-    resources = ["${aws_s3_bucket.config.arn}/AWSLogs/${data.aws_caller_identity.current.account_id}/*"]
+    resources = ["${module.config-bucket.bucket.arn}/AWSLogs/${data.aws_caller_identity.current.account_id}/*"]
 
     condition {
       test     = "StringLike"
@@ -62,7 +62,7 @@ data "aws_iam_policy_document" "config-publish-policy" {
       "s3:GetBucketAcl",
       "s3:ListBucket"
     ]
-    resources = [aws_s3_bucket.config.arn]
+    resources = [module.config-bucket.bucket.arn]
   }
 
   statement {
@@ -95,40 +95,11 @@ resource "aws_iam_role_policy_attachment" "config-publish-policy" {
 }
 
 # AWS Config: configure an S3 bucket
-resource "aws_s3_bucket" "config" {
+module "config-bucket" {
+  source        = "github.com/ministryofjustice/modernisation-platform-terraform-s3-bucket"
   bucket_prefix = "config-"
-  acl           = "private"
-
-  server_side_encryption_configuration {
-    rule {
-      apply_server_side_encryption_by_default {
-        sse_algorithm = "aws:kms"
-      }
-    }
-  }
-
-  versioning {
-    enabled = true
-  }
-
-  lifecycle {
-    prevent_destroy = true
-  }
-
-  tags = var.tags
-}
-
-resource "aws_s3_bucket_public_access_block" "config" {
-  bucket                  = aws_s3_bucket.config.bucket
-  block_public_acls       = true
-  block_public_policy     = true
-  ignore_public_acls      = true
-  restrict_public_buckets = true
-}
-
-resource "aws_s3_bucket_policy" "config" {
-  bucket = aws_s3_bucket.config.bucket
-  policy = data.aws_iam_policy_document.config-s3-policy.json
+  bucket_policy = data.aws_iam_policy_document.config-s3-policy.json
+  tags          = var.tags
 }
 
 # AWS Config: bucket policy, and require secure transport
@@ -144,7 +115,7 @@ data "aws_iam_policy_document" "config-s3-policy" {
       "s3:GetBucketAcl",
       "s3:ListBucket"
     ]
-    resources = [aws_s3_bucket.config.arn]
+    resources = [module.config-bucket.bucket.arn]
 
     principals {
       identifiers = ["config.amazonaws.com"]
@@ -155,7 +126,7 @@ data "aws_iam_policy_document" "config-s3-policy" {
   statement {
     effect    = "Allow"
     actions   = ["s3:PutObject"]
-    resources = ["${aws_s3_bucket.config.arn}/AWSLogs/${data.aws_caller_identity.current.account_id}/Config/*"]
+    resources = ["${module.config-bucket.bucket.arn}/AWSLogs/${data.aws_caller_identity.current.account_id}/Config/*"]
 
     condition {
       test     = "StringEquals"
@@ -186,32 +157,11 @@ data "aws_iam_policy_document" "config-s3-policy" {
       "s3:GetLifecycleConfiguration",
       "s3:GetReplicationConfiguration"
     ]
-    resources = [aws_s3_bucket.config.arn]
+    resources = [module.config-bucket.bucket.arn]
 
     principals {
       identifiers = [aws_iam_role.config.arn]
       type        = "AWS"
-    }
-  }
-
-  statement {
-    sid     = "Require SSL"
-    effect  = "Deny"
-    actions = ["s3:*"]
-    resources = [
-      aws_s3_bucket.config.arn,
-      "${aws_s3_bucket.config.arn}/*"
-    ]
-
-    principals {
-      identifiers = ["*"]
-      type        = "AWS"
-    }
-
-    condition {
-      test     = "Bool"
-      variable = "aws:SecureTransport"
-      values   = ["false"]
     }
   }
 }
@@ -223,7 +173,7 @@ module "config-ap-northeast-1" {
     aws = aws.ap-northeast-1
   }
   iam_role_arn    = aws_iam_role.config.arn
-  s3_bucket_id    = aws_s3_bucket.config.id
+  s3_bucket_id    = module.config-bucket.bucket.id
   root_account_id = var.root_account_id
   home_region     = data.aws_region.current.name
   cloudtrail = {
@@ -240,7 +190,7 @@ module "config-ap-northeast-2" {
     aws = aws.ap-northeast-2
   }
   iam_role_arn    = aws_iam_role.config.arn
-  s3_bucket_id    = aws_s3_bucket.config.id
+  s3_bucket_id    = module.config-bucket.bucket.id
   root_account_id = var.root_account_id
   home_region     = data.aws_region.current.name
   cloudtrail = {
@@ -257,7 +207,7 @@ module "config-ap-south-1" {
     aws = aws.ap-south-1
   }
   iam_role_arn    = aws_iam_role.config.arn
-  s3_bucket_id    = aws_s3_bucket.config.id
+  s3_bucket_id    = module.config-bucket.bucket.id
   root_account_id = var.root_account_id
   home_region     = data.aws_region.current.name
   cloudtrail = {
@@ -274,7 +224,7 @@ module "config-ap-southeast-1" {
     aws = aws.ap-southeast-1
   }
   iam_role_arn    = aws_iam_role.config.arn
-  s3_bucket_id    = aws_s3_bucket.config.id
+  s3_bucket_id    = module.config-bucket.bucket.id
   root_account_id = var.root_account_id
   home_region     = data.aws_region.current.name
   cloudtrail = {
@@ -291,7 +241,7 @@ module "config-ap-southeast-2" {
     aws = aws.ap-southeast-2
   }
   iam_role_arn    = aws_iam_role.config.arn
-  s3_bucket_id    = aws_s3_bucket.config.id
+  s3_bucket_id    = module.config-bucket.bucket.id
   root_account_id = var.root_account_id
   home_region     = data.aws_region.current.name
   cloudtrail = {
@@ -308,7 +258,7 @@ module "config-ca-central-1" {
     aws = aws.ca-central-1
   }
   iam_role_arn    = aws_iam_role.config.arn
-  s3_bucket_id    = aws_s3_bucket.config.id
+  s3_bucket_id    = module.config-bucket.bucket.id
   root_account_id = var.root_account_id
   home_region     = data.aws_region.current.name
   cloudtrail = {
@@ -325,7 +275,7 @@ module "config-eu-central-1" {
     aws = aws.eu-central-1
   }
   iam_role_arn    = aws_iam_role.config.arn
-  s3_bucket_id    = aws_s3_bucket.config.id
+  s3_bucket_id    = module.config-bucket.bucket.id
   root_account_id = var.root_account_id
   home_region     = data.aws_region.current.name
   cloudtrail = {
@@ -342,7 +292,7 @@ module "config-eu-north-1" {
     aws = aws.eu-north-1
   }
   iam_role_arn    = aws_iam_role.config.arn
-  s3_bucket_id    = aws_s3_bucket.config.id
+  s3_bucket_id    = module.config-bucket.bucket.id
   root_account_id = var.root_account_id
   home_region     = data.aws_region.current.name
   cloudtrail = {
@@ -359,7 +309,7 @@ module "config-eu-west-1" {
     aws = aws.eu-west-1
   }
   iam_role_arn    = aws_iam_role.config.arn
-  s3_bucket_id    = aws_s3_bucket.config.id
+  s3_bucket_id    = module.config-bucket.bucket.id
   root_account_id = var.root_account_id
   home_region     = data.aws_region.current.name
   cloudtrail = {
@@ -376,7 +326,7 @@ module "config-eu-west-2" {
     aws = aws.eu-west-2
   }
   iam_role_arn    = aws_iam_role.config.arn
-  s3_bucket_id    = aws_s3_bucket.config.id
+  s3_bucket_id    = module.config-bucket.bucket.id
   root_account_id = var.root_account_id
   home_region     = data.aws_region.current.name
   cloudtrail = {
@@ -393,7 +343,7 @@ module "config-eu-west-3" {
     aws = aws.eu-west-3
   }
   iam_role_arn    = aws_iam_role.config.arn
-  s3_bucket_id    = aws_s3_bucket.config.id
+  s3_bucket_id    = module.config-bucket.bucket.id
   root_account_id = var.root_account_id
   home_region     = data.aws_region.current.name
   cloudtrail = {
@@ -410,7 +360,7 @@ module "config-sa-east-1" {
     aws = aws.sa-east-1
   }
   iam_role_arn    = aws_iam_role.config.arn
-  s3_bucket_id    = aws_s3_bucket.config.id
+  s3_bucket_id    = module.config-bucket.bucket.id
   root_account_id = var.root_account_id
   home_region     = data.aws_region.current.name
   cloudtrail = {
@@ -427,7 +377,7 @@ module "config-us-east-1" {
     aws = aws.us-east-1
   }
   iam_role_arn    = aws_iam_role.config.arn
-  s3_bucket_id    = aws_s3_bucket.config.id
+  s3_bucket_id    = module.config-bucket.bucket.id
   root_account_id = var.root_account_id
   home_region     = data.aws_region.current.name
   cloudtrail = {
@@ -444,7 +394,7 @@ module "config-us-east-2" {
     aws = aws.us-east-2
   }
   iam_role_arn    = aws_iam_role.config.arn
-  s3_bucket_id    = aws_s3_bucket.config.id
+  s3_bucket_id    = module.config-bucket.bucket.id
   root_account_id = var.root_account_id
   home_region     = data.aws_region.current.name
   cloudtrail = {
@@ -461,7 +411,7 @@ module "config-us-west-1" {
     aws = aws.us-west-1
   }
   iam_role_arn    = aws_iam_role.config.arn
-  s3_bucket_id    = aws_s3_bucket.config.id
+  s3_bucket_id    = module.config-bucket.bucket.id
   root_account_id = var.root_account_id
   home_region     = data.aws_region.current.name
   cloudtrail = {
@@ -478,7 +428,7 @@ module "config-us-west-2" {
     aws = aws.us-west-2
   }
   iam_role_arn    = aws_iam_role.config.arn
-  s3_bucket_id    = aws_s3_bucket.config.id
+  s3_bucket_id    = module.config-bucket.bucket.id
   root_account_id = var.root_account_id
   home_region     = data.aws_region.current.name
   cloudtrail = {
