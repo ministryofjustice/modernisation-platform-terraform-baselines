@@ -96,10 +96,13 @@ resource "aws_iam_role_policy_attachment" "config-publish-policy" {
 
 # AWS Config: configure an S3 bucket
 module "config-bucket" {
-  source        = "github.com/ministryofjustice/modernisation-platform-terraform-s3-bucket"
-  bucket_prefix = "config-"
-  bucket_policy = data.aws_iam_policy_document.config-s3-policy.json
-  tags          = var.tags
+  source               = "github.com/ministryofjustice/modernisation-platform-terraform-s3-bucket"
+  bucket_policy        = data.aws_iam_policy_document.config-s3-policy.json
+  bucket_prefix        = "config-"
+  home_region          = data.aws_region.current.name
+  replication_region   = var.replication_region
+  replication_role_arn = module.s3-replication-role.role.arn
+  tags                 = var.tags
 }
 
 # AWS Config: bucket policy, and require secure transport
@@ -178,7 +181,7 @@ module "config-ap-northeast-1" {
   home_region     = data.aws_region.current.name
   cloudtrail = {
     cloudwatch_log_group_arn = module.cloudtrail.cloudwatch_log_group_arn
-    s3_bucket_id             = module.cloudtrail.s3_bucket_id
+    s3_bucket_id             = module.cloudtrail.s3_bucket.id
     sns_topic_arn            = module.cloudtrail.sns_topic_arn,
   }
   tags = var.tags
@@ -195,7 +198,7 @@ module "config-ap-northeast-2" {
   home_region     = data.aws_region.current.name
   cloudtrail = {
     cloudwatch_log_group_arn = module.cloudtrail.cloudwatch_log_group_arn
-    s3_bucket_id             = module.cloudtrail.s3_bucket_id
+    s3_bucket_id             = module.cloudtrail.s3_bucket.id
     sns_topic_arn            = module.cloudtrail.sns_topic_arn,
   }
   tags = var.tags
@@ -212,7 +215,7 @@ module "config-ap-south-1" {
   home_region     = data.aws_region.current.name
   cloudtrail = {
     cloudwatch_log_group_arn = module.cloudtrail.cloudwatch_log_group_arn
-    s3_bucket_id             = module.cloudtrail.s3_bucket_id
+    s3_bucket_id             = module.cloudtrail.s3_bucket.id
     sns_topic_arn            = module.cloudtrail.sns_topic_arn,
   }
   tags = var.tags
@@ -229,7 +232,7 @@ module "config-ap-southeast-1" {
   home_region     = data.aws_region.current.name
   cloudtrail = {
     cloudwatch_log_group_arn = module.cloudtrail.cloudwatch_log_group_arn
-    s3_bucket_id             = module.cloudtrail.s3_bucket_id
+    s3_bucket_id             = module.cloudtrail.s3_bucket.id
     sns_topic_arn            = module.cloudtrail.sns_topic_arn,
   }
   tags = var.tags
@@ -246,7 +249,7 @@ module "config-ap-southeast-2" {
   home_region     = data.aws_region.current.name
   cloudtrail = {
     cloudwatch_log_group_arn = module.cloudtrail.cloudwatch_log_group_arn
-    s3_bucket_id             = module.cloudtrail.s3_bucket_id
+    s3_bucket_id             = module.cloudtrail.s3_bucket.id
     sns_topic_arn            = module.cloudtrail.sns_topic_arn,
   }
   tags = var.tags
@@ -263,7 +266,7 @@ module "config-ca-central-1" {
   home_region     = data.aws_region.current.name
   cloudtrail = {
     cloudwatch_log_group_arn = module.cloudtrail.cloudwatch_log_group_arn
-    s3_bucket_id             = module.cloudtrail.s3_bucket_id
+    s3_bucket_id             = module.cloudtrail.s3_bucket.id
     sns_topic_arn            = module.cloudtrail.sns_topic_arn,
   }
   tags = var.tags
@@ -280,7 +283,7 @@ module "config-eu-central-1" {
   home_region     = data.aws_region.current.name
   cloudtrail = {
     cloudwatch_log_group_arn = module.cloudtrail.cloudwatch_log_group_arn
-    s3_bucket_id             = module.cloudtrail.s3_bucket_id
+    s3_bucket_id             = module.cloudtrail.s3_bucket.id
     sns_topic_arn            = module.cloudtrail.sns_topic_arn,
   }
   tags = var.tags
@@ -297,7 +300,7 @@ module "config-eu-north-1" {
   home_region     = data.aws_region.current.name
   cloudtrail = {
     cloudwatch_log_group_arn = module.cloudtrail.cloudwatch_log_group_arn
-    s3_bucket_id             = module.cloudtrail.s3_bucket_id
+    s3_bucket_id             = module.cloudtrail.s3_bucket.id
     sns_topic_arn            = module.cloudtrail.sns_topic_arn,
   }
   tags = var.tags
@@ -314,7 +317,7 @@ module "config-eu-west-1" {
   home_region     = data.aws_region.current.name
   cloudtrail = {
     cloudwatch_log_group_arn = module.cloudtrail.cloudwatch_log_group_arn
-    s3_bucket_id             = module.cloudtrail.s3_bucket_id
+    s3_bucket_id             = module.cloudtrail.s3_bucket.id
     sns_topic_arn            = module.cloudtrail.sns_topic_arn,
   }
   tags = var.tags
@@ -331,7 +334,7 @@ module "config-eu-west-2" {
   home_region     = data.aws_region.current.name
   cloudtrail = {
     cloudwatch_log_group_arn = module.cloudtrail.cloudwatch_log_group_arn
-    s3_bucket_id             = module.cloudtrail.s3_bucket_id
+    s3_bucket_id             = module.cloudtrail.s3_bucket.id
     sns_topic_arn            = module.cloudtrail.sns_topic_arn,
   }
   tags = var.tags
@@ -348,7 +351,7 @@ module "config-eu-west-3" {
   home_region     = data.aws_region.current.name
   cloudtrail = {
     cloudwatch_log_group_arn = module.cloudtrail.cloudwatch_log_group_arn
-    s3_bucket_id             = module.cloudtrail.s3_bucket_id
+    s3_bucket_id             = module.cloudtrail.s3_bucket.id
     sns_topic_arn            = module.cloudtrail.sns_topic_arn,
   }
   tags = var.tags
@@ -365,7 +368,7 @@ module "config-sa-east-1" {
   home_region     = data.aws_region.current.name
   cloudtrail = {
     cloudwatch_log_group_arn = module.cloudtrail.cloudwatch_log_group_arn
-    s3_bucket_id             = module.cloudtrail.s3_bucket_id
+    s3_bucket_id             = module.cloudtrail.s3_bucket.id
     sns_topic_arn            = module.cloudtrail.sns_topic_arn,
   }
   tags = var.tags
@@ -382,7 +385,7 @@ module "config-us-east-1" {
   home_region     = data.aws_region.current.name
   cloudtrail = {
     cloudwatch_log_group_arn = module.cloudtrail.cloudwatch_log_group_arn
-    s3_bucket_id             = module.cloudtrail.s3_bucket_id
+    s3_bucket_id             = module.cloudtrail.s3_bucket.id
     sns_topic_arn            = module.cloudtrail.sns_topic_arn,
   }
   tags = var.tags
@@ -399,7 +402,7 @@ module "config-us-east-2" {
   home_region     = data.aws_region.current.name
   cloudtrail = {
     cloudwatch_log_group_arn = module.cloudtrail.cloudwatch_log_group_arn
-    s3_bucket_id             = module.cloudtrail.s3_bucket_id
+    s3_bucket_id             = module.cloudtrail.s3_bucket.id
     sns_topic_arn            = module.cloudtrail.sns_topic_arn,
   }
   tags = var.tags
@@ -416,7 +419,7 @@ module "config-us-west-1" {
   home_region     = data.aws_region.current.name
   cloudtrail = {
     cloudwatch_log_group_arn = module.cloudtrail.cloudwatch_log_group_arn
-    s3_bucket_id             = module.cloudtrail.s3_bucket_id
+    s3_bucket_id             = module.cloudtrail.s3_bucket.id
     sns_topic_arn            = module.cloudtrail.sns_topic_arn,
   }
   tags = var.tags
@@ -433,7 +436,7 @@ module "config-us-west-2" {
   home_region     = data.aws_region.current.name
   cloudtrail = {
     cloudwatch_log_group_arn = module.cloudtrail.cloudwatch_log_group_arn
-    s3_bucket_id             = module.cloudtrail.s3_bucket_id
+    s3_bucket_id             = module.cloudtrail.s3_bucket.id
     sns_topic_arn            = module.cloudtrail.sns_topic_arn,
   }
   tags = var.tags

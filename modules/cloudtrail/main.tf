@@ -102,16 +102,22 @@ module "cloudtrail-bucket" {
   bucket_prefix          = "cloudtrail-"
   custom_kms_key         = aws_kms_key.cloudtrail.arn
   enable_lifecycle_rules = true
+  home_region            = data.aws_region.current.name
   log_bucket             = module.cloudtrail-log-bucket.bucket.id
   log_prefix             = "cloudtrail/log"
+  replication_region     = var.replication_region
+  replication_role_arn   = var.replication_role_arn
   tags                   = var.tags
 }
 
 module "cloudtrail-log-bucket" {
-  source        = "github.com/ministryofjustice/modernisation-platform-terraform-s3-bucket"
-  bucket_prefix = "log-bucket"
-  acl           = "log-delivery-write"
-  tags          = var.tags
+  source               = "github.com/ministryofjustice/modernisation-platform-terraform-s3-bucket"
+  acl                  = "log-delivery-write"
+  bucket_prefix        = "log-bucket"
+  home_region          = data.aws_region.current.name
+  replication_region   = var.replication_region
+  replication_role_arn = var.replication_role_arn
+  tags                 = var.tags
 }
 
 # Extrapolated from:
