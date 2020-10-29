@@ -40,16 +40,18 @@ module "baselines" {
     aws.us-west-1      = aws.us-west-1
     aws.us-west-2      = aws.us-west-2
   }
-  root_account_id = "123456789"
-  tags            = {}
+  replication_region = "eu-west-2"
+  root_account_id    = "123456789"
+  tags               = {}
 }
 ```
 
 ## Inputs
-| Name            | Description                                                           | Type   | Default | Required |
-|:---------------:|:---------------------------------------------------------------------:|:------:|:-------:|----------|
-| root_account_id | AWS Organisations root account ID that this account should be part of | string |         | yes      |
-| tags            | Tags to apply to resources, where applicable                          | map    | {}      | no       |
+| Name               | Description                                                           | Type   | Default | Required |
+|:------------------:|:---------------------------------------------------------------------:|:------:|:-------:|----------|
+| replication_region | Region to replicate S3 buckets into                                   | string |         | yes      |
+| root_account_id    | AWS Organisations root account ID that this account should be part of | string |         | yes      |
+| tags               | Tags to apply to resources, where applicable                          | map    | {}      | no       |
 
 ## Outputs
 None

@@ -4,8 +4,10 @@ module "backup" {
 }
 
 module "cloudtrail" {
-  source = "./modules/cloudtrail"
-  tags   = var.tags
+  source               = "./modules/cloudtrail"
+  replication_role_arn = module.s3-replication-role.role.arn
+  replication_region   = var.replication_region
+  tags                 = var.tags
 }
 
 module "iam" {
@@ -20,4 +22,14 @@ module "support" {
 module "securityhub-alarms" {
   source = "./modules/securityhub-alarms"
   tags   = var.tags
+}
+
+module "s3-replication-role" {
+  source = "github.com/ministryofjustice/modernisation-platform-terraform-s3-bucket-replication-role"
+  buckets = [
+    module.config-bucket.bucket.arn,
+    module.cloudtrail.s3_bucket.arn,
+    module.cloudtrail.log_bucket.arn
+  ]
+  tags = var.tags
 }
