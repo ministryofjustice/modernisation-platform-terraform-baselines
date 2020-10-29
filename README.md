@@ -2,7 +2,7 @@
 
 Terraform module for enabling and configuring the [MoJ Security Guidance](https://ministryofjustice.github.io/security-guidance/baseline-aws-accounts/#baseline-for-amazon-web-services-accounts) baseline for AWS accounts, alongside some extra reasonable security, identity and compliance  services.
 
-## Enabled Security Guidance services
+## Enabled MoJ Security Guidance configurations
 - [ ] Security email setting
 - [x] GuardDuty
 - [x] CloudTrail
@@ -14,8 +14,13 @@ Terraform module for enabling and configuring the [MoJ Security Guidance](https:
 - [ ] World Access
 - [x] SecurityHub
 
-## Enabled Security, Identity and Compliance services
-- [x] IAM Access Analyzer
+## Other enabled configurations
+- [x] AWS Backup
+- [x] AWS IAM Access Analyzer
+- [x] AWS IAM password policy
+- [x] EBS encryption
+- [x] SecurityHub alarms
+- [x] VPC logging
 
 ## Usage
 ```
