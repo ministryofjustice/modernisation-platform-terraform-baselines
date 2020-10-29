@@ -23,6 +23,7 @@ Terraform module for enabling and configuring the [MoJ Security Guidance](https:
 - [x] VPC logging
 
 ## Usage
+### Using the whole module
 ```
 module "baselines" {
   source = "github.com/ministryofjustice/modernisation-platform-terraform-baselines"
@@ -47,6 +48,15 @@ module "baselines" {
   }
   root_account_id = "123456789"
   tags            = {}
+}
+```
+
+### Using parts of the module
+You can specify submodules from this directory to use individually, by [setting the source with a double-slash](https://www.terraform.io/docs/modules/sources.html#modules-in-package-sub-directories) (`//`). Note that this only uses the module in the calling region, unless you specify different module blocks with other Terraform providers.
+
+```
+module "ebs-encryption" {
+  source = "github.com/ministryofjustice/modernisation-platform-terraform-baselines//modules/ebs"
 }
 ```
 
