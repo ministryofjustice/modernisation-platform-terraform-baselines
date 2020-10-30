@@ -4,9 +4,11 @@ module "backup" {
 }
 
 module "cloudtrail" {
-  source               = "./modules/cloudtrail"
+  source = "./modules/cloudtrail"
+  providers = {
+    aws.replication-region = aws.replication-region
+  }
   replication_role_arn = module.s3-replication-role.role.arn
-  replication_region   = var.replication_region
   tags                 = var.tags
 }
 
