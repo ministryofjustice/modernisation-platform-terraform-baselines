@@ -1,8 +1,3 @@
-variable "replication_region" {
-  type        = string
-  description = "Region to replicate S3 buckets into"
-}
-
 variable "replication_role_arn" {
   type        = string
   description = "Role ARN for S3 replication"

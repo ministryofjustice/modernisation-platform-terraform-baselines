@@ -1,6 +1,10 @@
 data "aws_caller_identity" "current" {}
 data "aws_region" "current" {}
 
+provider "aws" {
+  alias = "replication-region"
+}
+
 locals {
   iam_policy_logs_arn = "arn:aws:logs:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:log-group:${aws_cloudwatch_log_group.cloudtrail.name}:log-stream:*"
 }
@@ -96,26 +100,28 @@ resource "aws_cloudwatch_log_stream" "cloudtrail-stream" {
 
 # AWS CloudTrail: configure an S3 bucket
 module "cloudtrail-bucket" {
-  source                 = "github.com/ministryofjustice/modernisation-platform-terraform-s3-bucket"
+  source = "github.com/ministryofjustice/modernisation-platform-terraform-s3-bucket"
+  providers = {
+    aws.bucket-replication = aws.replication-region
+  }
   acl                    = "log-delivery-write"
   bucket_policy          = data.aws_iam_policy_document.cloudtrail.json
   bucket_prefix          = "cloudtrail-"
   custom_kms_key         = aws_kms_key.cloudtrail.arn
   enable_lifecycle_rules = true
-  home_region            = data.aws_region.current.name
   log_bucket             = module.cloudtrail-log-bucket.bucket.id
   log_prefix             = "cloudtrail/log"
-  replication_region     = var.replication_region
   replication_role_arn   = var.replication_role_arn
   tags                   = var.tags
 }
 
 module "cloudtrail-log-bucket" {
-  source               = "github.com/ministryofjustice/modernisation-platform-terraform-s3-bucket"
+  source = "github.com/ministryofjustice/modernisation-platform-terraform-s3-bucket"
+  providers = {
+    aws.bucket-replication = aws.replication-region
+  }
   acl                  = "log-delivery-write"
   bucket_prefix        = "log-bucket"
-  home_region          = data.aws_region.current.name
-  replication_region   = var.replication_region
   replication_role_arn = var.replication_role_arn
   tags                 = var.tags
 }
