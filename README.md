@@ -4,7 +4,7 @@ Terraform module for enabling and configuring the [MoJ Security Guidance](https:
 
 ## Enabled MoJ Security Guidance configurations
 - [ ] Security email setting
-- [x] GuardDuty
+- [x] [GuardDuty](modules/guardduty/README.md)
 - [x] CloudTrail
 - [x] Config and Config [Rules](modules/config/README.md)
 - [ ] Tagging
