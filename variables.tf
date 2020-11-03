@@ -1,8 +1,3 @@
-variable "replication_region" {
-  type        = string
-  description = "Region to replicate S3 buckets into"
-}
-
 variable "root_account_id" {
   type        = string
   description = "The AWS Organisations root account ID that this account should be part of"
