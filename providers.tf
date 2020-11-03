@@ -3,6 +3,10 @@ provider "aws" {
 }
 
 provider "aws" {
+  alias = "replication-region"
+}
+
+provider "aws" {
   alias = "ap-northeast-1"
 }
 
