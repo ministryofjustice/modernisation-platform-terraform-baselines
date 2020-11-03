@@ -18,7 +18,7 @@ Terraform module for enabling and configuring the [MoJ Security Guidance](https:
 - [x] AWS Backup
 - [x] AWS IAM Access Analyzer
 - [x] [AWS IAM password policy](modules/iam/README.md)
-- [x] EBS encryption
+- [x] [EBS encryption](modules/ebs/README.md)
 - [x] SecurityHub alarms
 - [x] VPC logging
 
