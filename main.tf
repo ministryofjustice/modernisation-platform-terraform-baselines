@@ -1,8 +1,3 @@
-module "backup" {
-  source = "./modules/backup"
-  tags   = var.tags
-}
-
 module "cloudtrail" {
   source = "./modules/cloudtrail"
   providers = {
