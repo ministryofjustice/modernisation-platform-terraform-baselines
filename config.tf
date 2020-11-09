@@ -1,6 +1,3 @@
-data "aws_caller_identity" "current" {}
-data "aws_region" "current" {}
-
 # AWS Config: configure an IAM role
 resource "aws_iam_role" "config" {
   name               = "AWSConfig"
