@@ -1,8 +1,6 @@
 # SecurityHub Alarms
 
-To comply with the CIS AWS Foundations Benchmark security standard, some AWS CloudWatch log metric filters need to be created.
-
-This module remediates the following:
+Terraform module for creating CloudWatch Alarms for SecurityHub that comply with the CIS AWS Foundations Benchmark v1.2.0 rules, which are:
 
 - [x] [1.1 – Avoid the use of the "root" account](https://docs.aws.amazon.com/securityhub/latest/userguide/securityhub-cis-controls.html#cis-1.1-remediation) as a by-product of [CIS 3.3 remediation](https://docs.aws.amazon.com/securityhub/latest/userguide/securityhub-cis-controls.html/cis-3.3-remediation)
 - [x] [3.1 - Ensure a log metric filter and alarm exist for unauthorized API calls](https://docs.aws.amazon.com/securityhub/latest/userguide/securityhub-cis-controls.html/cis-3.1-remediation)
@@ -19,3 +17,22 @@ This module remediates the following:
 - [x] [3.12  - Ensure a log metric filter and alarm exist for changes to network gateways](https://docs.aws.amazon.com/securityhub/latest/userguide/securityhub-cis-controls.html/cis-3.12-remediation)
 - [x] [3.13  - Ensure a log metric filter and alarm exist for route table changes](https://docs.aws.amazon.com/securityhub/latest/userguide/securityhub-cis-controls.html/cis-3.13-remediation)
 - [x] [3.14  - Ensure a log metric filter and alarm exist for VPC changes](https://docs.aws.amazon.com/securityhub/latest/userguide/securityhub-cis-controls.html/cis-3.14-remediation)
+
+## Usage
+
+```
+module "securityhub-alarms" {
+  source = "github.com/ministryofjustice/modernisation-platform-terraform-baselines//modules/securityhub-alarms"
+}
+```
+
+## Inputs
+| Name | Description                | Type | Default | Required |
+|------|----------------------------|------|---------|----------|
+| tags | Tags to apply to resources | map  | {}      | no       |
+
+## Outputs
+None.
+
+## Looking for issues?
+If you're looking to raise an issue with this module, please create a new issue in the [Modernisation Platform repository](https://github.com/ministryofjustice/modernisation-platform/issues).
