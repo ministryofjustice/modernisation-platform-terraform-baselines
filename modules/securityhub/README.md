@@ -2,18 +2,11 @@
 
 Terraform module for enabling [AWS SecurityHub](https://aws.amazon.com/security-hub/).
 
-## SecurityHub Standards
-This module enables the following SecurityHub standards:
-- [x] AWS Foundational Security Best Practices v1.0.0
-- [x] CIS AWS Foundations Benchmark v1.2.0
-- [x] PCI DSS v3.2.1
-
-## SecurityHub findings remediation
-The `modernisation-platform-terraform-baselines` module offers other modules to remediate failed findings:
-
-- [SecurityHub Alarms](../securityhub-alarms) remediates 15 checks
-- [IAM Password Policy](../iam) remediates 7 checks
-- [Support](../support) remediates 1 check
+## SecurityHub Standards and remediation
+This module enables the following SecurityHub standards, and this repository holds other modules to remediate some failed findings:
+- [x] [AWS Foundational Security Best Practices v1.0.0](AWS.md)
+- [x] [CIS AWS Foundations Benchmark v1.2.0](CIS.md)
+- [x] [PCI DSS v3.2.1](PCI.md)
 
 ## Usage
 
