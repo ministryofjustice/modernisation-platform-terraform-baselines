@@ -4,6 +4,7 @@ variable "iam_role_arn" {
 }
 
 variable "tags" {
-  type        = map
+  default     = {}
   description = "Tags to apply to resources, where applicable"
+  type        = map
 }

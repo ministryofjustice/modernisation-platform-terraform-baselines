@@ -4,7 +4,7 @@ variable "root_account_id" {
 }
 
 variable "tags" {
-  type        = map
   default     = {}
   description = "Tags to apply to resources, where applicable"
+  type        = map
 }
