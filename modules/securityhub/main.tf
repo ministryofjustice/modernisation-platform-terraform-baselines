@@ -1,9 +1,7 @@
 data "aws_region" "current" {}
 
 # Enable SecurityHub
-resource "aws_securityhub_account" "default" {
-
-}
+resource "aws_securityhub_account" "default" {}
 
 # Enable Standard: AWS Foundational Security Best Practices
 resource "aws_securityhub_standards_subscription" "aws-foundational" {

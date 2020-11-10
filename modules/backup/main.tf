@@ -18,7 +18,7 @@ resource "aws_backup_plan" "default" {
     schedule = "cron(30 0 * * ? *)"
 
     # The amount of time in minutes to start and finish a backup
-    ## Start the backup within 1 hour of the cron job
+    ## Start the backup within 1 hour of the schedule
     start_window = (1 * 60)
     ## Complete the backup within 6 hours of starting
     completion_window = (6 * 60)
