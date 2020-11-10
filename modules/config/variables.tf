@@ -9,7 +9,7 @@ variable "root_account_id" {
 }
 
 variable "iam_role_arn" {
-  description = "IAM role ARN for AWS Config"
+  description = "IAM role ARN for the AWS Config service role"
   type        = string
 }
 
