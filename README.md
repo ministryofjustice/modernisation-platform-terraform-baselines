@@ -5,22 +5,24 @@ Terraform module for enabling and configuring the [MoJ Security Guidance](https:
 ## Enabled MoJ Security Guidance configurations
 - [ ] Security email setting
 - [x] [GuardDuty](modules/guardduty/README.md)
-- [x] CloudTrail
-- [x] Config and Config [Rules](modules/config/README.md)
+- [x] [CloudTrail](modules/cloudtrail/README.md)
+- [x] [Config](modules/config/README.md) and Config [rules](modules/config/RULES.md)
 - [ ] Tagging
 - [ ] Regions
 - [ ] Identity and Access Management
 - [ ] Encryption
 - [ ] World Access
-- [x] SecurityHub
+- [x] [SecurityHub](modules/securityhub/README.md)
 
 ## Other enabled configurations
-- [x] AWS Backup
+
+- [x] [AWS Backup](modules/backup/README.md)
 - [x] [AWS IAM Access Analyzer](modules/access-analyzer/README.md)
 - [x] [AWS IAM password policy](modules/iam/README.md)
+- [x] [AWS IAM role for Support](modules/support/README.md)
 - [x] [EBS encryption](modules/ebs/README.md)
-- [x] SecurityHub alarms
-- [x] VPC logging
+- [x] [SecurityHub alarms](modules/securityhub-alarms/README.md)
+- [x] [VPC logging](modules/vpc/README.md)
 
 ## Usage
 ### Using the whole module
@@ -53,7 +55,7 @@ module "baselines" {
 ```
 
 ### Using parts of the module
-You can specify submodules from this directory to use individually, by [setting the source with a double-slash](https://www.terraform.io/docs/modules/sources.html#modules-in-package-sub-directories) (`//`). Note that this only uses the module in the calling region, unless you specify different module blocks with other Terraform providers.
+You can specify submodules from this directory to use individually, by [setting the source with a double-slash](https://www.terraform.io/docs/modules/sources.html#modules-in-package-sub-directories) (`//`). Note that this only uses the module in the calling region, unless you specify different module blocks with other Terraform providers. Each module has its own README.
 
 ```
 module "ebs-encryption" {

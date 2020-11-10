@@ -13,6 +13,7 @@ The `modernisation-platform-terraform-baselines` module offers other modules to 
 
 - [SecurityHub Alarms](../securityhub-alarms) remediates 15 checks
 - [IAM Password Policy](../iam) remediates 7 checks
+- [Support](../support) remediates 1 check
 
 ## Usage
 
