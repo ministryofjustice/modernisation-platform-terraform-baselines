@@ -1,5 +1,5 @@
 variable "tags" {
-  type        = map
-  description = "Tags to apply to resources, where applicable"
   default     = {}
+  description = "Tags to apply to resources, where applicable"
+  type        = map
 }
