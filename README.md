@@ -22,7 +22,7 @@ Terraform module for enabling and configuring the [MoJ Security Guidance](https:
 - [x] [AWS IAM role for Support](modules/support/README.md)
 - [x] [EBS encryption](modules/ebs/README.md)
 - [x] [SecurityHub alarms](modules/securityhub-alarms/README.md)
-- [x] [VPC logging](modules/vpc/README.md)
+- [x] [VPC logging for default VPCs](modules/vpc/README.md)
 
 ## Usage
 ### Using the whole module
