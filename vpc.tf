@@ -50,6 +50,8 @@ resource "aws_iam_role_policy_attachment" "vpc-flow-log-publish-policy" {
 
 # Enable VPC default configuration and Flow Logs in each region
 module "vpc-ap-northeast-1" {
+  for_each = contains(var.enabled_vpc_regions, "ap-northeast-1") ? local.enabled : local.not_enabled
+
   source = "./modules/vpc"
   providers = {
     aws = aws.ap-northeast-1
@@ -59,6 +61,8 @@ module "vpc-ap-northeast-1" {
 }
 
 module "vpc-ap-northeast-2" {
+  for_each = contains(var.enabled_vpc_regions, "ap-northeast-2") ? local.enabled : local.not_enabled
+
   source = "./modules/vpc"
   providers = {
     aws = aws.ap-northeast-2
@@ -68,6 +72,8 @@ module "vpc-ap-northeast-2" {
 }
 
 module "vpc-ap-south-1" {
+  for_each = contains(var.enabled_vpc_regions, "ap-south-1") ? local.enabled : local.not_enabled
+
   source = "./modules/vpc"
   providers = {
     aws = aws.ap-south-1
@@ -77,6 +83,8 @@ module "vpc-ap-south-1" {
 }
 
 module "vpc-ap-southeast-1" {
+  for_each = contains(var.enabled_vpc_regions, "ap-southeast-1") ? local.enabled : local.not_enabled
+
   source = "./modules/vpc"
   providers = {
     aws = aws.ap-southeast-1
@@ -86,6 +94,8 @@ module "vpc-ap-southeast-1" {
 }
 
 module "vpc-ap-southeast-2" {
+  for_each = contains(var.enabled_vpc_regions, "ap-southeast-2") ? local.enabled : local.not_enabled
+
   source = "./modules/vpc"
   providers = {
     aws = aws.ap-southeast-2
@@ -95,6 +105,8 @@ module "vpc-ap-southeast-2" {
 }
 
 module "vpc-ca-central-1" {
+  for_each = contains(var.enabled_vpc_regions, "ca-central-1") ? local.enabled : local.not_enabled
+
   source = "./modules/vpc"
   providers = {
     aws = aws.ca-central-1
@@ -104,6 +116,8 @@ module "vpc-ca-central-1" {
 }
 
 module "vpc-eu-central-1" {
+  for_each = contains(var.enabled_vpc_regions, "eu-central-1") ? local.enabled : local.not_enabled
+
   source = "./modules/vpc"
   providers = {
     aws = aws.eu-central-1
@@ -113,6 +127,8 @@ module "vpc-eu-central-1" {
 }
 
 module "vpc-eu-north-1" {
+  for_each = contains(var.enabled_vpc_regions, "eu-north-1") ? local.enabled : local.not_enabled
+
   source = "./modules/vpc"
   providers = {
     aws = aws.eu-north-1
@@ -122,6 +138,8 @@ module "vpc-eu-north-1" {
 }
 
 module "vpc-eu-west-1" {
+  for_each = contains(var.enabled_vpc_regions, "eu-west-1") ? local.enabled : local.not_enabled
+
   source = "./modules/vpc"
   providers = {
     aws = aws.eu-west-1
@@ -131,6 +149,8 @@ module "vpc-eu-west-1" {
 }
 
 module "vpc-eu-west-2" {
+  for_each = contains(var.enabled_vpc_regions, "eu-west-2") ? local.enabled : local.not_enabled
+
   source = "./modules/vpc"
   providers = {
     aws = aws.eu-west-2
@@ -140,6 +160,8 @@ module "vpc-eu-west-2" {
 }
 
 module "vpc-eu-west-3" {
+  for_each = contains(var.enabled_vpc_regions, "eu-west-3") ? local.enabled : local.not_enabled
+
   source = "./modules/vpc"
   providers = {
     aws = aws.eu-west-3
@@ -149,6 +171,8 @@ module "vpc-eu-west-3" {
 }
 
 module "vpc-sa-east-1" {
+  for_each = contains(var.enabled_vpc_regions, "sa-east-1") ? local.enabled : local.not_enabled
+
   source = "./modules/vpc"
   providers = {
     aws = aws.sa-east-1
@@ -158,6 +182,8 @@ module "vpc-sa-east-1" {
 }
 
 module "vpc-us-east-1" {
+  for_each = contains(var.enabled_vpc_regions, "us-east-1") ? local.enabled : local.not_enabled
+
   source = "./modules/vpc"
   providers = {
     aws = aws.us-east-1
@@ -167,6 +193,8 @@ module "vpc-us-east-1" {
 }
 
 module "vpc-us-east-2" {
+  for_each = contains(var.enabled_vpc_regions, "us-east-2") ? local.enabled : local.not_enabled
+
   source = "./modules/vpc"
   providers = {
     aws = aws.us-east-2
@@ -176,6 +204,8 @@ module "vpc-us-east-2" {
 }
 
 module "vpc-us-west-1" {
+  for_each = contains(var.enabled_vpc_regions, "us-west-1") ? local.enabled : local.not_enabled
+
   source = "./modules/vpc"
   providers = {
     aws = aws.us-west-1
@@ -185,6 +215,8 @@ module "vpc-us-west-1" {
 }
 
 module "vpc-us-west-2" {
+  for_each = contains(var.enabled_vpc_regions, "us-west-2") ? local.enabled : local.not_enabled
+
   source = "./modules/vpc"
   providers = {
     aws = aws.us-west-2

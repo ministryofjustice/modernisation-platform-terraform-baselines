@@ -1,6 +1,6 @@
 variable "cloudtrail" {
   description = "CloudTrail variables for: SNS topic, AWS S3 bucket, and CloudWatch Log Group to configure the Config rule to check it's configured correctly"
-  type        = map
+  type        = map(any)
 }
 
 variable "root_account_id" {
@@ -26,5 +26,5 @@ variable "home_region" {
 variable "tags" {
   default     = {}
   description = "Tags to apply to resources, where applicable"
-  type        = map
+  type        = map(any)
 }

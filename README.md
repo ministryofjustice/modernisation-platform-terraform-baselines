@@ -49,6 +49,10 @@ module "baselines" {
     aws.us-west-1          = aws.us-west-1
     aws.us-west-2          = aws.us-west-2
   }
+
+  # Enable IAM Access Analyzer in eu-west-2
+  enabled_access_analyzer_regions = ["eu-west-2"]
+
   root_account_id    = "123456789"
   tags               = {}
 }
@@ -64,10 +68,17 @@ module "ebs-encryption" {
 ```
 
 ## Inputs
-| Name               | Description                                                           | Type   | Default | Required |
-|:------------------:|:---------------------------------------------------------------------:|:------:|:-------:|----------|
-| root_account_id    | AWS Organisations root account ID that this account should be part of | string |         | yes      |
-| tags               | Tags to apply to resources, where applicable                          | map    | {}      | no       |
+| Name | Description | Type   | Default | Required |
+|:----:|:-----------:|:------:|:-------:|----------|
+| root_account_id | The AWS Organisations root account ID that this account should be part of | string | | yes |
+| tags | Tags to apply to resources, where applicable | map | {} | no |
+| enabled_access_analyzer_regions | Regions to enable IAM Access Analyzer in | list | [] | no |
+| enabled_backup_regions | Regions to enable AWS Backup in |  list | [] | no |
+| enabled_config_regions | Regions to enable AWS Config in | list | [] | no |
+| enabled_ebs_encryption_regions | Regions to enable EBS encryption in | list | [] | no |
+| enabled_guardduty_regions | Regions to enable GuardDuty in | list | [] | no |
+| enabled_securityhub_regions | Regions to enable SecurityHub in | list | [] | no |
+| enabled_vpc_regions | Regions to enable default VPC configuration and VPC Flow Logs in | list | [] | no |
 
 ## Outputs
 None

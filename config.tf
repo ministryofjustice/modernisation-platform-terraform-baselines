@@ -65,24 +65,30 @@ data "aws_iam_policy_document" "config-publish-policy" {
   statement {
     effect  = "Allow"
     actions = ["sns:Publish"]
-    resources = [
-      module.config-ap-northeast-1.sns_topic_arn,
-      module.config-ap-northeast-2.sns_topic_arn,
-      module.config-ap-south-1.sns_topic_arn,
-      module.config-ap-southeast-1.sns_topic_arn,
-      module.config-ap-southeast-2.sns_topic_arn,
-      module.config-ca-central-1.sns_topic_arn,
-      module.config-eu-central-1.sns_topic_arn,
-      module.config-eu-north-1.sns_topic_arn,
-      module.config-eu-west-1.sns_topic_arn,
-      module.config-eu-west-2.sns_topic_arn,
-      module.config-eu-west-3.sns_topic_arn,
-      module.config-sa-east-1.sns_topic_arn,
-      module.config-us-east-1.sns_topic_arn,
-      module.config-us-east-2.sns_topic_arn,
-      module.config-us-west-1.sns_topic_arn,
-      module.config-us-west-2.sns_topic_arn
-    ]
+    resources = flatten([
+      for enabled_region in [
+        module.config-ap-northeast-1,
+        module.config-ap-northeast-2,
+        module.config-ap-south-1,
+        module.config-ap-southeast-1,
+        module.config-ap-southeast-2,
+        module.config-ca-central-1,
+        module.config-eu-central-1,
+        module.config-eu-north-1,
+        module.config-eu-west-1,
+        module.config-eu-west-2,
+        module.config-eu-west-3,
+        module.config-sa-east-1,
+        module.config-us-east-1,
+        module.config-us-east-2,
+        module.config-us-west-1,
+        module.config-us-west-2
+        ] : [
+        for enabled_module in enabled_region : [
+          enabled_module.sns_topic_arn
+        ]
+      ]
+    ])
   }
 }
 
@@ -169,6 +175,8 @@ data "aws_iam_policy_document" "config-s3-policy" {
 
 # Enable Config in each region
 module "config-ap-northeast-1" {
+  for_each = contains(var.enabled_config_regions, "ap-northeast-1") ? local.enabled : local.not_enabled
+
   source = "./modules/config"
   providers = {
     aws = aws.ap-northeast-1
@@ -186,6 +194,8 @@ module "config-ap-northeast-1" {
 }
 
 module "config-ap-northeast-2" {
+  for_each = contains(var.enabled_config_regions, "ap-northeast-2") ? local.enabled : local.not_enabled
+
   source = "./modules/config"
   providers = {
     aws = aws.ap-northeast-2
@@ -203,6 +213,8 @@ module "config-ap-northeast-2" {
 }
 
 module "config-ap-south-1" {
+  for_each = contains(var.enabled_config_regions, "ap-south-1") ? local.enabled : local.not_enabled
+
   source = "./modules/config"
   providers = {
     aws = aws.ap-south-1
@@ -220,6 +232,8 @@ module "config-ap-south-1" {
 }
 
 module "config-ap-southeast-1" {
+  for_each = contains(var.enabled_config_regions, "ap-southeast-1") ? local.enabled : local.not_enabled
+
   source = "./modules/config"
   providers = {
     aws = aws.ap-southeast-1
@@ -237,6 +251,8 @@ module "config-ap-southeast-1" {
 }
 
 module "config-ap-southeast-2" {
+  for_each = contains(var.enabled_config_regions, "ap-southeast-2") ? local.enabled : local.not_enabled
+
   source = "./modules/config"
   providers = {
     aws = aws.ap-southeast-2
@@ -254,6 +270,8 @@ module "config-ap-southeast-2" {
 }
 
 module "config-ca-central-1" {
+  for_each = contains(var.enabled_config_regions, "ca-central-1") ? local.enabled : local.not_enabled
+
   source = "./modules/config"
   providers = {
     aws = aws.ca-central-1
@@ -271,6 +289,8 @@ module "config-ca-central-1" {
 }
 
 module "config-eu-central-1" {
+  for_each = contains(var.enabled_config_regions, "eu-central-1") ? local.enabled : local.not_enabled
+
   source = "./modules/config"
   providers = {
     aws = aws.eu-central-1
@@ -288,6 +308,8 @@ module "config-eu-central-1" {
 }
 
 module "config-eu-north-1" {
+  for_each = contains(var.enabled_config_regions, "eu-north-1") ? local.enabled : local.not_enabled
+
   source = "./modules/config"
   providers = {
     aws = aws.eu-north-1
@@ -305,6 +327,8 @@ module "config-eu-north-1" {
 }
 
 module "config-eu-west-1" {
+  for_each = contains(var.enabled_config_regions, "eu-west-1") ? local.enabled : local.not_enabled
+
   source = "./modules/config"
   providers = {
     aws = aws.eu-west-1
@@ -322,6 +346,8 @@ module "config-eu-west-1" {
 }
 
 module "config-eu-west-2" {
+  for_each = contains(var.enabled_config_regions, "eu-west-2") ? local.enabled : local.not_enabled
+
   source = "./modules/config"
   providers = {
     aws = aws.eu-west-2
@@ -339,6 +365,8 @@ module "config-eu-west-2" {
 }
 
 module "config-eu-west-3" {
+  for_each = contains(var.enabled_config_regions, "eu-west-3") ? local.enabled : local.not_enabled
+
   source = "./modules/config"
   providers = {
     aws = aws.eu-west-3
@@ -356,6 +384,8 @@ module "config-eu-west-3" {
 }
 
 module "config-sa-east-1" {
+  for_each = contains(var.enabled_config_regions, "sa-east-1") ? local.enabled : local.not_enabled
+
   source = "./modules/config"
   providers = {
     aws = aws.sa-east-1
@@ -373,6 +403,8 @@ module "config-sa-east-1" {
 }
 
 module "config-us-east-1" {
+  for_each = contains(var.enabled_config_regions, "us-east-1") ? local.enabled : local.not_enabled
+
   source = "./modules/config"
   providers = {
     aws = aws.us-east-1
@@ -390,6 +422,8 @@ module "config-us-east-1" {
 }
 
 module "config-us-east-2" {
+  for_each = contains(var.enabled_config_regions, "us-east-2") ? local.enabled : local.not_enabled
+
   source = "./modules/config"
   providers = {
     aws = aws.us-east-2
@@ -407,6 +441,8 @@ module "config-us-east-2" {
 }
 
 module "config-us-west-1" {
+  for_each = contains(var.enabled_config_regions, "us-west-1") ? local.enabled : local.not_enabled
+
   source = "./modules/config"
   providers = {
     aws = aws.us-west-1
@@ -424,6 +460,8 @@ module "config-us-west-1" {
 }
 
 module "config-us-west-2" {
+  for_each = contains(var.enabled_config_regions, "us-west-2") ? local.enabled : local.not_enabled
+
   source = "./modules/config"
   providers = {
     aws = aws.us-west-2
