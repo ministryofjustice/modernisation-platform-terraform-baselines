@@ -25,7 +25,7 @@ module "securityhub-alarms" {
 }
 
 module "s3-replication-role" {
-  source = "github.com/ministryofjustice/modernisation-platform-terraform-s3-bucket-replication-role"
+  source = "github.com/ministryofjustice/modernisation-platform-terraform-s3-bucket-replication-role?ref=v1.0.0"
   buckets = [
     module.config-bucket.bucket.arn,
     module.cloudtrail.s3_bucket.arn,

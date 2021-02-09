@@ -99,7 +99,7 @@ resource "aws_iam_role_policy_attachment" "config-publish-policy" {
 
 # AWS Config: configure an S3 bucket
 module "config-bucket" {
-  source = "github.com/ministryofjustice/modernisation-platform-terraform-s3-bucket"
+  source = "github.com/ministryofjustice/modernisation-platform-terraform-s3-bucket?ref=v1.0.0"
   providers = {
     aws.bucket-replication = aws.replication-region
   }
