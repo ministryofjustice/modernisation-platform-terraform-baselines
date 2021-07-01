@@ -1,10 +1,6 @@
 data "aws_caller_identity" "current" {}
 data "aws_region" "current" {}
 
-provider "aws" {
-  alias = "replication-region"
-}
-
 locals {
   iam_policy_logs_arn = "arn:aws:logs:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:log-group:${aws_cloudwatch_log_group.cloudtrail.name}:log-stream:*"
 }
@@ -113,7 +109,7 @@ resource "aws_cloudwatch_log_stream" "cloudtrail-stream" {
 
 # AWS CloudTrail: configure an S3 bucket
 module "cloudtrail-bucket" {
-  source = "github.com/ministryofjustice/modernisation-platform-terraform-s3-bucket?ref=v1.0.0"
+  source = "github.com/ministryofjustice/modernisation-platform-terraform-s3-bucket?ref=v2.0.0"
   providers = {
     aws.bucket-replication = aws.replication-region
   }
@@ -129,7 +125,7 @@ module "cloudtrail-bucket" {
 }
 
 module "cloudtrail-log-bucket" {
-  source = "github.com/ministryofjustice/modernisation-platform-terraform-s3-bucket?ref=v1.0.0"
+  source = "github.com/ministryofjustice/modernisation-platform-terraform-s3-bucket?ref=v2.0.0"
   providers = {
     aws.bucket-replication = aws.replication-region
   }
