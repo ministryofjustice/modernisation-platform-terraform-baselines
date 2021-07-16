@@ -50,4 +50,3 @@ variable "enabled_vpc_regions" {
   description = "Regions to enable default VPC configuration and VPC Flow Logs in"
   type        = list(string)
 }
-

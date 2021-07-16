@@ -21,7 +21,10 @@ module "support" {
 
 module "securityhub-alarms" {
   source = "./modules/securityhub-alarms"
-  tags   = var.tags
+
+  depends_on = [module.cloudtrail]
+
+  tags = var.tags
 }
 
 module "s3-replication-role" {
