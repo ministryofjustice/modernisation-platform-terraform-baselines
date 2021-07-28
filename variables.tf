@@ -50,3 +50,8 @@ variable "enabled_vpc_regions" {
   description = "Regions to enable default VPC configuration and VPC Flow Logs in"
   type        = list(string)
 }
+
+variable "cloudtrail_kms_key" {
+  description = "Arn of kms key used for cloudtrail logs"
+  type        = string
+}

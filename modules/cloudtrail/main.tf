@@ -16,8 +16,8 @@ resource "aws_cloudtrail" "cloudtrail" {
   enable_logging                = true
   include_global_service_events = true
   is_multi_region_trail         = true
-  kms_key_id                    = aws_kms_key.cloudtrail.arn
-  s3_bucket_name                = module.cloudtrail-bucket.bucket.id
+  kms_key_id                    = var.cloudtrail_kms_key
+  s3_bucket_name                = var.cloudtrail_bucket
   sns_topic_name                = aws_sns_topic.cloudtrail.arn
 
   event_selector {
@@ -43,7 +43,6 @@ resource "aws_cloudtrail" "cloudtrail" {
   # created inside the module. By depending explicitly on the whole module, Terraform will wait
   # until all resources have been created: including the bucket policy, which this CloudTrail resource
   # requires before creation.
-  depends_on = [module.cloudtrail-bucket]
 }
 
 # IAM role for CloudTrail
@@ -98,7 +97,7 @@ data "aws_iam_policy_document" "cloudtrail-role-policy" {
 # CloudWatch log groups & log streams for CloudTrail
 resource "aws_cloudwatch_log_group" "cloudtrail" {
   name       = "cloudtrail"
-  kms_key_id = aws_kms_key.cloudtrail.arn
+  kms_key_id = var.cloudtrail_kms_key
   tags       = var.tags
 }
 
@@ -107,70 +106,70 @@ resource "aws_cloudwatch_log_stream" "cloudtrail-stream" {
   log_group_name = aws_cloudwatch_log_group.cloudtrail.name
 }
 
-# AWS CloudTrail: configure an S3 bucket
-module "cloudtrail-bucket" {
-  source = "github.com/ministryofjustice/modernisation-platform-terraform-s3-bucket?ref=v2.0.0"
-  providers = {
-    aws.bucket-replication = aws.replication-region
-  }
-  acl                    = "log-delivery-write"
-  bucket_policy          = data.aws_iam_policy_document.cloudtrail.json
-  bucket_prefix          = "cloudtrail-"
-  custom_kms_key         = aws_kms_key.cloudtrail.arn
-  enable_lifecycle_rules = true
-  log_bucket             = module.cloudtrail-log-bucket.bucket.id
-  log_prefix             = "cloudtrail/log"
-  replication_role_arn   = var.replication_role_arn
-  tags                   = var.tags
-}
+# # AWS CloudTrail: configure an S3 bucket
+# module "cloudtrail-bucket" {
+#   source = "github.com/ministryofjustice/modernisation-platform-terraform-s3-bucket?ref=v2.0.0"
+#   providers = {
+#     aws.bucket-replication = aws.replication-region
+#   }
+#   acl                    = "log-delivery-write"
+#   bucket_policy          = data.aws_iam_policy_document.cloudtrail.json
+#   bucket_prefix          = "cloudtrail-"
+#   custom_kms_key         = aws_kms_key.cloudtrail.arn
+#   enable_lifecycle_rules = true
+#   log_bucket             = var.main_logging_cloud
+#   log_prefix             = "cloudtrail/log"
+#   replication_role_arn   = var.replication_role_arn
+#   tags                   = var.tags
+# }
 
-module "cloudtrail-log-bucket" {
-  source = "github.com/ministryofjustice/modernisation-platform-terraform-s3-bucket?ref=v2.0.0"
-  providers = {
-    aws.bucket-replication = aws.replication-region
-  }
-  acl                  = "log-delivery-write"
-  bucket_prefix        = "log-bucket"
-  replication_role_arn = var.replication_role_arn
-  tags                 = var.tags
-}
+# module "cloudtrail-log-bucket" {
+#   source = "github.com/ministryofjustice/modernisation-platform-terraform-s3-bucket?ref=v2.0.0"
+#   providers = {
+#     aws.bucket-replication = aws.replication-region
+#   }
+#   acl                  = "log-delivery-write"
+#   bucket_prefix        = "log-bucket"
+#   replication_role_arn = var.replication_role_arn
+#   tags                 = var.tags
+# }
 
 # Extrapolated from:
 # https://docs.aws.amazon.com/awscloudtrail/latest/userguide/create-s3-bucket-policy-for-cloudtrail.html
-data "aws_iam_policy_document" "cloudtrail" {
-  statement {
-    effect    = "Allow"
-    actions   = ["s3:GetBucketAcl"]
-    resources = [module.cloudtrail-bucket.bucket.arn]
+# data "aws_iam_policy_document" "cloudtrail" {
+#   statement {
+#     effect    = "Allow"
+#     actions   = ["s3:GetBucketAcl"]
+#     resources = [module.cloudtrail-bucket.bucket.arn]
 
-    principals {
-      type        = "Service"
-      identifiers = ["cloudtrail.amazonaws.com"]
-    }
-  }
+#     principals {
+#       type        = "Service"
+#       identifiers = ["cloudtrail.amazonaws.com"]
+#     }
+#   }
 
-  statement {
-    effect    = "Allow"
-    actions   = ["s3:PutObject"]
-    resources = ["${module.cloudtrail-bucket.bucket.arn}/AWSLogs/${data.aws_caller_identity.current.account_id}/*"]
+#   statement {
+#     effect    = "Allow"
+#     actions   = ["s3:PutObject"]
+#     resources = ["${module.cloudtrail-bucket.bucket.arn}/AWSLogs/${data.aws_caller_identity.current.account_id}/*"]
 
-    principals {
-      type        = "Service"
-      identifiers = ["cloudtrail.amazonaws.com"]
-    }
+#     principals {
+#       type        = "Service"
+#       identifiers = ["cloudtrail.amazonaws.com"]
+#     }
 
-    condition {
-      test     = "StringEquals"
-      variable = "s3:x-amz-acl"
-      values   = ["bucket-owner-full-control"]
-    }
-  }
-}
+#     condition {
+#       test     = "StringEquals"
+#       variable = "s3:x-amz-acl"
+#       values   = ["bucket-owner-full-control"]
+#     }
+#   }
+# }
 
 # SNS for CloudTrail
 resource "aws_sns_topic" "cloudtrail" {
   name              = "cloudtrail"
-  kms_master_key_id = aws_kms_key.cloudtrail.id
+  kms_master_key_id = var.cloudtrail_kms_key
   tags              = var.tags
 }
 
@@ -195,174 +194,174 @@ data "aws_iam_policy_document" "cloudtrail-sns" {
 }
 
 # KMS for CloudTrail
-resource "aws_kms_key" "cloudtrail" {
-  deletion_window_in_days = 7
-  description             = "CloudTrail encryption key"
-  enable_key_rotation     = true
-  policy                  = data.aws_iam_policy_document.kms.json
-  tags                    = var.tags
-}
+# resource "aws_kms_key" "cloudtrail" {
+#   deletion_window_in_days = 7
+#   description             = "CloudTrail encryption key"
+#   enable_key_rotation     = true
+#   policy                  = data.aws_iam_policy_document.kms.json
+#   tags                    = var.tags
+# }
 
-resource "aws_kms_alias" "cloudtrail" {
-  name          = "alias/cloudtrail_key"
-  target_key_id = aws_kms_key.cloudtrail.id
-}
+# resource "aws_kms_alias" "cloudtrail" {
+#   name          = "alias/cloudtrail_key"
+#   target_key_id = aws_kms_key.cloudtrail.id
+# }
 
 # IAM policy for KMS
 # Extrapolated from AWS' default CMK policy, the SNS policy, and the CloudWatch logs policy:
 # https://docs.aws.amazon.com/awscloudtrail/latest/userguide/default-cmk-policy.html
 # https://docs.aws.amazon.com/awscloudtrail/latest/userguide/cloudtrail-permissions-for-sns-notifications.html
 # https://docs.aws.amazon.com/AmazonCloudWatch/latest/logs/encrypt-log-data-kms.html
-data "aws_iam_policy_document" "kms" {
-  statement {
-    effect    = "Allow"
-    actions   = ["kms:*"]
-    resources = ["*"]
+# data "aws_iam_policy_document" "kms" {
+#   statement {
+#     effect    = "Allow"
+#     actions   = ["kms:*"]
+#     resources = ["*"]
 
-    principals {
-      type        = "AWS"
-      identifiers = ["arn:aws:iam::${data.aws_caller_identity.current.account_id}:root"]
-    }
-  }
+#     principals {
+#       type        = "AWS"
+#       identifiers = ["arn:aws:iam::${data.aws_caller_identity.current.account_id}:root"]
+#     }
+#   }
 
-  statement {
-    effect    = "Allow"
-    actions   = ["kms:GenerateDataKey*"]
-    resources = ["*"]
+#   statement {
+#     effect    = "Allow"
+#     actions   = ["kms:GenerateDataKey*"]
+#     resources = ["*"]
 
-    condition {
-      test     = "StringLike"
-      variable = "kms:EncryptionContext:aws:cloudtrail:arn"
-      values   = ["arn:aws:cloudtrail:*:${data.aws_caller_identity.current.account_id}:trail/*"]
-    }
+#     condition {
+#       test     = "StringLike"
+#       variable = "kms:EncryptionContext:aws:cloudtrail:arn"
+#       values   = ["arn:aws:cloudtrail:*:${data.aws_caller_identity.current.account_id}:trail/*"]
+#     }
 
-    principals {
-      type        = "Service"
-      identifiers = ["cloudtrail.amazonaws.com"]
-    }
-  }
+#     principals {
+#       type        = "Service"
+#       identifiers = ["cloudtrail.amazonaws.com"]
+#     }
+#   }
 
-  statement {
-    effect    = "Allow"
-    actions   = ["kms:DescribeKey"]
-    resources = ["*"]
+#   statement {
+#     effect    = "Allow"
+#     actions   = ["kms:DescribeKey"]
+#     resources = ["*"]
 
-    principals {
-      type        = "Service"
-      identifiers = ["cloudtrail.amazonaws.com"]
-    }
-  }
+#     principals {
+#       type        = "Service"
+#       identifiers = ["cloudtrail.amazonaws.com"]
+#     }
+#   }
 
-  statement {
-    effect = "Allow"
-    actions = [
-      "kms:Decrypt",
-      "kms:ReEncryptFrom"
-    ]
-    resources = ["*"]
+#   statement {
+#     effect = "Allow"
+#     actions = [
+#       "kms:Decrypt",
+#       "kms:ReEncryptFrom"
+#     ]
+#     resources = ["*"]
 
-    condition {
-      test     = "StringEquals"
-      variable = "kms:CallerAccount"
-      values   = [data.aws_caller_identity.current.account_id]
-    }
+#     condition {
+#       test     = "StringEquals"
+#       variable = "kms:CallerAccount"
+#       values   = [data.aws_caller_identity.current.account_id]
+#     }
 
-    condition {
-      test     = "StringLike"
-      variable = "kms:EncryptionContext:aws:cloudtrail:arn"
-      values   = ["arn:aws:cloudtrail:*:${data.aws_caller_identity.current.account_id}:trail/*"]
-    }
+#     condition {
+#       test     = "StringLike"
+#       variable = "kms:EncryptionContext:aws:cloudtrail:arn"
+#       values   = ["arn:aws:cloudtrail:*:${data.aws_caller_identity.current.account_id}:trail/*"]
+#     }
 
-    principals {
-      type        = "AWS"
-      identifiers = ["*"]
-    }
-  }
+#     principals {
+#       type        = "AWS"
+#       identifiers = ["*"]
+#     }
+#   }
 
-  statement {
-    effect    = "Allow"
-    actions   = ["kms:CreateAlias"]
-    resources = ["*"]
+#   statement {
+#     effect    = "Allow"
+#     actions   = ["kms:CreateAlias"]
+#     resources = ["*"]
 
-    condition {
-      test     = "StringEquals"
-      variable = "kms:ViaService"
-      values   = ["ec2.${data.aws_region.current.name}.amazonaws.com"]
-    }
+#     condition {
+#       test     = "StringEquals"
+#       variable = "kms:ViaService"
+#       values   = ["ec2.${data.aws_region.current.name}.amazonaws.com"]
+#     }
 
-    condition {
-      test     = "StringEquals"
-      variable = "kms:CallerAccount"
-      values   = [data.aws_caller_identity.current.account_id]
-    }
+#     condition {
+#       test     = "StringEquals"
+#       variable = "kms:CallerAccount"
+#       values   = [data.aws_caller_identity.current.account_id]
+#     }
 
-    principals {
-      type        = "AWS"
-      identifiers = ["*"]
-    }
-  }
+#     principals {
+#       type        = "AWS"
+#       identifiers = ["*"]
+#     }
+#   }
 
-  statement {
-    effect = "Allow"
-    actions = [
-      "kms:Decrypt",
-      "kms:ReEncryptFrom"
-    ]
-    resources = ["*"]
+#   statement {
+#     effect = "Allow"
+#     actions = [
+#       "kms:Decrypt",
+#       "kms:ReEncryptFrom"
+#     ]
+#     resources = ["*"]
 
-    condition {
-      test     = "StringLike"
-      variable = "kms:EncryptionContext:aws:cloudtrail:arn"
-      values   = ["arn:aws:cloudtrail:*:${data.aws_caller_identity.current.account_id}:trail/*"]
-    }
+#     condition {
+#       test     = "StringLike"
+#       variable = "kms:EncryptionContext:aws:cloudtrail:arn"
+#       values   = ["arn:aws:cloudtrail:*:${data.aws_caller_identity.current.account_id}:trail/*"]
+#     }
 
-    condition {
-      test     = "StringEquals"
-      variable = "kms:CallerAccount"
-      values   = [data.aws_caller_identity.current.account_id]
-    }
+#     condition {
+#       test     = "StringEquals"
+#       variable = "kms:CallerAccount"
+#       values   = [data.aws_caller_identity.current.account_id]
+#     }
 
-    principals {
-      type        = "AWS"
-      identifiers = ["*"]
-    }
-  }
+#     principals {
+#       type        = "AWS"
+#       identifiers = ["*"]
+#     }
+#   }
 
-  statement {
-    effect = "Allow"
-    actions = [
-      "kms:GenerateDataKey*",
-      "kms:Decrypt"
-    ]
-    resources = ["*"]
+#   statement {
+#     effect = "Allow"
+#     actions = [
+#       "kms:GenerateDataKey*",
+#       "kms:Decrypt"
+#     ]
+#     resources = ["*"]
 
-    principals {
-      type        = "Service"
-      identifiers = ["cloudtrail.amazonaws.com"]
-    }
-  }
+#     principals {
+#       type        = "Service"
+#       identifiers = ["cloudtrail.amazonaws.com"]
+#     }
+#   }
 
-  # CloudWatch
-  statement {
-    effect = "Allow"
-    actions = [
-      "kms:Encrypt*",
-      "kms:Decrypt*",
-      "kms:ReEncrypt*",
-      "kms:GenerateDataKey*",
-      "kms:Describe*"
-    ]
-    resources = ["*"]
+#   # CloudWatch
+#   statement {
+#     effect = "Allow"
+#     actions = [
+#       "kms:Encrypt*",
+#       "kms:Decrypt*",
+#       "kms:ReEncrypt*",
+#       "kms:GenerateDataKey*",
+#       "kms:Describe*"
+#     ]
+#     resources = ["*"]
 
-    principals {
-      type        = "Service"
-      identifiers = ["logs.${data.aws_region.current.name}.amazonaws.com"]
-    }
+#     principals {
+#       type        = "Service"
+#       identifiers = ["logs.${data.aws_region.current.name}.amazonaws.com"]
+#     }
 
-    condition {
-      test     = "ArnLike"
-      variable = "kms:EncryptionContext:aws:logs:arn"
-      values   = ["arn:aws:logs:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:*"]
-    }
-  }
-}
+#     condition {
+#       test     = "ArnLike"
+#       variable = "kms:EncryptionContext:aws:logs:arn"
+#       values   = ["arn:aws:logs:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:*"]
+#     }
+#   }
+# }
