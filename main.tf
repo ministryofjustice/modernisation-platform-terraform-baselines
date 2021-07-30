@@ -9,7 +9,7 @@ module "cloudtrail" {
   cloudtrail_kms_key = var.cloudtrail_kms_key
   cloudtrail_bucket  = local.cloudtrail_bucket
   # replication_role_arn = module.s3-replication-role.role.arn
-  tags                 = var.tags
+  tags = var.tags
 }
 
 module "iam" {

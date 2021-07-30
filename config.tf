@@ -104,9 +104,9 @@ module "config-bucket" {
   providers = {
     aws.bucket-replication = aws.replication-region
   }
-  replication_enabled  = false
-  bucket_policy        = data.aws_iam_policy_document.config-s3-policy.json
-  bucket_prefix        = "config-"
+  replication_enabled = false
+  bucket_policy       = data.aws_iam_policy_document.config-s3-policy.json
+  bucket_prefix       = "config-"
 
   lifecycle_rule = [
     {
@@ -149,7 +149,7 @@ module "config-bucket" {
     }
   ]
 
-  tags                 = var.tags
+  tags = var.tags
 }
 
 # AWS Config: bucket policy, and require secure transport
