@@ -1,8 +1,17 @@
-variable "replication_role_arn" {
+# variable "replication_role_arn" {
+#   type        = string
+#   description = "Role ARN for S3 replication"
+# }
+
+variable "cloudtrail_kms_key" {
+  description = "Arn of kms key used for cloudtrail logs"
   type        = string
-  description = "Role ARN for S3 replication"
 }
 
+variable "cloudtrail_bucket" {
+  description = "Name of centralised Cloudtrail bucket"
+  type        = string
+}
 variable "tags" {
   default     = {}
   description = "Tags to apply to resources, where applicable"

@@ -11,10 +11,11 @@ module "cloudtrail" {
 ```
 
 ## Inputs
-| Name | Description | Type | Default | Required |
-|------|-------------|------|---------|----------|
-| replication_role_arn | Role ARN for S3 replication | string | | yes |
-| tags | Tags to apply to resources | map | {} | no |
+| Name                 | Description                 | Type   | Default | Required |
+|----------------------|-----------------------------|--------|---------|----------|
+| replication_role_arn | Role ARN for S3 replication | string |         | optional |
+| cloudtrail_bucket    | Centralised bucket name     | string |         | yes      |
+| tags                 | Tags to apply to resources  | map    | {}      | no       |
 
 ## Outputs
 | Name | Description | Sensitive |
