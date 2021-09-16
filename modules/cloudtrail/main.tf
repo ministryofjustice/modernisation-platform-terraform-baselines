@@ -30,19 +30,10 @@ resource "aws_cloudtrail" "cloudtrail" {
     }
   }
 
-  tags = var.tags
+  # wait for sns topic policy to be attached 
+  depends_on = [aws_sns_topic_policy.cloudtrail]
 
-  # Due to the nature of transistive dependencies, we need to wait for the whole
-  # module (including bucket policies) to finish before creating a CloudTrail trail.
-  #
-  # Even though this resource depends on "module.cloudtrail-bucket.bucket.id", which is an output
-  # of the cloudtrail-bucket module, once the bucket ID is evaluated, Terraform will start to create
-  # this resource even if other resources in the module haven't finished yet.
-  #
-  # This creates a race-case between this resource, and the policy on the bucket, which is
-  # created inside the module. By depending explicitly on the whole module, Terraform will wait
-  # until all resources have been created: including the bucket policy, which this CloudTrail resource
-  # requires before creation.
+  tags = var.tags
 }
 
 # IAM role for CloudTrail
