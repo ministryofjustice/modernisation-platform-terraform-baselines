@@ -99,20 +99,18 @@ resource "aws_iam_role_policy_attachment" "config-publish-policy" {
 
 # AWS Config: configure an S3 bucket
 module "config-bucket" {
-  source = "github.com/ministryofjustice/modernisation-platform-terraform-s3-bucket?ref=v3.0.0"
-
+  source = "github.com/ministryofjustice/modernisation-platform-terraform-s3-bucket?ref=v6.0.0"
   providers = {
     aws.bucket-replication = aws.replication-region
   }
   replication_enabled = false
-  bucket_policy       = data.aws_iam_policy_document.config-s3-policy.json
+  bucket_policy       = [data.aws_iam_policy_document.config-s3-policy.json]
   bucket_prefix       = "config-"
 
   lifecycle_rule = [
     {
       id      = "main"
-      enabled = true
-      prefix  = ""
+      enabled = "Enabled"
 
       tags = {
         rule      = "log"
