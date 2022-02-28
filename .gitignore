@@ -1,3 +1,5 @@
 .env
-.terraform
+.terraform/
+.terraform.lock.hcl
 *.tfstate*
+.idea
