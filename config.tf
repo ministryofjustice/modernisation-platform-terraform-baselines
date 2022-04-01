@@ -35,6 +35,8 @@ resource "aws_iam_policy" "config-publish-policy" {
 # Extrapolated from:
 # https://docs.aws.amazon.com/config/latest/developerguide/iamrole-permissions.html and
 # https://docs.aws.amazon.com/config/latest/developerguide/sns-topic-policy.html
+#tfsec ignore appropriate as wildcard scoped to logs for single account
+#tfsec:ignore:aws-iam-no-policy-wildcards
 data "aws_iam_policy_document" "config-publish-policy" {
   version = "2012-10-17"
 
@@ -99,7 +101,7 @@ resource "aws_iam_role_policy_attachment" "config-publish-policy" {
 
 # AWS Config: configure an S3 bucket
 module "config-bucket" {
-  source = "github.com/ministryofjustice/modernisation-platform-terraform-s3-bucket?ref=v6.0.2"
+  source = "github.com/ministryofjustice/modernisation-platform-terraform-s3-bucket?ref=v6.0.4"
   providers = {
     aws.bucket-replication = aws.replication-region
   }

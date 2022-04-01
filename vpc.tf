@@ -27,6 +27,8 @@ resource "aws_iam_policy" "vpc-flow-log-publish-policy" {
 
 # Extrapolated from:
 # https://docs.aws.amazon.com/vpc/latest/userguide/flow-logs-cwl.html
+# tfsec ignore appropriate as wildcard in line with AWS published guidance
+# tfsec:ignore:aws-iam-no-policy-wildcards
 data "aws_iam_policy_document" "vpc-flow-log-publish-policy" {
   version = "2012-10-17"
 

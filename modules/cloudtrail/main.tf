@@ -99,7 +99,7 @@ resource "aws_cloudwatch_log_stream" "cloudtrail-stream" {
 
 # # AWS CloudTrail: configure an S3 bucket
 # module "cloudtrail-bucket" {
-#   source = "github.com/ministryofjustice/modernisation-platform-terraform-s3-bucket?ref=v6.0.2"
+#   source = "github.com/ministryofjustice/modernisation-platform-terraform-s3-bucket?ref=v6.0.4"
 #   providers = {
 #     aws.bucket-replication = aws.replication-region
 #   }
@@ -115,7 +115,7 @@ resource "aws_cloudwatch_log_stream" "cloudtrail-stream" {
 # }
 
 # module "cloudtrail-log-bucket" {
-#   source = "github.com/ministryofjustice/modernisation-platform-terraform-s3-bucket?ref=v6.0.2"
+#   source = "github.com/ministryofjustice/modernisation-platform-terraform-s3-bucket?ref=v6.0.4"
 #   providers = {
 #     aws.bucket-replication = aws.replication-region
 #   }
