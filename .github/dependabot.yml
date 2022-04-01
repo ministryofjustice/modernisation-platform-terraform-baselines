@@ -1,0 +1,55 @@
+version: 2
+
+updates:
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "daily"
+- package-ecosystem: "terraform"
+  directory: "/"
+  schedule:
+    interval: "daily"
+- package-ecosystem: "terraform"
+  directory: "/modules/access-analyzer"
+  schedule:
+    interval: "daily"
+- package-ecosystem: "terraform"
+  directory: "/modules/backup"
+  schedule:
+    interval: "daily"
+    - package-ecosystem: "terraform"
+  directory: "/modules/cloudtrail"
+  schedule:
+    interval: "daily"
+    - package-ecosystem: "terraform"
+  directory: "/modules/config"
+  schedule:
+    interval: "daily"
+    - package-ecosystem: "terraform"
+  directory: "/modules/ebs"
+  schedule:
+    interval: "daily"
+    - package-ecosystem: "terraform"
+  directory: "/modules/guardduty"
+  schedule:
+    interval: "daily"
+    - package-ecosystem: "terraform"
+  directory: "/modules/iam"
+  schedule:
+    interval: "daily"
+    - package-ecosystem: "terraform"
+  directory: "/modules/securityhub"
+  schedule:
+    interval: "daily"
+    - package-ecosystem: "terraform"
+  directory: "/modules/securityhub-alarms"
+  schedule:
+    interval: "daily"
+    - package-ecosystem: "terraform"
+  directory: "/modules/support"
+  schedule:
+    interval: "daily"
+    - package-ecosystem: "terraform"
+  directory: "/modules/vpc"
+  schedule:
+    interval: "daily"
