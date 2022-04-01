@@ -35,6 +35,8 @@ resource "aws_iam_policy" "config-publish-policy" {
 # Extrapolated from:
 # https://docs.aws.amazon.com/config/latest/developerguide/iamrole-permissions.html and
 # https://docs.aws.amazon.com/config/latest/developerguide/sns-topic-policy.html
+#tfsec ignore appropriate as wildcard scoped to logs for single account
+#tfsec:ignore:aws-iam-no-policy-wildcards
 data "aws_iam_policy_document" "config-publish-policy" {
   version = "2012-10-17"
 
