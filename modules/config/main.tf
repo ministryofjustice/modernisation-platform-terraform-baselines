@@ -30,6 +30,8 @@ resource "aws_config_configuration_recorder_status" "default" {
 }
 
 # Create an SNS topic
+# AWS-managed account key appropriate for default topic
+# tfsec:ignore:aws-sns-topic-encryption-use-cmk
 resource "aws_sns_topic" "default" {
   name              = "config"
   kms_master_key_id = "alias/aws/sns"
