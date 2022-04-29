@@ -1,5 +1,7 @@
 # Configure default AWS VPC resources to comply with SecurityHub standards
 ## VPC
+# Default VPC presently defined in code so it can be managed through code
+# tfsec:ignore:aws-vpc-no-default-vpc
 resource "aws_default_vpc" "default" {
   tags = var.tags
 }
