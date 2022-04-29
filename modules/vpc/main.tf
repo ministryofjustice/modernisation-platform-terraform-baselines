@@ -13,7 +13,7 @@ resource "aws_default_route_table" "default" {
 ## Network ACL
 ## Terraform mentions you should ignore subnet_ids for aws_default_network_acl
 ## because subnets always need to be associated with something, and if they're
-## not explicity set, they will show up as a change
+## not explicitly set, they will show up as a change
 ## See: https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/default_network_acl#managing-subnets-in-the-default-network-acl
 resource "aws_default_network_acl" "default" {
   default_network_acl_id = aws_default_vpc.default.default_network_acl_id
@@ -56,6 +56,7 @@ resource "aws_default_security_group" "default" {
 
 # VPC Flow Logs
 ## CloudWatch log group for VPC Flow Logs
+# tfsec:ignore:aws-cloudwatch-log-group-customer-key
 resource "aws_cloudwatch_log_group" "default-vpc-flow-logs" {
   name = "default-vpc-flow-logs"
   tags = var.tags
