@@ -83,7 +83,7 @@ resource "aws_cloudwatch_metric_alarm" "unauthorised-api-calls" {
 # 3.2 - Ensure a log metric filter and alarm exist for Management Console sign-in without MFA
 resource "aws_cloudwatch_log_metric_filter" "sign-in-without-mfa" {
   name           = "sign-in-without-mfa"
-  pattern        = "{($.eventName=\"ConsoleLogin\") && ($.additionalEventData.MFAUsed !=\"Yes\")}"
+  pattern        = "{($.eventName=\"ConsoleLogin\") && ($.additionalEventData.MFAUsed !=\"Yes\") && ($.userIdentity.type =\"IAMUser\") && ($.responseElements.ConsoleLogin = \"Success\") }"
   log_group_name = "cloudtrail"
 
   metric_transformation {
