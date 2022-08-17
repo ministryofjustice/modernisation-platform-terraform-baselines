@@ -12,17 +12,17 @@ updates:
   - package-ecosystem: "terraform"
     directory: "/modules/access-analyzer"
     schedule:
-     interval: "daily"
+      interval: "daily"
   - package-ecosystem: "terraform"
     directory: "/modules/backup"
     schedule:
-     interval: "daily"
+      interval: "daily"
   - package-ecosystem: "terraform"
     directory: "/modules/cloudtrail"
     schedule:
       interval: "daily"
   - package-ecosystem: "terraform"
-     directory: "/modules/config"
+    directory: "/modules/config"
     schedule:
       interval: "daily"
   - package-ecosystem: "terraform"
@@ -32,7 +32,7 @@ updates:
   - package-ecosystem: "terraform"
     directory: "/modules/guardduty"
     schedule:
-     interval: "daily"
+      interval: "daily"
   - package-ecosystem: "terraform"
     directory: "/modules/iam"
     schedule:
