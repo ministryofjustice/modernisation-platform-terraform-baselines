@@ -1,9 +1,11 @@
 # Modernisation Platform Terraform Baselines Module
-[![repo standards badge](https://img.shields.io/badge/dynamic/json?color=blue&style=for-the-badge&logo=github&label=MoJ%20Compliant&query=%24.data%5B%3F%28%40.name%20%3D%3D%20%22modernisation-platform-terraform-baselines%22%29%5D.status&url=https%3A%2F%2Foperations-engineering-reports.cloud-platform.service.justice.gov.uk%2Fgithub_repositories)](https://operations-engineering-reports.cloud-platform.service.justice.gov.uk/github_repositories#modernisation-platform-terraform-baselines "Link to report")
 
-Terraform module for enabling and configuring the [MoJ Security Guidance](https://ministryofjustice.github.io/security-guidance/baseline-aws-accounts/#baseline-for-amazon-web-services-accounts) baseline for AWS accounts, alongside some extra reasonable security, identity and compliance  services.
+[![repo standards badge](https://img.shields.io/badge/dynamic/json?color=blue&style=for-the-badge&logo=github&label=MoJ%20Compliant&query=%24.result&url=https%3A%2F%2Foperations-engineering-reports.cloud-platform.service.justice.gov.uk%2Fapi%2Fv1%2Fcompliant_public_repositories%2Fmodernisation-platform-terraform-baselines)](https://operations-engineering-reports.cloud-platform.service.justice.gov.uk/public-github-repositories.html#modernisation-platform-terraform-baselines "Link to report")
+
+Terraform module for enabling and configuring the [MoJ Security Guidance](https://ministryofjustice.github.io/security-guidance/baseline-aws-accounts/#baseline-for-amazon-web-services-accounts) baseline for AWS accounts, alongside some extra reasonable security, identity and compliance services.
 
 ## Enabled MoJ Security Guidance configurations
+
 - [ ] Security email setting
 - [x] [GuardDuty](modules/guardduty/README.md)
 - [x] [CloudTrail](modules/cloudtrail/README.md)
@@ -26,7 +28,9 @@ Terraform module for enabling and configuring the [MoJ Security Guidance](https:
 - [x] [VPC logging for default VPCs](modules/vpc/README.md)
 
 ## Usage
+
 ### Using the whole module
+
 ```
 module "baselines" {
   source = "github.com/ministryofjustice/modernisation-platform-terraform-baselines"
@@ -60,6 +64,7 @@ module "baselines" {
 ```
 
 ### Using parts of the module
+
 You can specify submodules from this directory to use individually, by [setting the source with a double-slash](https://www.terraform.io/docs/modules/sources.html#modules-in-package-sub-directories) (`//`). Note that this only uses the module in the calling region, unless you specify different module blocks with other Terraform providers. Each module has its own README.
 
 ```
@@ -69,20 +74,23 @@ module "ebs-encryption" {
 ```
 
 ## Inputs
-| Name | Description | Type   | Default | Required |
-|:----:|:-----------:|:------:|:-------:|----------|
-| root_account_id | The AWS Organisations root account ID that this account should be part of | string | | yes |
-| tags | Tags to apply to resources, where applicable | map | {} | no |
-| enabled_access_analyzer_regions | Regions to enable IAM Access Analyzer in | list | [] | no |
-| enabled_backup_regions | Regions to enable AWS Backup in |  list | [] | no |
-| enabled_config_regions | Regions to enable AWS Config in | list | [] | no |
-| enabled_ebs_encryption_regions | Regions to enable EBS encryption in | list | [] | no |
-| enabled_guardduty_regions | Regions to enable GuardDuty in | list | [] | no |
-| enabled_securityhub_regions | Regions to enable SecurityHub in | list | [] | no |
-| enabled_vpc_regions | Regions to enable default VPC configuration and VPC Flow Logs in | list | [] | no |
+
+|              Name               |                                Description                                |  Type  | Default | Required |
+| :-----------------------------: | :-----------------------------------------------------------------------: | :----: | :-----: | -------- |
+|         root_account_id         | The AWS Organisations root account ID that this account should be part of | string |         | yes      |
+|              tags               |               Tags to apply to resources, where applicable                |  map   |   {}    | no       |
+| enabled_access_analyzer_regions |                 Regions to enable IAM Access Analyzer in                  |  list  |   []    | no       |
+|     enabled_backup_regions      |                      Regions to enable AWS Backup in                      |  list  |   []    | no       |
+|     enabled_config_regions      |                      Regions to enable AWS Config in                      |  list  |   []    | no       |
+| enabled_ebs_encryption_regions  |                    Regions to enable EBS encryption in                    |  list  |   []    | no       |
+|    enabled_guardduty_regions    |                      Regions to enable GuardDuty in                       |  list  |   []    | no       |
+|   enabled_securityhub_regions   |                     Regions to enable SecurityHub in                      |  list  |   []    | no       |
+|       enabled_vpc_regions       |     Regions to enable default VPC configuration and VPC Flow Logs in      |  list  |   []    | no       |
 
 ## Outputs
+
 None
 
 ## Looking for issues?
+
 If you're looking to raise an issue with this module, please create a new issue in the [Modernisation Platform repository](https://github.com/ministryofjustice/modernisation-platform/issues).
