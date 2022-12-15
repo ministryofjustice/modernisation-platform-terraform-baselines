@@ -74,7 +74,7 @@ resource "aws_backup_plan" "non_production" {
     completion_window = (6 * 60)
 
     lifecycle {
-      delete_after       = 30
+      delete_after = 30
     }
   }
 
