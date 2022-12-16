@@ -74,7 +74,7 @@ resource "aws_backup_plan" "non_production" {
     completion_window = (6 * 60)
 
     lifecycle {
-      delete_after       = 30
+      delete_after = 30
     }
   }
 
@@ -92,7 +92,7 @@ resource "aws_backup_selection" "non_production" {
   name         = "non-production-backup"
   iam_role_arn = var.iam_role_arn
   plan_id      = aws_backup_plan.non_production.id
-  resources = ["*"]
+  resources    = ["*"]
 
   condition {
     string_equals {
