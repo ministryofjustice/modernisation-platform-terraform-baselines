@@ -92,6 +92,7 @@ resource "aws_backup_selection" "non_production" {
   name         = "non-production-backup"
   iam_role_arn = var.iam_role_arn
   plan_id      = aws_backup_plan.non_production.id
+  resources = ["*"]
 
   condition {
     string_equals {
