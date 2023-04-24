@@ -2,7 +2,9 @@ data "aws_region" "current" {}
 data "aws_caller_identity" "current" {}
 
 # Enable SecurityHub
-resource "aws_securityhub_account" "default" {}
+resource "aws_securityhub_account" "default" {
+  control_finding_generator = "STANDARD_CONTROL"
+}
 
 # Enable Standard: AWS Foundational Security Best Practices
 resource "aws_securityhub_standards_subscription" "aws-foundational" {
