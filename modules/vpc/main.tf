@@ -61,6 +61,7 @@ resource "aws_default_security_group" "default" {
 # tfsec:ignore:aws-cloudwatch-log-group-customer-key
 resource "aws_cloudwatch_log_group" "default-vpc-flow-logs" {
   name = "default-vpc-flow-logs"
+  retention_in_days = var.retention_days
   tags = var.tags
 }
 
