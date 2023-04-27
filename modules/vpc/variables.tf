@@ -10,7 +10,7 @@ variable "tags" {
 }
 
 variable "retention_days" {
-  default     = 90
+  default     = 395
   description = "Retention days for logs"
   type        = number
 }
