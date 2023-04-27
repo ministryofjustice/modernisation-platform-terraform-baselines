@@ -23,7 +23,6 @@ resource "aws_backup_plan" "default" {
     start_window = (1 * 60)
     ## Complete the backup within 6 hours of starting
     completion_window = (6 * 60)
-
     # The lifecycle only supports EFS file system backups at present.
     # There is a minimum amount of days a backup must be in cold storage (90 days)
     # before being deleted.

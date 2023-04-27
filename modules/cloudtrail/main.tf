@@ -87,9 +87,10 @@ data "aws_iam_policy_document" "cloudtrail-role-policy" {
 
 # CloudWatch log groups & log streams for CloudTrail
 resource "aws_cloudwatch_log_group" "cloudtrail" {
-  name       = "cloudtrail"
-  kms_key_id = var.cloudtrail_kms_key
-  tags       = var.tags
+  name              = "cloudtrail"
+  kms_key_id        = var.cloudtrail_kms_key
+  tags              = var.tags
+  retention_in_days = var.retention_days
 }
 
 resource "aws_cloudwatch_log_stream" "cloudtrail-stream" {

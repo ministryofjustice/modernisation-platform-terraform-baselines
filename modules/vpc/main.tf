@@ -60,8 +60,9 @@ resource "aws_default_security_group" "default" {
 ## CloudWatch log group for VPC Flow Logs
 # tfsec:ignore:aws-cloudwatch-log-group-customer-key
 resource "aws_cloudwatch_log_group" "default-vpc-flow-logs" {
-  name = "default-vpc-flow-logs"
-  tags = var.tags
+  name              = "default-vpc-flow-logs"
+  retention_in_days = var.retention_days
+  tags              = var.tags
 }
 
 ## Enable VPC Flow Logs for the default VPC

@@ -8,3 +8,9 @@ variable "tags" {
   description = "Tags to apply to resources, where applicable"
   type        = map(any)
 }
+
+variable "retention_days" {
+  default     = 395
+  description = "Retention days for logs"
+  type        = number
+}
