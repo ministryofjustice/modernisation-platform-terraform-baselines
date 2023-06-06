@@ -63,5 +63,3 @@ When you come to raise a pull request, please explain the context for your pull 
 ### Release
 
 Releases are actioned by the Modernisation Platform team.
-
-
