@@ -12,7 +12,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@c85c95e3d7251135ab7dc9ce3241c5835cc595a9 # v3.5.3
-      - uses: ministryofjustice/github-actions/code-formatter@de29cc1c65fc53d32c3f72e8e248396f16040585 # v13
+      - uses: ministryofjustice/github-actions/code-formatter@7c689fe2de15e1692f5cceceb132919ab854081c # v14
         with:
             ignore-files: "README.md"
         env:
