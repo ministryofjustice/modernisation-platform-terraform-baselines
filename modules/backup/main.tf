@@ -1,5 +1,5 @@
 locals {
-  cold_storage_after = 30
+  delete_after = 30
 }
 
 resource "aws_backup_vault" "default" {
@@ -30,8 +30,7 @@ resource "aws_backup_plan" "default" {
 
     # Amended tomake rule 30 days, August 2023
     lifecycle {
-      delete_after       = local.cold_storage_after
-      cold_storage_after = local.cold_storage_after
+      delete_after       = local.delete_after
     }
   }
 
