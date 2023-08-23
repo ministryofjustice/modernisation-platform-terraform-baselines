@@ -30,7 +30,7 @@ resource "aws_backup_plan" "default" {
 
     # Amended tomake rule 30 days, August 2023
     lifecycle {
-      delete_after       = local.delete_after
+      delete_after = local.delete_after
     }
   }
 
