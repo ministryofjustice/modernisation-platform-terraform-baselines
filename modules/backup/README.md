@@ -7,7 +7,7 @@ This module creates a new vault, named `everything`, in which the backup plans u
 
 ## Backup Plans
 This module creates backup plans:
-- `backup-daily-cold-storage-monthly-retain-120-days` plans daily backups, which are moved to cold storage every 30 days, and are retained for 120 days. The backups start from 00:30am and must finish within 6 hours of starting.
+- `backup-daily-cold-storage-monthly-retain-30-days` plans daily backups, which are removed after 300 days. This was orignally a cold backup after 30 days and a retention for 120 days but now the backups are removed after 30 days. The rule name was not fully changed. The backups start from 00:30am and must finish within 6 hours of starting.
 
 ## Backup Selections
 This module selects resources with the following tag key values to backup using the above plan, automatically:
