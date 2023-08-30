@@ -9,10 +9,10 @@ resource "aws_backup_vault" "default" {
 
 # Production backups
 resource "aws_backup_plan" "default" {
-  name = "backup-daily-retain-30-days"
+  name = "backup-daily-cold-storage-monthly-retain-30-days"
 
   rule {
-    rule_name         = "backup-daily-retain-30-days"
+    rule_name         = "backup-daily-cold-storage-monthly-retain-30-days"
     target_vault_name = aws_backup_vault.default.name
 
     # Backup every day at 00:30am
@@ -58,10 +58,10 @@ resource "aws_backup_selection" "production" {
 
 # Non production backups
 resource "aws_backup_plan" "non_production" {
-  name = "backup-daily-retain-30-days"
+  name = "backup-daily-cold-storage-monthly-retain-30-days"
 
   rule {
-    rule_name         = "backup-daily-retain-30-days"
+    rule_name         = "backup-daily-cold-storage-monthly-retain-30-days"
     target_vault_name = aws_backup_vault.default.name
 
     # Backup every day at 00:30am
