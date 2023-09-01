@@ -28,7 +28,7 @@ resource "aws_backup_plan" "default" {
     # before being deleted.
     # See: https://docs.aws.amazon.com/aws-backup/latest/devguide/API_Lifecycle.html
     lifecycle {
-      delete_after       = local.cold_storage_after
+      delete_after = local.cold_storage_after
     }
   }
 
