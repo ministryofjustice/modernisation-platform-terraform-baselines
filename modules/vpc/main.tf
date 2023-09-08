@@ -3,6 +3,9 @@
 # Default VPC presently defined in code so it can be managed through code
 # tfsec:ignore:aws-vpc-no-default-vpc
 resource "aws_default_vpc" "default" {
+
+  #checkov:skip=CKV_AWS_148: "Ensure no default VPC is planned to be provisioned"
+
   tags = var.tags
 }
 
@@ -60,6 +63,9 @@ resource "aws_default_security_group" "default" {
 ## CloudWatch log group for VPC Flow Logs
 # tfsec:ignore:aws-cloudwatch-log-group-customer-key
 resource "aws_cloudwatch_log_group" "default-vpc-flow-logs" {
+
+  #checkov:skip=CKV_AWS_158: "Ensure that CloudWatch Log Group is encrypted by KMS"
+
   name              = "default-vpc-flow-logs"
   retention_in_days = var.retention_days
   tags              = var.tags
