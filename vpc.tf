@@ -30,6 +30,9 @@ resource "aws_iam_policy" "vpc-flow-log-publish-policy" {
 # tfsec ignore appropriate as wildcard in line with AWS published guidance
 # tfsec:ignore:aws-iam-no-policy-wildcards
 data "aws_iam_policy_document" "vpc-flow-log-publish-policy" {
+
+#checkov:skip=CKV_AWS_111: "Ensure IAM policies does not allow write access without constraints"
+
   version = "2012-10-17"
 
   statement {
