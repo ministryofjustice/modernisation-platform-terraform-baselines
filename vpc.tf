@@ -31,16 +31,11 @@ resource "aws_iam_policy" "vpc-flow-log-publish-policy" {
 # tfsec:ignore:aws-iam-no-policy-wildcards
 data "aws_iam_policy_document" "vpc-flow-log-publish-policy" {
 
-<<<<<<< HEAD
 # IAM policy issues here are not relevant so they have been skipped. For example we need "*"
-#checkov:skip=CKV_AWS_111: "Ensure IAM policies does not allow write access without constraints"
-#checkov:skip=CKV_AWS_356: "Ensure no IAM policies documents allow "*" as a statement's resource for restrictable actions"
-=======
+
   #checkov:skip=CKV_AWS_111: "Ensure IAM policies does not allow write access without constraints"
   #checkov:skip=CKV_AWS_356: "Ensure no IAM policies documents allow "*" as a statement's resource for restrictable actions"
   #checkov:skip=CKV_AWS_111: "Ensure IAM policies does not allow write access without constraints"
-
->>>>>>> 093604758897677d2547214325564871cedf33c4
 
   version = "2012-10-17"
 
