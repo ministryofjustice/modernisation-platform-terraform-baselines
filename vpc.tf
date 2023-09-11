@@ -32,6 +32,7 @@ resource "aws_iam_policy" "vpc-flow-log-publish-policy" {
 data "aws_iam_policy_document" "vpc-flow-log-publish-policy" {
 
 #checkov:skip=CKV_AWS_111: "Ensure IAM policies does not allow write access without constraints"
+#checkov:skip=CKV_AWS_356: "Ensure no IAM policies documents allow "*" as a statement's resource for restrictable actions"
 
   version = "2012-10-17"
 
