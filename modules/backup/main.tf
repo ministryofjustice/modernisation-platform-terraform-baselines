@@ -10,7 +10,7 @@ resource "aws_backup_vault" "default" {
 # Production backups
 resource "aws_backup_plan" "default" {
 
-#checkov:skip=CKV_AWS_166: "Ensure Backup Vault is encrypted at rest using KMS CMK"
+  #checkov:skip=CKV_AWS_166: "Ensure Backup Vault is encrypted at rest using KMS CMK"
 
   name = "backup-daily-retain-30-days"
 
