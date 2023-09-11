@@ -4,8 +4,8 @@ locals {
 
 resource "aws_backup_vault" "default" {
 
-# KMS used to encrypt is at an account level so not included here.
-#checkov:skip=CKV_AWS_166: "Ensure Backup Vault is encrypted at rest using KMS CMK"
+  # KMS used to encrypt is at an account level so not included here.
+  #checkov:skip=CKV_AWS_166: "Ensure Backup Vault is encrypted at rest using KMS CMK"
 
   name = "everything"
   tags = var.tags
@@ -14,7 +14,7 @@ resource "aws_backup_vault" "default" {
 # Production backups
 resource "aws_backup_plan" "default" {
 
-# We use KMS keys from different accounts so this is not relevant to us
+  # We use KMS keys from different accounts so this is not relevant to us
   #checkov:skip=CKV_AWS_166: "Ensure Backup Vault is encrypted at rest using KMS CMK"
 
   name = "backup-daily-retain-30-days"

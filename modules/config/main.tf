@@ -25,8 +25,8 @@ resource "aws_config_delivery_channel" "default" {
 
 resource "aws_config_configuration_recorder_status" "default" {
 
-# Setup for all so listing resources is not required
-#checkov:skip=CKV2_AWS_45: "Ensure AWS Config recorder is enabled to record all supported resources"
+  # Setup for all so listing resources is not required
+  #checkov:skip=CKV2_AWS_45: "Ensure AWS Config recorder is enabled to record all supported resources"
 
   name       = "config"
   is_enabled = true
