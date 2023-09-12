@@ -3,8 +3,6 @@ locals {
 }
 
 resource "aws_backup_vault" "default" {
-
-  # KMS used to encrypt is at an account level so not included here.
   #checkov:skip=CKV_AWS_166: "Ensure Backup Vault is encrypted at rest using KMS CMK - Tricky to implement, hence using AWS managed KMS key"
 
   name = "everything"
