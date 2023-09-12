@@ -19,6 +19,7 @@ data "aws_iam_policy_document" "securityhub-alarms-kms" {
 
   #checkov:skip=CKV_AWS_356: "Permissions required by sec-hub"
   #checkov:skip=CKV_AWS_111: "Ensure IAM policies does not allow write access without constraints"
+  #checkov:skip=CKV_AWS_109: "Ensure IAM policies does not allow permissions management / resource exposure without constraints - This is applied to a specific SNS topic"
 
   statement {
     effect    = "Allow"

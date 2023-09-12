@@ -3,12 +3,16 @@ locals {
 }
 
 resource "aws_backup_vault" "default" {
+  #checkov:skip=CKV_AWS_166: "Ensure Backup Vault is encrypted at rest using KMS CMK - Tricky to implement, hence using AWS managed KMS key"
+
   name = "everything"
   tags = var.tags
 }
 
 # Production backups
 resource "aws_backup_plan" "default" {
+  #checkov:skip=CKV_AWS_166: "Ensure Backup Vault is encrypted at rest using KMS CMK - Tricky to implement, hence using AWS managed KMS key"
+
   name = "backup-daily-retain-30-days"
 
   rule {
