@@ -50,6 +50,7 @@ resource "aws_backup_selection" "production" {
   name         = "is-production-true"
   iam_role_arn = var.iam_role_arn
   plan_id      = aws_backup_plan.default.id
+  resources    = ["*"]
 
   condition {
     string_equals {
