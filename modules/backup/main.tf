@@ -102,12 +102,12 @@ resource "aws_backup_selection" "non_production" {
   resources    = ["*"]
 
   condition {
-    string_equals {
-      key   = "aws:ResourceTag/backup"
-      value = "true"
-    }
     string_not_equals {
       key   = "aws:ResourceTag/is-production"
+      value = "true"
+    }
+    string_equals {
+      key   = "aws:ResourceTag/backup"
       value = "true"
     }
   }
