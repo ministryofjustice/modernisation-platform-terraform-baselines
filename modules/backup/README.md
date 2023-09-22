@@ -11,13 +11,13 @@ This module creates two backup plans:
 - `backup-daily-cold-storage-monthly-retain-30-days` plans daily backups, which are deleted every 30 days. As above, the backups start at 0:30 and must finish within 6 hours of starting.
 
 ## Backup Selections
-This module selects resources with the following tag/key values to backup using the above plan. Resources can be exluded by setting `skip-backup` to `true`.
+This module selects resources for the default plan with the following tag/key values. Resources can be excluded by setting `backup` to `false`:
 - `is-production`: `true`
-- `skip-backup`: `!true`
+- `backup`: `!false`
 
 Non-production environments can also make use of backup plans with the following tag/key values:
-- `backup`: `true`
 - `is-production`: `!true`
+- `backup`: `true`
 
 ## Usage
 

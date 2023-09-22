@@ -57,8 +57,8 @@ resource "aws_backup_selection" "production" {
       value = "true"
     }
     string_not_equals {
-      key   = "aws:ResourceTag/skip_backup"
-      value = "true"
+      key   = "aws:ResourceTag/backup"
+      value = "false"
     }
   }
 }
