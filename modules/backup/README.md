@@ -6,12 +6,18 @@ Terraform module for configuring [AWS Backup](https://aws.amazon.com/backup/).
 This module creates a new vault, named `everything`, in which the backup plans use as a destination.
 
 ## Backup Plans
-This module creates backup plans:
-- `backup-daily-retain-30-days` plans daily backups, which are deleted every 30 days. The backups start from 00:30am and must finish within 6 hours of starting.
+This module creates two backup plans:
+- `backup-daily-retain-30-days` plans daily backups, which are deleted every 30 days. The backups start at 0:30 and must finish within 6 hours of starting.
+- `backup-daily-cold-storage-monthly-retain-30-days` plans daily backups, which are deleted every 30 days. As above, the backups start at 0:30 and must finish within 6 hours of starting.
 
 ## Backup Selections
-This module selects resources with the following tag key values to backup using the above plan, automatically:
+This module selects resources with the following tag/key values to backup using the above plan. Resources can be exluded by setting `skip-backup` to `true`.
 - `is-production`: `true`
+- `skip-backup`: `!true`
+
+Non-production environments can also make use of backup plans with the following tag/key values:
+- `backup`: `true`
+- `is-production`: `!true`
 
 ## Usage
 
