@@ -51,10 +51,15 @@ resource "aws_backup_selection" "production" {
   iam_role_arn = var.iam_role_arn
   plan_id      = aws_backup_plan.default.id
 
-  selection_tag {
-    type  = "STRINGEQUALS"
-    key   = "is-production"
-    value = "true"
+  condition {
+    string_equals {
+      key   = "aws:ResourceTag/is-production"
+      value = "true"
+    }
+    string_not_equals {
+      key   = "aws:ResourceTag/backup"
+      value = "false"
+    }
   }
 }
 
@@ -97,12 +102,12 @@ resource "aws_backup_selection" "non_production" {
   resources    = ["*"]
 
   condition {
-    string_equals {
-      key   = "aws:ResourceTag/backup"
-      value = "true"
-    }
     string_not_equals {
       key   = "aws:ResourceTag/is-production"
+      value = "true"
+    }
+    string_equals {
+      key   = "aws:ResourceTag/backup"
       value = "true"
     }
   }
