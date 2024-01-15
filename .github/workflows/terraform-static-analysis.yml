@@ -25,13 +25,14 @@ jobs:
       with:
         fetch-depth: 0
     - name: Run Analysis
-      uses: ministryofjustice/github-actions/terraform-static-analysis@7c689fe2de15e1692f5cceceb132919ab854081c # v14
+      uses: ministryofjustice/github-actions/terraform-static-analysis@7855159a5c3a9bcd658207c894cc4ed22bd35a22 # v15.3.0
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         scan_type: single
         tfsec_exclude: AWS089, AWS099, AWS009, AWS097, AWS018
         checkov_exclude: CKV_GIT_1
+        tflint_call_module_type: none
 
   terraform-static-analysis-full-scan:
     permissions:
@@ -45,10 +46,11 @@ jobs:
       with:
         fetch-depth: 0
     - name: Run Analysis
-      uses: ministryofjustice/github-actions/terraform-static-analysis@7c689fe2de15e1692f5cceceb132919ab854081c # v14
+      uses: ministryofjustice/github-actions/terraform-static-analysis@7855159a5c3a9bcd658207c894cc4ed22bd35a22 # v15.3.0
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         scan_type: full
         tfsec_exclude: AWS089, AWS099, AWS009, AWS097, AWS018
         checkov_exclude: CKV_GIT_1
+        tflint_call_module_type: none
