@@ -9,3 +9,9 @@ resource "aws_iam_account_password_policy" "default" {
   require_symbols                = true
   require_uppercase_characters   = true
 }
+
+
+# Prevent making AMIs publicly accessible in the account.
+resource "aws_ec2_image_block_public_access" "block-public-ami" {
+  state = "block-new-sharing"
+}
