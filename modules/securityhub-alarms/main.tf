@@ -15,6 +15,21 @@ resource "aws_kms_alias" "securityhub-alarms" {
   target_key_id = aws_kms_key.securityhub-alarms.id
 }
 
+# SecurityHub alarms KMS multi-Region
+resource "aws_kms_key" "securityhub_alarms_multi_region" {
+  deletion_window_in_days = 7
+  description             = "SecurityHub alarms encryption key"
+  enable_key_rotation     = true
+  policy                  = data.aws_iam_policy_document.securityhub-alarms-kms.json
+  tags                    = var.tags
+  multi_region            = true
+}
+
+resource "aws_kms_alias" "securityhub_alarms_multi_region" {
+  name          = "alias/securityhub-alarms-key-multi-region"
+  target_key_id = aws_kms_key.securityhub_alarms_multi_region.id
+}
+
 data "aws_iam_policy_document" "securityhub-alarms-kms" {
 
   #checkov:skip=CKV_AWS_356: "Permissions required by sec-hub"
