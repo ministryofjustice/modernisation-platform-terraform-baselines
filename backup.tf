@@ -24,6 +24,11 @@ resource "aws_iam_role_policy_attachment" "backup" {
   policy_arn = "arn:aws:iam::aws:policy/service-role/AWSBackupServiceRolePolicyForBackup"
 }
 
+resource "aws_iam_role_policy_attachment" "backupS3" {
+  role       = aws_iam_role.backup.id
+  policy_arn = "arn:aws:iam::aws:policy/AWSBackupServiceRolePolicyForS3Backup"
+}
+
 module "backup-ap-northeast-1" {
   for_each = contains(var.enabled_backup_regions, "ap-northeast-1") ? local.enabled : local.not_enabled
 
