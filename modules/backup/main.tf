@@ -119,14 +119,7 @@ resource "aws_sns_topic" "backup_failure_topic" {
   name = "backup_failure_topic"
 }
 
-# SNS subscription
-resource "aws_sns_topic_subscription" "email_subscription" {
-  topic_arn = aws_sns_topic.backup_failure_topic.arn
-  protocol  = "email"
-  endpoint  = "edward.proctor@digital.justice.gov.uk"
-}
-
-# Attach the SNS topic to the backup vault for notifications
+# Attaches the SNS topic to the backup vault to subscribe for notifications
 resource "aws_backup_vault_notifications" "example" {
   backup_vault_events = ["BACKUP_JOB_FAILED"]
   backup_vault_name   = aws_backup_vault.default.name
