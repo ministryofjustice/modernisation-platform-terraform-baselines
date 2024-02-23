@@ -119,7 +119,7 @@ resource "aws_sns_topic" "backup_failure_topic" {
   kms_master_key_id = "alias/aws/sns"
   name              = "backup_failure_topic"
   tags = merge(var.tags, {
-  Description = "This backup topic is so the MP team can subscribe to backup notifications from selected accounts and teams using member-unrestricted accounts can create their own subscriptions" 
+    Description = "This backup topic is so the MP team can subscribe to backup notifications from selected accounts and teams using member-unrestricted accounts can create their own subscriptions"
   })
 }
 
