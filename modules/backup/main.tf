@@ -113,3 +113,19 @@ resource "aws_backup_selection" "non_production" {
     }
   }
 }
+
+# SNS topic
+resource "aws_sns_topic" "backup_failure_topic" {
+  kms_master_key_id = "alias/aws/sns"
+  name              = "backup_failure_topic"
+  tags = merge(var.tags, {
+    Description = "This backup topic is so the MP team can subscribe to backup notifications from selected accounts and teams using member-unrestricted accounts can create their own subscriptions"
+  })
+}
+
+# Attaches the SNS topic to the backup vault to subscribe for notifications
+resource "aws_backup_vault_notifications" "aws_backup_vault_notifications" {
+  backup_vault_events = ["BACKUP_JOB_FAILED"]
+  backup_vault_name   = aws_backup_vault.default.name
+  sns_topic_arn       = aws_sns_topic.backup_failure_topic.arn
+}
