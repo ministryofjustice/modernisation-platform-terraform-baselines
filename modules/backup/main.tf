@@ -118,7 +118,7 @@ resource "aws_backup_selection" "non_production" {
 resource "aws_sns_topic" "backup_failure_topic" {
   kms_master_key_id = "alias/aws/sns"
   name              = "backup_failure_topic"
-  tags = var.tags
+  tags              = var.tags
 }
 
 # Attaches the SNS topic to the backup vault to subscribe for notifications
