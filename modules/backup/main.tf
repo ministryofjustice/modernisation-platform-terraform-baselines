@@ -116,6 +116,7 @@ resource "aws_backup_selection" "non_production" {
 
 # SNS topic
 resource "aws_sns_topic" "backup_failure_topic" {
+  kms_master_key_id = "alias/aws/sns"
   name = "backup_failure_topic"
 }
 
