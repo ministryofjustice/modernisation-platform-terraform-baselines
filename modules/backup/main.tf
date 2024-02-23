@@ -124,6 +124,7 @@ resource "aws_sns_topic" "backup_failure_topic" {
   })
 }
 
+
 # Attaches the SNS topic to the backup vault to subscribe for notifications
 resource "aws_backup_vault_notifications" "aws_backup_vault_notifications" {
   backup_vault_events = ["BACKUP_JOB_FAILED"]
