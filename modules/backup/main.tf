@@ -115,8 +115,9 @@ resource "aws_backup_selection" "non_production" {
 }
 
 # SNS topic
+#trivy:ignore:avd-aws-0136
 resource "aws_sns_topic" "backup_failure_topic" {
-  kms_master_key_id = "alias/aws/sns"
+  kms_master_key_id = var.sns_backup_topic_key
   name              = "backup_failure_topic"
   tags = merge(var.tags, {
     Description = "This backup topic is so the MP team can subscribe to backup notifications from selected accounts and teams using member-unrestricted accounts can create their own subscriptions"
