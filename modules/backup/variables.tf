@@ -4,8 +4,8 @@ variable "iam_role_arn" {
 }
 
 variable "sns_backup_topic_key" {
-  type = string
-  default = "alias/aws/sns"
+  type        = string
+  default     = "alias/aws/sns"
   description = "KMS key used to encrypt backup failure SNS topic"
 }
 
