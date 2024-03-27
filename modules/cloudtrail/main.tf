@@ -32,7 +32,7 @@ resource "aws_cloudtrail" "cloudtrail" {
         values = ["arn:aws:s3"]
       }
     }
-  }  
+  }
 
   # wait for sns topic policy to be attached 
   depends_on = [aws_sns_topic_policy.cloudtrail]
