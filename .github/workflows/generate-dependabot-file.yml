@@ -1,0 +1,44 @@
+name: Generate dependabot file 
+
+on:
+  schedule:
+    - cron: "40 22 * * 6"
+  push:
+    branches:
+      - main
+    paths:
+      - '.github/workflows/generate-dependabot-file.yml'
+      - 'scripts/generate-dependabot-file.sh'
+  workflow_dispatch:
+
+permissions: {}
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  create-and-commit-dependabot-file:
+    permissions:
+      contents: write
+      pull-requests: write
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+      - name: Generate file
+        run: bash ./scripts/generate-dependabot-file.sh
+      - name: Commit changes to GitHub
+        run: bash ./scripts/git-setup.sh
+      - run: bash ./scripts/git-commit.sh .github
+      - run: bash ./scripts/git-pull-request.sh dependabot
+        env:
+          SECRET: ${{ secrets.GITHUB_TOKEN }}
+      - name: Slack failure notification
+        uses: slackapi/slack-github-action@6c661ce58804a1a20f6dc5fbee7f0381b469e001 # v1.25.0
+        with:
+          payload: |
+            {"blocks":[{"type": "section","text": {"type": "mrkdwn","text": ":no_entry: Failed GitHub Action:"}},{"type": "section","fields":[{"type": "mrkdwn","text": "*Workflow:*\n<${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}|${{ github.workflow }}>"},{"type": "mrkdwn","text": "*Job:*\n${{ github.job }}"},{"type": "mrkdwn","text": "*Repo:*\n${{ github.repository }}"}]}]}
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+          SLACK_WEBHOOK_TYPE: INCOMING_WEBHOOK
+        if: ${{ failure() }}
