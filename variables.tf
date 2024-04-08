@@ -1,12 +1,12 @@
-variable "root_account_id" {
+variable "cloudtrail_kms_key" {
+  description = "Arn of kms key used for cloudtrail logs"
   type        = string
-  description = "The AWS Organisations root account ID that this account should be part of"
 }
 
-variable "tags" {
-  default     = {}
-  description = "Tags to apply to resources, where applicable"
-  type        = map(any)
+variable "enable_cloudtrail_s3_mgmt_events" {
+  type        = bool
+  default     = true
+  description = "Enable CT Object-level logging, defaults to true"
 }
 
 variable "enabled_access_analyzer_regions" {
@@ -51,7 +51,13 @@ variable "enabled_vpc_regions" {
   type        = list(string)
 }
 
-variable "cloudtrail_kms_key" {
-  description = "Arn of kms key used for cloudtrail logs"
+variable "root_account_id" {
   type        = string
+  description = "The AWS Organisations root account ID that this account should be part of"
+}
+
+variable "tags" {
+  default     = {}
+  description = "Tags to apply to resources, where applicable"
+  type        = map(any)
 }
