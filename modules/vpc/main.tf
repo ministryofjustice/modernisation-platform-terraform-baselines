@@ -3,7 +3,7 @@
 # Default VPC presently defined in code so it can be managed through code
 # tfsec:ignore:aws-vpc-no-default-vpc
 resource "aws_default_vpc" "default" {
-
+  force_destroy = true #Delete the default vpc and its associated resources
   #checkov:skip=CKV_AWS_148: "Ensure no default VPC is planned to be provisioned"
 
   tags = var.tags
