@@ -45,12 +45,6 @@ variable "enabled_securityhub_regions" {
   type        = list(string)
 }
 
-variable "enabled_vpc_regions" {
-  default     = []
-  description = "Regions to enable default VPC configuration and VPC Flow Logs in"
-  type        = list(string)
-}
-
 variable "root_account_id" {
   type        = string
   description = "The AWS Organisations root account ID that this account should be part of"
