@@ -55,7 +55,3 @@ updates:
     directory: "/modules/support"
     schedule:
       interval: "daily"
-  - package-ecosystem: "terraform"
-    directory: "/modules/vpc"
-    schedule:
-      interval: "daily"
