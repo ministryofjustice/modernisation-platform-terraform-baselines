@@ -55,3 +55,9 @@ variable "tags" {
   description = "Tags to apply to resources, where applicable"
   type        = map(any)
 }
+
+variable "enabled_imdsv2_regions" {
+  default     = []
+  description = "Regions to enable IMDSv2 in"
+  type        = list(string)
+}
