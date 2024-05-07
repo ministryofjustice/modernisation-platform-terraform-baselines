@@ -115,7 +115,7 @@ resource "aws_backup_selection" "non_production" {
 }
 
 # SNS topic
-#trivy:ignore:avd-aws-0136
+#trivy:ignore:AVD-AWS-0136
 resource "aws_sns_topic" "backup_failure_topic" {
   kms_master_key_id = var.sns_backup_topic_key
   name              = "backup_failure_topic"
