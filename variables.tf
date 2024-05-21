@@ -55,3 +55,14 @@ variable "cloudtrail_kms_key" {
   description = "Arn of kms key used for cloudtrail logs"
   type        = string
 }
+
+variable "cloudtrail_bucket" {
+  description = "Name of centralised Cloudtrail bucket"
+  type        = string
+}
+
+variable "retention_days" {
+  default     = 400
+  description = "Retention days for logs"
+  type        = number
+}
