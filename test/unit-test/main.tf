@@ -29,8 +29,8 @@ module "baselines" {
   # Enable IAM Access Analyzer in eu-west-2
   enabled_access_analyzer_regions = ["eu-west-2"]
 
-  root_account_id    = local.root_account_id
-  tags               = local.tags
+  root_account_id = local.root_account_id
+  tags            = local.tags
 
   cloudtrail_kms_key = data.aws_kms_key.cloudtrail_key.arn
 }
