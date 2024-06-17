@@ -44,6 +44,10 @@ updates:
     schedule:
       interval: "daily"
   - package-ecosystem: "terraform"
+    directory: "/modules/imdsv2"
+    schedule:
+      interval: "daily"
+  - package-ecosystem: "terraform"
     directory: "/modules/securityhub"
     schedule:
       interval: "daily"
