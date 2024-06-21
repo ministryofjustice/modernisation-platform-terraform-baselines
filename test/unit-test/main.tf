@@ -12,3 +12,4 @@ module "test_alerts" {
  # baseline_integration_key  = local.baseline_integration_keys["test_alarms"]
  depends_on                = [aws_sns_topic.test_alarms]
  }
+ 
