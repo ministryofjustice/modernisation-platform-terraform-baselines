@@ -1,7 +1,7 @@
-# variable "replication_role_arn" {
-#   type        = string
-#   description = "Role ARN for S3 replication"
-# }
+variable "replication_role_arn" {
+  type        = string
+  description = "Role ARN for S3 replication"
+}
 
 variable "cloudtrail_kms_key" {
   description = "Arn of kms key used for cloudtrail logs"

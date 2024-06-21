@@ -50,6 +50,19 @@ variable "root_account_id" {
   description = "The AWS Organisations root account ID that this account should be part of"
 }
 
+
+
+variable "cloudtrail_bucket" {
+  description = "Name of centralised Cloudtrail bucket"
+  type        = string
+}
+
+variable "retention_days" {
+  default     = 400
+  description = "Retention days for logs"
+  type        = number
+}
+
 variable "tags" {
   default     = {}
   description = "Tags to apply to resources, where applicable"
@@ -61,3 +74,4 @@ variable "enabled_imdsv2_regions" {
   description = "Regions to enable IMDSv2 in"
   type        = list(string)
 }
+
