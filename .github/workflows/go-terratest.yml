@@ -1,9 +1,6 @@
 on:
     pull_request:
         types: [opened, edited, reopened, synchronize]
-    push:
-        branches:
-            - feature/add-unit-tests
 
 permissions: {}
 
