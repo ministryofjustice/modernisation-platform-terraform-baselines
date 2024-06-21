@@ -20,13 +20,17 @@ resource "aws_cloudtrail" "cloudtrail" {
   s3_bucket_name                = var.cloudtrail_bucket
   sns_topic_name                = aws_sns_topic.cloudtrail.arn
 
-  event_selector {
-    include_management_events = true
-    read_write_type           = "All"
+  dynamic "event_selector" {
+    for_each = var.enable_cloudtrail_s3_mgmt_events ? [1] : []
+    # If enable_cloudtrail_s3_mgmt_events is enabled, the below block is created
+    content {
+      include_management_events = true
+      read_write_type           = "All"
 
-    data_resource {
-      type   = "AWS::S3::Object"
-      values = ["arn:aws:s3"]
+      data_resource {
+        type   = "AWS::S3::Object"
+        values = ["arn:aws:s3"]
+      }
     }
   }
 

@@ -1,3 +1,6 @@
+# This file is auto-generated here, do not manually amend. 
+# https://github.com/ministryofjustice/modernisation-platform/blob/main/scripts/generate-dependabot.sh
+
 version: 2
 
 updates:
@@ -5,8 +8,11 @@ updates:
     directory: "/"
     schedule:
       interval: "daily"
+  # Dependabot doesn't currently support wildcard or multiple directory declarations within
+  # a dependabot configuration, so we need to add all directories individually
+  # See: github.com/dependabot/dependabot-core/issues/2178
   - package-ecosystem: "terraform"
-    directory: "/"
+    directory: "/."
     schedule:
       interval: "daily"
   - package-ecosystem: "terraform"
@@ -38,6 +44,10 @@ updates:
     schedule:
       interval: "daily"
   - package-ecosystem: "terraform"
+    directory: "/modules/imdsv2"
+    schedule:
+      interval: "daily"
+  - package-ecosystem: "terraform"
     directory: "/modules/securityhub"
     schedule:
       interval: "daily"
@@ -47,9 +57,5 @@ updates:
       interval: "daily"
   - package-ecosystem: "terraform"
     directory: "/modules/support"
-    schedule:
-      interval: "daily"
-  - package-ecosystem: "terraform"
-    directory: "/modules/vpc"
     schedule:
       interval: "daily"

@@ -20,37 +20,48 @@ jobs:
     runs-on: ubuntu-latest
     if: github.event_name != 'workflow_dispatch'
     steps:
-    - name: Checkout
-      uses: actions/checkout@9bb56186c3b09b4f86b1c65136769dd318469633 # v4.1.2
-      with:
-        fetch-depth: 0
-    - name: Run Analysis
-      uses: ministryofjustice/github-actions/terraform-static-analysis@7855159a5c3a9bcd658207c894cc4ed22bd35a22 # v15.3.0
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        scan_type: single
-        tfsec_exclude: AWS089, AWS099, AWS009, AWS097, AWS018
-        checkov_exclude: CKV_GIT_1
-        tflint_call_module_type: none
+      - name: Checkout
+        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
+        with:
+          fetch-depth: 0
+      - name: Run Analysis
+        uses: ministryofjustice/github-actions/terraform-static-analysis@bdab1cff6d23336b6d5adc662fb57af72f0ae160 # v17.1.0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          scan_type: changed
+          trivy_severity: HIGH,CRITICAL
+          trivy_ignore: ./.trivyignore.yaml
+          checkov_exclude: CKV_GIT_1,CKV_AWS_126,CKV2_AWS_38,CKV2_AWS_39
+          tflint_exclude: terraform_unused_declarations
+          tflint_call_module_type: none
+          tfsec_trivy: trivy
 
   terraform-static-analysis-full-scan:
     permissions:
+      contents: read
+      actions: read
+      security-events: write
       pull-requests: write
     name: Terraform Static Analysis - scan all directories
     runs-on: ubuntu-latest
     if: github.event_name == 'workflow_dispatch'
     steps:
-    - name: Checkout
-      uses: actions/checkout@9bb56186c3b09b4f86b1c65136769dd318469633 # v4.1.2
-      with:
-        fetch-depth: 0
-    - name: Run Analysis
-      uses: ministryofjustice/github-actions/terraform-static-analysis@7855159a5c3a9bcd658207c894cc4ed22bd35a22 # v15.3.0
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        scan_type: full
-        tfsec_exclude: AWS089, AWS099, AWS009, AWS097, AWS018
-        checkov_exclude: CKV_GIT_1
-        tflint_call_module_type: none
+      - name: Checkout
+        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
+        with:
+          fetch-depth: 0
+      - name: Run Analysis
+        uses: ministryofjustice/github-actions/terraform-static-analysis@bdab1cff6d23336b6d5adc662fb57af72f0ae160 # v17.1.0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          scan_type: full
+          tfsec_trivy: trivy
+          trivy_skip_dir: ""
+          trivy_severity: HIGH,CRITICAL
+          trivy_ignore: ./.trivyignore.yaml
+          tfsec_exclude: aws-ssm-secret-use-customer-key,github-repositories-private,aws-vpc-no-excessive-port-access,github-repositories-require-signed-commits
+          checkov_exclude: CKV_GIT_1,CKV_AWS_126,CKV2_AWS_38,CKV2_AWS_39
+          tflint_exclude: terraform_unused_declarations
+          tflint_call_module_type: none

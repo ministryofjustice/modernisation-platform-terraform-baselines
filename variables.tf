@@ -1,12 +1,12 @@
-variable "root_account_id" {
+variable "cloudtrail_kms_key" {
+  description = "Arn of kms key used for cloudtrail logs"
   type        = string
-  description = "The AWS Organisations root account ID that this account should be part of"
 }
 
-variable "tags" {
-  default     = {}
-  description = "Tags to apply to resources, where applicable"
-  type        = map(any)
+variable "enable_cloudtrail_s3_mgmt_events" {
+  type        = bool
+  default     = true
+  description = "Enable CT Object-level logging, defaults to true"
 }
 
 variable "enabled_access_analyzer_regions" {
@@ -45,16 +45,12 @@ variable "enabled_securityhub_regions" {
   type        = list(string)
 }
 
-variable "enabled_vpc_regions" {
-  default     = []
-  description = "Regions to enable default VPC configuration and VPC Flow Logs in"
-  type        = list(string)
+variable "root_account_id" {
+  type        = string
+  description = "The AWS Organisations root account ID that this account should be part of"
 }
 
-variable "cloudtrail_kms_key" {
-  description = "Arn of kms key used for cloudtrail logs"
-  type        = string
-}
+
 
 variable "cloudtrail_bucket" {
   description = "Name of centralised Cloudtrail bucket"
@@ -66,3 +62,16 @@ variable "retention_days" {
   description = "Retention days for logs"
   type        = number
 }
+
+variable "tags" {
+  default     = {}
+  description = "Tags to apply to resources, where applicable"
+  type        = map(any)
+}
+
+variable "enabled_imdsv2_regions" {
+  default     = []
+  description = "Regions to enable IMDSv2 in"
+  type        = list(string)
+}
+

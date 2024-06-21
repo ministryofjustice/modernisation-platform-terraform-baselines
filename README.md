@@ -28,6 +28,7 @@ Terraform module for enabling and configuring the [MoJ Security Guidance](https:
 - [x] [EBS encryption](modules/ebs/README.md)
 - [x] [SecurityHub alarms](modules/securityhub-alarms/README.md)
 - [x] [VPC logging for default VPCs](modules/vpc/README.md)
+- [x] [IMDSv2 by default](modules/imdsv2/README.md)
 
 ## Usage
 
