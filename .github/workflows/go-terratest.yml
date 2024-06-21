@@ -3,7 +3,7 @@ on:
       types: [opened, edited, reopened, synchronize]
     push:
         branches:
-            - add-unit-tests
+            - feature/add-unit-tests
   permissions: {}
   env:
     AWS_ACCESS_KEY_ID:  ${{ secrets.AWS_ACCESS_KEY_ID }}
