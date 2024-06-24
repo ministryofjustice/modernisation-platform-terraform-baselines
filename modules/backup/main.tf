@@ -11,7 +11,7 @@ resource "aws_backup_vault" "default" {
 
 # Backup vault lock
 resource "aws_backup_vault_lock_configuration" "default" {
-  backup_vault_name = aws_backup_vault.default.name
+  backup_vault_name  = aws_backup_vault.default.name
   min_retention_days = 30
   max_retention_days = 60
 }
@@ -27,7 +27,7 @@ resource "aws_sns_topic" "backup_vault_topic" {
 }
 
 resource "aws_cloudwatch_event_rule" "backup_vault_deleted_rule" {
-  name = "backup-vault-deleted-rule"
+  name          = "backup-vault-deleted-rule"
   event_pattern = <<EOF
 {
   "source": ["aws.backup"],
