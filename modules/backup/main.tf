@@ -9,6 +9,14 @@ resource "aws_backup_vault" "default" {
   tags = var.tags
 }
 
+# Backup vault lock
+resource "aws_backup_vault_lock_configuration" "default" {
+  backup_vault_name = aws_backup_vault.default.name
+  changeable_for_days = 3
+  min_retention_days = 30
+  max_retention_days = 60
+}
+
 # Production backups
 resource "aws_backup_plan" "default" {
   #checkov:skip=CKV_AWS_166: "Ensure Backup Vault is encrypted at rest using KMS CMK - Tricky to implement, hence using AWS managed KMS key"
