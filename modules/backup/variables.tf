@@ -44,3 +44,8 @@ variable "backup_aws_sns_topic_name" {
   default = "backup_failure_topic"
   type    = string
 }
+
+variable "backup_vault_lock_sns_topic_name" {
+  default = "backup_vault_failure_topic"
+  type    = string
+}

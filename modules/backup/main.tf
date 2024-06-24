@@ -12,10 +12,34 @@ resource "aws_backup_vault" "default" {
 # Backup vault lock
 resource "aws_backup_vault_lock_configuration" "default" {
   backup_vault_name = aws_backup_vault.default.name
-  changeable_for_days = 3
   min_retention_days = 30
   max_retention_days = 60
 }
+
+# SNS topic
+# trivy:ignore:avd-aws-0136
+resource "aws_sns_topic" "backup_vault_topic" {
+  kms_master_key_id = var.sns_backup_topic_key
+  name              = var.backup_vault_lock_sns_topic_name
+  tags = merge(var.tags, {
+    Description = "This backup topic is so the MP team can subscribe to backup vault lock being turned off and member accounts can create their own subscriptions"
+  })
+}
+
+resource "aws_cloudwatch_event_rule" "backup_vault_deleted_rule" {
+  name = "backup-vault-deleted-rule"
+  event_pattern = <<EOF
+{
+  "source": ["aws.backup"],
+  "detail-type": ["AWS API Call via CloudTrail"],
+  "detail": {
+    "eventSource": ["backup.amazonaws.com"],
+    "eventName": ["DeleteBackupVault"]
+  }
+}
+EOF
+}
+
 
 # Production backups
 resource "aws_backup_plan" "default" {
