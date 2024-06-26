@@ -40,6 +40,40 @@ resource "aws_cloudwatch_event_rule" "backup_vault_deleted_rule" {
 EOF
 }
 
+# resource "aws_cloudwatch_event_target" "backup_vault_deleted_target" {
+#   rule = aws_cloudwatch_event_rule.backup_vault_deleted_rule.name
+#   arn  = aws_sns_topic.backup_vault_topic.arn
+# }
+
+
+# ## Pager duty integration
+
+# # Get the map of pagerduty integration keys from the modernisation platform account
+# data "aws_secretsmanager_secret" "pagerduty_integration_keys" {
+#   provider = aws.modernisation-platform
+#   name     = "pagerduty_integration_keys"
+# }
+# data "aws_secretsmanager_secret_version" "pagerduty_integration_keys" {
+#   provider  = aws.modernisation-platform
+#   secret_id = data.aws_secretsmanager_secret.pagerduty_integration_keys.id
+# }
+
+# # Add a local to get the keys
+# locals {
+#   pagerduty_integration_keys = jsondecode(data.aws_secretsmanager_secret_version.pagerduty_integration_keys.secret_string)
+# }
+
+# # link the sns topic to the service
+# module "pagerduty_core_alerts" {
+#   depends_on = [
+#     aws_sns_topic.backup_vault_topic
+#   ]
+#   source                    = "github.com/ministryofjustice/modernisation-platform-terraform-pagerduty-integration?ref=v2.0.0"
+#   sns_topics                = [aws_sns_topic.backup_vault_topic.name]
+#   pagerduty_integration_key = local.pagerduty_integration_keys["core_alerts_cloudwatch"]
+
+# }
+
 
 # Production backups
 resource "aws_backup_plan" "default" {
@@ -161,3 +195,4 @@ resource "aws_backup_vault_notifications" "aws_backup_vault_notifications" {
   backup_vault_name   = aws_backup_vault.default.name
   sns_topic_arn       = aws_sns_topic.backup_failure_topic.arn
 }
+
