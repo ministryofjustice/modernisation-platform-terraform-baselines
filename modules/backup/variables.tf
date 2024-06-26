@@ -49,3 +49,15 @@ variable "backup_vault_lock_sns_topic_name" {
   default = "backup_vault_failure_topic"
   type    = string
 }
+
+variable "max_vault_retention_days" {
+  default     = 30
+  description = "AWS Backup Vault config value for the max retention in days"
+  type        = string
+}
+
+variable "min_vault_retention_days" {
+  default     = 30
+  description = "AWS Backup Vault config value for the min retention in days"
+  type        = string
+}

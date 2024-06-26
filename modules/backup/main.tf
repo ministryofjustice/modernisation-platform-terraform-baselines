@@ -12,8 +12,8 @@ resource "aws_backup_vault" "default" {
 # Backup vault lock
 resource "aws_backup_vault_lock_configuration" "default" {
   backup_vault_name  = aws_backup_vault.default.name
-  min_retention_days = 30
-  max_retention_days = 60
+  min_retention_days = var.min_vault_retention_days
+  max_retention_days = var.max_vault_retention_days
 }
 
 # SNS topic
@@ -40,22 +40,24 @@ resource "aws_cloudwatch_event_rule" "backup_vault_deleted_rule" {
 EOF
 }
 
-# resource "aws_cloudwatch_event_target" "backup_vault_deleted_target" {
-#   rule = aws_cloudwatch_event_rule.backup_vault_deleted_rule.name
-#   arn  = aws_sns_topic.backup_vault_topic.arn
-# }
+resource "aws_cloudwatch_event_target" "backup_vault_deleted_target" {
+  rule = aws_cloudwatch_event_rule.backup_vault_deleted_rule.name
+  arn  = aws_sns_topic.backup_vault_topic.arn
+}
 
 
-# ## Pager duty integration
+## Pager duty integration
 
-# # Get the map of pagerduty integration keys from the modernisation platform account
-# data "aws_secretsmanager_secret" "pagerduty_integration_keys" {
-#   provider = aws.modernisation-platform
-#   name     = "pagerduty_integration_keys"
-# }
+# # Keys for pagerduty
 # data "aws_secretsmanager_secret_version" "pagerduty_integration_keys" {
-#   provider  = aws.modernisation-platform
+#   provider  = aws
 #   secret_id = data.aws_secretsmanager_secret.pagerduty_integration_keys.id
+# }
+
+# # Get the map of pagerduty integration keys
+# data "aws_secretsmanager_secret" "pagerduty_integration_keys" {
+#   provider = aws
+#   name     = "pagerduty_integration_keys"
 # }
 
 # # Add a local to get the keys
