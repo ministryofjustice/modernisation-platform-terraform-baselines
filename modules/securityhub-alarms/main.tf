@@ -92,9 +92,9 @@ resource "aws_cloudwatch_metric_alarm" "unauthorised-api-calls" {
   evaluation_periods  = "1"
   metric_name         = aws_cloudwatch_log_metric_filter.unauthorised-api-calls.id
   namespace           = "LogMetrics"
-  period              = "300"
+  period              = "60"
   statistic           = "Sum"
-  threshold           = "1"
+  threshold           = "5"
   treat_missing_data  = "notBreaching"
 
   tags = var.tags
@@ -243,9 +243,9 @@ resource "aws_cloudwatch_metric_alarm" "sign-in-failures" {
   evaluation_periods  = "1"
   metric_name         = aws_cloudwatch_log_metric_filter.sign-in-failures.id
   namespace           = "LogMetrics"
-  period              = "300"
+  period              = "60"
   statistic           = "Sum"
-  threshold           = "1"
+  threshold           = "5"
   treat_missing_data  = "notBreaching"
 
   tags = var.tags
@@ -363,9 +363,9 @@ resource "aws_cloudwatch_metric_alarm" "security-group-changes" {
   evaluation_periods  = "1"
   metric_name         = aws_cloudwatch_log_metric_filter.security-group-changes.id
   namespace           = "LogMetrics"
-  period              = "300"
+  period              = "120"
   statistic           = "Sum"
-  threshold           = "1"
+  threshold           = "5"
   treat_missing_data  = "notBreaching"
 
   tags = var.tags
