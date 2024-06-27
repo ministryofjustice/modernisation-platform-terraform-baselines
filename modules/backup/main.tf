@@ -1,7 +1,6 @@
 locals {
   cold_storage_after = 30
-  is_production = can(regex("production", terraform.workspace))
-
+  is_production = can(regex("production|testing-test", terraform.workspace))
 }
 
 resource "aws_backup_vault" "default" {

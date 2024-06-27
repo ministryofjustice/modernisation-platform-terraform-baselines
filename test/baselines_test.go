@@ -25,6 +25,9 @@ func TestTerraformBackup(t *testing.T) {
 	NonProdBackupPlanName := fmt.Sprintf("backup-daily-cold-storage-monthly-retain-30-days-%s", uniqueId)
 	NonProdBackupSelectionName := fmt.Sprintf("non-production-backup-%s", uniqueId)
 	BackupSNSTopicName := fmt.Sprintf("backup_failure_topic-%s", uniqueId)
+	// MinVaultRetentionDays := fmt.Sprintf("everything-%s", uniqueId)
+	BackupLockSNSTopicName := fmt.Sprintf("backup_vault_failure_topic-%s", uniqueId)
+
 
 	terraformOptions := &terraform.Options{
 		TerraformDir: terraformDir,
@@ -36,6 +39,8 @@ func TestTerraformBackup(t *testing.T) {
 			"non_production_backup_plan_name":      NonProdBackupPlanName,
 			"non_production_backup_selection_name": NonProdBackupSelectionName,
 			"backup_aws_sns_topic_name":            BackupSNSTopicName,
+			// "min_vault_retention_days":				MinVaultRetentionDays,
+			"backup_vault_lock_sns_topic_name":		BackupLockSNSTopicName,
 		},
 	}
 	// Clean up resources with "terraform destroy" at the end of the test
@@ -54,6 +59,7 @@ func TestTerraformBackup(t *testing.T) {
 	AwsBackupSelectionProd := terraform.Output(t, terraformOptions, "aws_backup_selection_production")
 	AwsBackupSelectionNonProd := terraform.Output(t, terraformOptions, "aws_backup_selection_non_production")
 	AWSBackupSNSTopicArn := terraform.Output(t, terraformOptions, "backup_aws_sns_topic_arn")
+	AWSVaultSNSTopicArn := terraform.Output(t, terraformOptions, "backup_vault_lock_sns_topic_name")
 
 	assert.Regexp(t, regexp.MustCompile(`^arn:aws:backup:eu-west-2:[0-9]{12}:backup-vault:everything-`+uniqueId), AwsBackupVaultArn)
 	assert.Regexp(t, regexp.MustCompile(`^arn:aws:backup:eu-west-2:[0-9]{12}:backup-plan:*`), AwsBackupPlanProd)
@@ -61,4 +67,6 @@ func TestTerraformBackup(t *testing.T) {
 	assert.Regexp(t, regexp.MustCompile(`^*`), AwsBackupSelectionProd)
 	assert.Regexp(t, regexp.MustCompile(`^*`), AwsBackupSelectionNonProd)
 	assert.Regexp(t, regexp.MustCompile(`^arn:aws:sns:eu-west-2:[0-9]{12}:backup_failure_topic-`+uniqueId), AWSBackupSNSTopicArn)
+	assert.Regexp(t, regexp.MustCompile(`^arn:aws:sns:eu-west-2:[0-9]{12}:backup_vault_lock_sns_topic_name-`+uniqueId), AWSVaultSNSTopicArn)
+
 }

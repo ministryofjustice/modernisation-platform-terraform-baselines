@@ -7,7 +7,9 @@ module "backup-test" {
   non_production_backup_plan_name      = var.non_production_backup_plan_name
   non_production_backup_selection_name = var.non_production_backup_selection_name
   backup_aws_sns_topic_name            = var.backup_aws_sns_topic_name
-
+  max_vault_retention_days            = var.max_vault_retention_days
+  min_vault_retention_days            = var.min_vault_retention_days
+  backup_vault_lock_sns_topic_name    = var.backup_vault_lock_sns_topic_name
 }
 
 /*
