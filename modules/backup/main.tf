@@ -1,8 +1,8 @@
 locals {
   cold_storage_after = 30
+  is_production = can(regex("production", terraform.workspace))
+
 }
-
-
 
 resource "aws_backup_vault" "default" {
   #checkov:skip=CKV_AWS_166: "Ensure Backup Vault is encrypted at rest using KMS CMK - Tricky to implement, hence using AWS managed KMS key"
@@ -12,6 +12,7 @@ resource "aws_backup_vault" "default" {
 
 # Backup vault lock
 resource "aws_backup_vault_lock_configuration" "default" {
+  count              = local.is_production ? 1 : 0
   backup_vault_name  = aws_backup_vault.default.name
   min_retention_days = var.min_vault_retention_days
   max_retention_days = var.max_vault_retention_days
@@ -20,6 +21,7 @@ resource "aws_backup_vault_lock_configuration" "default" {
 # SNS topic
 # trivy:ignore:avd-aws-0136
 resource "aws_sns_topic" "backup_vault_topic" {
+  count = local.is_production ? 1 : 0
   kms_master_key_id = var.sns_backup_topic_key
   name              = var.backup_vault_lock_sns_topic_name
   tags = merge(var.tags, {
