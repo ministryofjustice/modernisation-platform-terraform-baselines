@@ -53,11 +53,17 @@ variable "backup_vault_lock_sns_topic_name" {
 variable "max_vault_retention_days" {
   default     = 30
   description = "AWS Backup Vault config value for the max retention in days"
-  type        = string
+  type        = number
 }
 
 variable "min_vault_retention_days" {
   default     = 30
   description = "AWS Backup Vault config value for the min retention in days"
+  type        = number
+}
+
+# Define a variable for the workspace name
+variable "workspace_name" {
+  description = "Name of the workspace"
   type        = string
 }
