@@ -11,7 +11,7 @@ resource "aws_backup_vault" "default" {
 
 # Backup vault lock
 resource "aws_backup_vault_lock_configuration" "default" {
-  count              = local.is_production ? 1 : 0
+  # count              = local.is_production ? 1 : 0
   backup_vault_name  = aws_backup_vault.default.name
   min_retention_days = var.min_vault_retention_days
   max_retention_days = var.max_vault_retention_days
@@ -20,7 +20,7 @@ resource "aws_backup_vault_lock_configuration" "default" {
 # SNS topic
 # trivy:ignore:avd-aws-0136
 resource "aws_sns_topic" "backup_vault_topic" {
-  count = local.is_production ? 1 : 0
+  # count = local.is_production ? 1 : 0
   kms_master_key_id = var.sns_backup_topic_key
   name              = var.backup_vault_lock_sns_topic_name
   tags = merge(var.tags, {

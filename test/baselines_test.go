@@ -26,7 +26,7 @@ func TestTerraformBackup(t *testing.T) {
 	NonProdBackupSelectionName := fmt.Sprintf("non-production-backup-%s", uniqueId)
 	BackupSNSTopicName := fmt.Sprintf("backup_failure_topic-%s", uniqueId)
 	// MinVaultRetentionDays := fmt.Sprintf("everything-%s", uniqueId)
-	BackupLockSNSTopicName := fmt.Sprintf("backup_vault_failure_topic-%s", uniqueId)
+	BackupLockSNSTopicName := fmt.Sprintf("backup_vault_lock_sns_topic_name-%s", uniqueId)
 
 
 	terraformOptions := &terraform.Options{
