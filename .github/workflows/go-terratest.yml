@@ -31,4 +31,6 @@ jobs:
             run: go mod download
           - name: Run Go Tests
             working-directory: test
-            run: go test -v
+            run: |
+              chmod 700 ../scripts/redact-output.sh
+              go test -v | ../scripts/redact-output.sh
