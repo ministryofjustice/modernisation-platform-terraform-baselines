@@ -24,13 +24,8 @@ resource "aws_backup_vault_lock_configuration" "default" {
 # SNS topic
 # trivy:ignore:avd-aws-0136
 resource "aws_sns_topic" "backup_vault_topic" {
-<<<<<<< HEAD
-  # count = local.is_production ? 1 : 0
-  kms_master_key_id = data.aws_kms_alias.securityhub-alarms.target_key_id
-=======
   count = local.is_production ? 1 : 0
-  kms_master_key_id = var.sns_backup_topic_key
->>>>>>> 4a81bda (updates to the module test)
+  kms_master_key_id = data.aws_kms_alias.securityhub-alarms.target_key_id
   name              = var.backup_vault_lock_sns_topic_name
   tags = merge(var.tags, {
     Description = "This backup topic is so the MP team can subscribe to backup vault lock being turned off and member accounts can create their own subscriptions"
