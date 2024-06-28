@@ -92,7 +92,7 @@ resource "aws_cloudwatch_metric_alarm" "unauthorised-api-calls" {
   evaluation_periods  = "1"
   metric_name         = aws_cloudwatch_log_metric_filter.unauthorised-api-calls.id
   namespace           = "LogMetrics"
-  period              = "60"
+  period              = "180"
   statistic           = "Sum"
   threshold           = "5"
   treat_missing_data  = "notBreaching"
