@@ -363,7 +363,7 @@ resource "aws_cloudwatch_metric_alarm" "security-group-changes" {
   evaluation_periods  = "1"
   metric_name         = aws_cloudwatch_log_metric_filter.security-group-changes.id
   namespace           = "LogMetrics"
-  period              = "120"
+  period              = "180"
   statistic           = "Sum"
   threshold           = "5"
   treat_missing_data  = "notBreaching"
