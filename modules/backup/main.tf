@@ -1,6 +1,6 @@
 locals {
   cold_storage_after = 30
-  is_production = can(regex("production|testing-test", terraform.workspace))
+  is_production = can(regex("production|default", terraform.workspace))
 }
 
 data "aws_kms_alias" "securityhub-alarms" {
@@ -15,7 +15,7 @@ resource "aws_backup_vault" "default" {
 
 # Backup vault lock
 resource "aws_backup_vault_lock_configuration" "default" {
-  # count              = local.is_production ? 1 : 0
+  count              = local.is_production ? 1 : 0
   backup_vault_name  = aws_backup_vault.default.name
   min_retention_days = var.min_vault_retention_days
   max_retention_days = var.max_vault_retention_days
@@ -24,8 +24,13 @@ resource "aws_backup_vault_lock_configuration" "default" {
 # SNS topic
 # trivy:ignore:avd-aws-0136
 resource "aws_sns_topic" "backup_vault_topic" {
+<<<<<<< HEAD
   # count = local.is_production ? 1 : 0
   kms_master_key_id = data.aws_kms_alias.securityhub-alarms.target_key_id
+=======
+  count = local.is_production ? 1 : 0
+  kms_master_key_id = var.sns_backup_topic_key
+>>>>>>> 4a81bda (updates to the module test)
   name              = var.backup_vault_lock_sns_topic_name
   tags = merge(var.tags, {
     Description = "This backup topic is so the MP team can subscribe to backup vault lock being turned off and member accounts can create their own subscriptions"

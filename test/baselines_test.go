@@ -28,7 +28,6 @@ func TestTerraformBackup(t *testing.T) {
 	// MinVaultRetentionDays := fmt.Sprintf("everything-%s", uniqueId)
 	BackupLockSNSTopicName := fmt.Sprintf("backup_vault_lock_sns_topic_name-%s", uniqueId)
 
-
 	terraformOptions := &terraform.Options{
 		TerraformDir: terraformDir,
 		Vars: map[string]interface{}{
@@ -40,7 +39,7 @@ func TestTerraformBackup(t *testing.T) {
 			"non_production_backup_selection_name": NonProdBackupSelectionName,
 			"backup_aws_sns_topic_name":            BackupSNSTopicName,
 			// "min_vault_retention_days":				MinVaultRetentionDays,
-			"backup_vault_lock_sns_topic_name":		BackupLockSNSTopicName,
+			"backup_vault_lock_sns_topic_name": BackupLockSNSTopicName,
 		},
 	}
 	// Clean up resources with "terraform destroy" at the end of the test
