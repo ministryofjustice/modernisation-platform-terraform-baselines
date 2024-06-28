@@ -3,6 +3,10 @@ locals {
   is_production = can(regex("production|testing-test", terraform.workspace))
 }
 
+data "aws_kms_alias" "securityhub-alarms" {
+  name          = "alias/securityhub-alarms-key-multi-region"
+}
+
 resource "aws_backup_vault" "default" {
   #checkov:skip=CKV_AWS_166: "Ensure Backup Vault is encrypted at rest using KMS CMK - Tricky to implement, hence using AWS managed KMS key"
   name = var.aws_backup_vault_name
@@ -21,7 +25,7 @@ resource "aws_backup_vault_lock_configuration" "default" {
 # trivy:ignore:avd-aws-0136
 resource "aws_sns_topic" "backup_vault_topic" {
   # count = local.is_production ? 1 : 0
-  kms_master_key_id = var.sns_backup_topic_key
+  kms_master_key_id = data.aws_kms_alias.securityhub-alarms.target_key_id
   name              = var.backup_vault_lock_sns_topic_name
   tags = merge(var.tags, {
     Description = "This backup topic is so the MP team can subscribe to backup vault lock being turned off and member accounts can create their own subscriptions"
@@ -136,7 +140,7 @@ resource "aws_backup_selection" "non_production" {
 # SNS topic
 # trivy:ignore:avd-aws-0136
 resource "aws_sns_topic" "backup_failure_topic" {
-  kms_master_key_id = var.sns_backup_topic_key
+  kms_master_key_id = data.aws_kms_alias.securityhub-alarms.target_key_id
   name              = var.backup_aws_sns_topic_name
   tags = merge(var.tags, {
     Description = "This backup topic is so the MP team can subscribe to backup notifications from selected accounts and teams using member-unrestricted accounts can create their own subscriptions"
