@@ -61,3 +61,4 @@ variable "min_vault_retention_days" {
   description = "AWS Backup Vault config value for the min retention in days"
   type        = number
 }
+
