@@ -1,6 +1,6 @@
 locals {
   cold_storage_after = 30
-  is_production = can(regex("production|cooker", terraform.workspace))
+  is_production = can(regex("production|default", terraform.workspace))
   # kms_securityhub_key =  try(data.aws_kms_alias.securityhub-alarms.target_key_id)
 }
 
