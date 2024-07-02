@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"regexp"
 	"testing"
-
 	"github.com/gruntwork-io/terratest/modules/random"
 	"github.com/gruntwork-io/terratest/modules/terraform"
 	"github.com/stretchr/testify/assert"
@@ -53,12 +52,16 @@ func TestTerraformBackup(t *testing.T) {
 	AwsBackupPlanNonProd := terraform.Output(t, terraformOptions, "aws_backup_plan_non_production")
 	AwsBackupSelectionProd := terraform.Output(t, terraformOptions, "aws_backup_selection_production")
 	AwsBackupSelectionNonProd := terraform.Output(t, terraformOptions, "aws_backup_selection_non_production")
-	AWSBackupSNSTopicArn := terraform.Output(t, terraformOptions, "backup_aws_sns_topic_arn")
+	AwsBackupSNSTopicArn := terraform.Output(t, terraformOptions, "backup_aws_sns_topic_arn")
+	AwsNonProdBackupRetentionDays := terraform.Output(t, terraformOptions, "aws_backup_plan_non_production_rule")
+
 
 	assert.Regexp(t, regexp.MustCompile(`^arn:aws:backup:eu-west-2:[0-9]{12}:backup-vault:everything-`+uniqueId), AwsBackupVaultArn)
 	assert.Regexp(t, regexp.MustCompile(`^arn:aws:backup:eu-west-2:[0-9]{12}:backup-plan:*`), AwsBackupPlanProd)
 	assert.Regexp(t, regexp.MustCompile(`^arn:aws:backup:eu-west-2:[0-9]{12}:backup-plan:*`), AwsBackupPlanNonProd)
 	assert.Regexp(t, regexp.MustCompile(`^*`), AwsBackupSelectionProd)
 	assert.Regexp(t, regexp.MustCompile(`^*`), AwsBackupSelectionNonProd)
-	assert.Regexp(t, regexp.MustCompile(`^arn:aws:sns:eu-west-2:[0-9]{12}:backup_failure_topic-`+uniqueId), AWSBackupSNSTopicArn)
+	assert.Regexp(t, regexp.MustCompile(`^arn:aws:sns:eu-west-2:[0-9]{12}:backup_failure_topic-`+uniqueId), AwsBackupSNSTopicArn)
+	assert.Regexp(t, regexp.MustCompile(`delete_after:40`), AwsNonProdBackupRetentionDays)
+
 }

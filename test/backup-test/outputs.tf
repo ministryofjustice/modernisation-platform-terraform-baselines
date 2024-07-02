@@ -21,3 +21,7 @@ output "aws_backup_selection_non_production" {
 output "backup_aws_sns_topic_arn" {
   value = module.backup-test.backup_aws_sns_topic_arn
 }
+
+output "aws_backup_plan_non_production_rule" {
+  value = module.backup-test.aws_backup_plan_non_production_rule
+}
