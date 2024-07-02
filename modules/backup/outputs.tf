@@ -21,3 +21,7 @@ output "backup_aws_sns_topic_arn" {
   value = aws_sns_topic.backup_failure_topic.arn
 }
 
+output "backup_vault_lock_sns_topic_name" {
+  value = length(aws_sns_topic.backup_vault_topic) > 0 ? aws_sns_topic.backup_vault_topic[0].arn : ""
+}
+

@@ -1,13 +1,44 @@
 locals {
   cold_storage_after = 30
+  is_production      = can(regex("production|default", terraform.workspace))
+  kms_master_key_id  = (data.aws_region.current.name == "eu-west-2" && length(data.aws_kms_alias.securityhub-alarms) > 0) ? data.aws_kms_alias.securityhub-alarms[0].target_key_id : ""
 }
+
+# Fetch the current AWS region
+data "aws_region" "current" {}
+
+# Define the KMS alias, conditionally fetched if the region is eu-west-2
+data "aws_kms_alias" "securityhub-alarms" {
+  count = data.aws_region.current.name == "eu-west-2" ? 1 : 0
+  name  = "alias/securityhub-alarms-key-multi-region"
+}
+
+# Define the SNS topic, conditionally created if the region is eu-west-2 and is production
+resource "aws_sns_topic" "backup_vault_topic" {
+  #checkov:skip=CKV_AWS_26:"topic is encrypted, but doesn't like the local reference"  
+  count             = (local.is_production && data.aws_region.current.name == "eu-west-2") ? 1 : 0
+  kms_master_key_id = local.kms_master_key_id
+  name              = var.backup_vault_lock_sns_topic_name
+  tags = merge(var.tags, {
+    Description = "This backup topic is so the MP team can subscribe to backup vault lock being turned off and member accounts can create their own subscriptions"
+  })
+}
+
 
 resource "aws_backup_vault" "default" {
   #checkov:skip=CKV_AWS_166: "Ensure Backup Vault is encrypted at rest using KMS CMK - Tricky to implement, hence using AWS managed KMS key"
-
   name = var.aws_backup_vault_name
   tags = var.tags
 }
+
+# Backup vault lock
+resource "aws_backup_vault_lock_configuration" "default" {
+  count              = local.is_production ? 1 : 0
+  backup_vault_name  = aws_backup_vault.default.name
+  min_retention_days = var.min_vault_retention_days
+  max_retention_days = var.max_vault_retention_days
+}
+
 
 # Production backups
 resource "aws_backup_plan" "default" {
@@ -116,7 +147,8 @@ resource "aws_backup_selection" "non_production" {
 # SNS topic
 # trivy:ignore:avd-aws-0136
 resource "aws_sns_topic" "backup_failure_topic" {
-  kms_master_key_id = var.sns_backup_topic_key
+  #checkov:skip=CKV_AWS_26:"topic is encrypted, but doesn't like the local reference"  
+  kms_master_key_id = local.kms_master_key_id
   name              = var.backup_aws_sns_topic_name
   tags = merge(var.tags, {
     Description = "This backup topic is so the MP team can subscribe to backup notifications from selected accounts and teams using member-unrestricted accounts can create their own subscriptions"
@@ -129,3 +161,4 @@ resource "aws_backup_vault_notifications" "aws_backup_vault_notifications" {
   backup_vault_name   = aws_backup_vault.default.name
   sns_topic_arn       = aws_sns_topic.backup_failure_topic.arn
 }
+

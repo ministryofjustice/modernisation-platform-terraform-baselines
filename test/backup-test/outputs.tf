@@ -21,3 +21,7 @@ output "aws_backup_selection_non_production" {
 output "backup_aws_sns_topic_arn" {
   value = module.backup-test.backup_aws_sns_topic_arn
 }
+
+output "backup_vault_lock_sns_topic_name" {
+  value = module.backup-test.backup_vault_lock_sns_topic_name
+}
