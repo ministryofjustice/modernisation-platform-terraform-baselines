@@ -45,6 +45,12 @@ variable "backup_aws_sns_topic_name" {
   type    = string
 }
 
+variable "non_prod_backup_retention_days" {
+  default     = 30
+  description = "AWS Backup variable config for retention days"
+  type        = number
+}
+
 variable "backup_vault_lock_sns_topic_name" {
   default = "backup_vault_failure_topic"
   type    = string
