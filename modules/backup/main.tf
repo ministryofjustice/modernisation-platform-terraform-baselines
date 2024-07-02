@@ -15,6 +15,7 @@ data "aws_kms_alias" "securityhub-alarms" {
 
 # Define the SNS topic, conditionally created if the region is eu-west-2 and is production
 resource "aws_sns_topic" "backup_vault_topic" {
+  #checkov:skip=CKV_AWS_26:"topic is encrypted, but doesn't like the local reference"  
   count             = (local.is_production && data.aws_region.current.name == "eu-west-2") ? 1 : 0
   kms_master_key_id = local.kms_master_key_id
   name              = var.backup_vault_lock_sns_topic_name
@@ -146,6 +147,7 @@ resource "aws_backup_selection" "non_production" {
 # SNS topic
 # trivy:ignore:avd-aws-0136
 resource "aws_sns_topic" "backup_failure_topic" {
+  #checkov:skip=CKV_AWS_26:"topic is encrypted, but doesn't like the local reference"  
   kms_master_key_id = local.kms_master_key_id
   name              = var.backup_aws_sns_topic_name
   tags = merge(var.tags, {
