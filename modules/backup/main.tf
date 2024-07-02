@@ -1,7 +1,7 @@
 locals {
   cold_storage_after = 30
-  is_production = can(regex("production|default", terraform.workspace))
-  kms_master_key_id = (data.aws_region.current.name == "eu-west-2" && length(data.aws_kms_alias.securityhub-alarms) > 0) ? data.aws_kms_alias.securityhub-alarms[0].target_key_id : ""
+  is_production      = can(regex("production|default", terraform.workspace))
+  kms_master_key_id  = (data.aws_region.current.name == "eu-west-2" && length(data.aws_kms_alias.securityhub-alarms) > 0) ? data.aws_kms_alias.securityhub-alarms[0].target_key_id : ""
 }
 
 # Fetch the current AWS region
@@ -15,7 +15,7 @@ data "aws_kms_alias" "securityhub-alarms" {
 
 # Define the SNS topic, conditionally created if the region is eu-west-2 and is production
 resource "aws_sns_topic" "backup_vault_topic" {
-  count = (local.is_production && data.aws_region.current.name == "eu-west-2") ? 1 : 0
+  count             = (local.is_production && data.aws_region.current.name == "eu-west-2") ? 1 : 0
   kms_master_key_id = local.kms_master_key_id
   name              = var.backup_vault_lock_sns_topic_name
   tags = merge(var.tags, {
