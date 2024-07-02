@@ -1,3 +1,4 @@
+
 module github.com/ministryofjustice/modernisation-platform-terraform-baselines
 
 go 1.21
