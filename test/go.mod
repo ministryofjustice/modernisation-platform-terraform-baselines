@@ -1,11 +1,10 @@
-
 module github.com/ministryofjustice/modernisation-platform-terraform-baselines
 
 go 1.18
 
 require (
 	github.com/gruntwork-io/terratest v0.46.14
-	github.com/stretchr/testify v1.8.4
+	github.com/stretchr/testify v1.9.0
 )
 
 require (
