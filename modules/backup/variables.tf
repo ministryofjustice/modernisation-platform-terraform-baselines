@@ -47,6 +47,6 @@ variable "backup_aws_sns_topic_name" {
 
 variable "non_prod_backup_retention_days" {
   default     = 30
-  description = "AWS Backup Vault config value for the min retention in days"
+  description = "AWS Backup variable config for retention days"
   type        = number
 }
