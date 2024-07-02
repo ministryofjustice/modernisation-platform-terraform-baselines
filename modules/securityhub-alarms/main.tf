@@ -94,7 +94,7 @@ resource "aws_cloudwatch_metric_alarm" "unauthorised-api-calls" {
   namespace           = "LogMetrics"
   period              = "180"
   statistic           = "Sum"
-  threshold           = "5"
+  threshold           = "10"
   treat_missing_data  = "notBreaching"
 
   tags = var.tags
@@ -365,7 +365,7 @@ resource "aws_cloudwatch_metric_alarm" "security-group-changes" {
   namespace           = "LogMetrics"
   period              = "180"
   statistic           = "Sum"
-  threshold           = "5"
+  threshold           = "9"
   treat_missing_data  = "notBreaching"
 
   tags = var.tags
