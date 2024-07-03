@@ -147,7 +147,7 @@ resource "aws_backup_selection" "non_production" {
 # SNS topic
 # trivy:ignore:avd-aws-0136
 resource "aws_sns_topic" "backup_failure_topic" {
-  count             = (local.is_production && data.aws_region.current.name == "eu-west-2") ? 1 : 0
+  count = (local.is_production && data.aws_region.current.name == "eu-west-2") ? 1 : 0
   #checkov:skip=CKV_AWS_26:"topic is encrypted, but doesn't like the local reference"
   kms_master_key_id = local.kms_master_key_id
   name              = var.backup_aws_sns_topic_name
@@ -158,7 +158,7 @@ resource "aws_sns_topic" "backup_failure_topic" {
 
 # Attaches the SNS topic to the backup vault to subscribe for notifications
 resource "aws_backup_vault_notifications" "aws_backup_vault_notifications" {
-  count             = (local.is_production && data.aws_region.current.name == "eu-west-2") ? 1 : 0
+  count               = (local.is_production && data.aws_region.current.name == "eu-west-2") ? 1 : 0
   backup_vault_events = ["BACKUP_JOB_FAILED"]
   backup_vault_name   = aws_backup_vault.default.name
   sns_topic_arn       = aws_sns_topic.backup_failure_topic[0].arn
