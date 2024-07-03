@@ -18,7 +18,7 @@ output "aws_backup_selection_non_production" {
   value = aws_backup_selection.non_production.id
 }
 output "backup_aws_sns_topic_arn" {
-  value = aws_sns_topic.backup_failure_topic.arn
+  value = length(aws_sns_topic.backup_failure_topic) > 0 ? aws_sns_topic.backup_failure_topic[0].arn : ""   
 }
 
 output "aws_backup_plan_non_production_rule" {
