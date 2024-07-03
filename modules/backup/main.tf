@@ -1,6 +1,6 @@
 locals {
   cold_storage_after = 30
-  is_production      = can(regex("production|default", terraform.workspace))
+  is_production      = can(regex("production", terraform.workspace))
   kms_master_key_id  = (data.aws_region.current.name == "eu-west-2" && length(data.aws_kms_alias.securityhub-alarms) > 0) ? data.aws_kms_alias.securityhub-alarms[0].target_key_id : ""
 }
 
