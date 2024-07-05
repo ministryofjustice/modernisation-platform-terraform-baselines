@@ -33,5 +33,5 @@ jobs:
             working-directory: test
             run: |
               chmod 700 ../scripts/redact-output.sh
-              go test -v | tee >(../scripts/redact-output.sh)
+              go test -v | ../scripts/redact-output.sh
               exit ${PIPESTATUS[0]}
