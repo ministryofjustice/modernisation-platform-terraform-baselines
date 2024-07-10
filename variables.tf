@@ -61,3 +61,10 @@ variable "enabled_imdsv2_regions" {
   description = "Regions to enable IMDSv2 in"
   type        = list(string)
 }
+
+variable "non_prod_backup_full_retention" {
+  type        = bool
+  default     = true
+  description = "Keeps non production snapshots for 7 days rather than 30"
+
+}

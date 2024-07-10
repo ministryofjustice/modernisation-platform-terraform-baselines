@@ -2,6 +2,7 @@ locals {
   cold_storage_after = 30
   is_production      = can(regex("production|default", terraform.workspace))
   kms_master_key_id  = (data.aws_region.current.name == "eu-west-2" && length(data.aws_kms_alias.securityhub-alarms) > 0) ? data.aws_kms_alias.securityhub-alarms[0].target_key_id : ""
+  non_prod_backup_retention_days = var.non_prod_backup_full_retention ? 30 : 7
 }
 
 # Fetch the current AWS region
@@ -82,7 +83,7 @@ resource "aws_backup_selection" "production" {
   plan_id      = aws_backup_plan.default.id
   resources    = ["*"]
 
-  condition {
+  condition { 
     string_equals {
       key   = "aws:ResourceTag/is-production"
       value = "true"
@@ -112,7 +113,7 @@ resource "aws_backup_plan" "non_production" {
     completion_window = (6 * 60)
 
     lifecycle {
-      delete_after = var.non_prod_backup_retention_days
+      delete_after = local.non_prod_backup_retention_days 
     }
   }
 
