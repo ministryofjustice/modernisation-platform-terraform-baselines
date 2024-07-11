@@ -9,7 +9,7 @@ data "aws_region" "current" {}
 
 # Define the KMS alias, conditionally fetched if the region is eu-west-2
 data "aws_kms_alias" "securityhub-alarms" {
-  count = data.aws_region.current.name == "eu-west-2" ? 1 : 0
+  count             = data.aws_region.current.name == "eu-west-2" ? 1 : 0
   name  = "alias/securityhub-alarms-key-multi-region"
 }
 
@@ -23,7 +23,6 @@ resource "aws_sns_topic" "backup_vault_topic" {
     Description = "This backup topic is so the MP team can subscribe to backup vault lock being turned off and member accounts can create their own subscriptions"
   })
 }
-
 
 resource "aws_backup_vault" "default" {
   #checkov:skip=CKV_AWS_166: "Ensure Backup Vault is encrypted at rest using KMS CMK - Tricky to implement, hence using AWS managed KMS key"
