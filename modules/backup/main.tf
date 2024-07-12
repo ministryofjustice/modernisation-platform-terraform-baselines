@@ -1,29 +1,71 @@
 locals {
   cold_storage_after = 30
   is_production      = can(regex("production|default", terraform.workspace))
-  kms_master_key_id  = (data.aws_region.current.name == "eu-west-2" && length(data.aws_kms_alias.securityhub-alarms) > 0) ? data.aws_kms_alias.securityhub-alarms[0].target_key_id : ""
 }
+
+data "aws_caller_identity" "current" {}
 
 # Fetch the current AWS region
 data "aws_region" "current" {}
 
-# Define the KMS alias, conditionally fetched if the region is eu-west-2
-data "aws_kms_alias" "securityhub-alarms" {
-  count = data.aws_region.current.name == "eu-west-2" ? 1 : 0
-  name  = "alias/securityhub-alarms-key-multi-region"
+# Backup alarms KMS multi-Region
+resource "aws_kms_key" "backup_alarms_multi_region" {
+  deletion_window_in_days = 7
+  description             = "Backup alarms encryption key"
+  enable_key_rotation     = true
+  policy                  = data.aws_iam_policy_document.backup-alarms-kms.json
+  tags                    = var.tags
+  multi_region            = true
 }
+
+resource "aws_kms_alias" "backup_alarms_multi_region" {
+  name          = "alias/backup-alarms-key-multi-region"
+  target_key_id = aws_kms_key.backup_alarms_multi_region.id
+}
+
+data "aws_iam_policy_document" "backup-alarms-kms" {
+
+  #checkov:skip=CKV_AWS_356: ""
+  #checkov:skip=CKV_AWS_111: "Ensure IAM policies does not allow write access without constraints"
+  #checkov:skip=CKV_AWS_109: "Ensure IAM policies does not allow permissions management / resource exposure without constraints - This is applied to a specific SNS topic"
+
+  statement {
+    effect    = "Allow"
+    actions   = ["kms:*"]
+    resources = ["*"]
+
+    principals {
+      type        = "AWS"
+      identifiers = ["arn:aws:iam::${data.aws_caller_identity.current.account_id}:root"]
+    }
+  }
+
+  statement {
+    effect = "Allow"
+    actions = [
+      "kms:Decrypt",
+      "kms:GenerateDataKey"
+    ]
+    resources = ["*"]
+
+    principals {
+      type        = "Service"
+      identifiers = ["cloudwatch.amazonaws.com"]
+    }
+  }
+}
+
 
 # Define the SNS topic, conditionally created if the region is eu-west-2 and is production
 resource "aws_sns_topic" "backup_vault_topic" {
   #checkov:skip=CKV_AWS_26:"topic is encrypted, but doesn't like the local reference"  
   count             = (local.is_production && data.aws_region.current.name == "eu-west-2") ? 1 : 0
-  kms_master_key_id = local.kms_master_key_id
+  kms_master_key_id = aws_kms_key.backup_alarms_multi_region.id
   name              = var.backup_vault_lock_sns_topic_name
   tags = merge(var.tags, {
     Description = "This backup topic is so the MP team can subscribe to backup vault lock being turned off and member accounts can create their own subscriptions"
   })
 }
-
 
 resource "aws_backup_vault" "default" {
   #checkov:skip=CKV_AWS_166: "Ensure Backup Vault is encrypted at rest using KMS CMK - Tricky to implement, hence using AWS managed KMS key"
@@ -149,7 +191,7 @@ resource "aws_backup_selection" "non_production" {
 resource "aws_sns_topic" "backup_failure_topic" {
   count = (local.is_production && data.aws_region.current.name == "eu-west-2") ? 1 : 0
   #checkov:skip=CKV_AWS_26:"topic is encrypted, but doesn't like the local reference"
-  kms_master_key_id = local.kms_master_key_id
+  kms_master_key_id = aws_kms_key.backup_alarms_multi_region.id
   name              = var.backup_aws_sns_topic_name
   tags = merge(var.tags, {
     Description = "This backup topic is so the MP team can subscribe to backup notifications from selected accounts and teams using member-unrestricted accounts can create their own subscriptions"
