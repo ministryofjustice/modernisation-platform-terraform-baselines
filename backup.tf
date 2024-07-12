@@ -31,7 +31,7 @@ resource "aws_iam_role_policy_attachment" "backupS3" {
 
 module "backup-ap-northeast-1" {
   for_each = contains(var.enabled_backup_regions, "ap-northeast-1") ? local.enabled : local.not_enabled
-  source = "./modules/backup"
+  source   = "./modules/backup"
   providers = {
     aws = aws.ap-northeast-1
   }
@@ -41,7 +41,7 @@ module "backup-ap-northeast-1" {
 
 module "backup-ap-northeast-2" {
   for_each = contains(var.enabled_backup_regions, "ap-northeast-2") ? local.enabled : local.not_enabled
-  source = "./modules/backup"
+  source   = "./modules/backup"
   providers = {
     aws = aws.ap-northeast-2
   }
@@ -128,7 +128,7 @@ module "backup-eu-west-1" {
 
 module "backup-eu-west-2" {
   for_each = contains(var.enabled_backup_regions, "eu-west-2") ? local.enabled : local.not_enabled
-  
+
   source = "./modules/backup"
   providers = {
     aws = aws.eu-west-2
