@@ -1,7 +1,5 @@
 data "aws_caller_identity" "current" {}
 
-data "aws_region" "current" {}
-
 # AWS CloudWatch doesn't support using the AWS-managed KMS key for publishing things from CloudWatch to SNS
 # See: https://aws.amazon.com/premiumsupport/knowledge-center/cloudwatch-receive-sns-for-alarm-trigger/
 resource "aws_kms_key" "securityhub-alarms" {
