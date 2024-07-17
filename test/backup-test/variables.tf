@@ -55,3 +55,9 @@ variable "backup_vault_lock_sns_topic_name" {
   default = "backup_vault_failure_topic"
   type    = string
 }
+
+variable "aws_kms_alias_name" {
+  default     = "alias/backup-alarms-key-multi-region-test"
+  description = "KMS key name for backup alarms"
+  type        = string
+}

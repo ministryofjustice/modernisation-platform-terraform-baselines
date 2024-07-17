@@ -68,3 +68,8 @@ variable "min_vault_retention_days" {
   type        = number
 }
 
+variable "aws_kms_alias_name" {
+  default     = "alias/backup-alarms-key-multi-region"
+  description = "KMS key name for backup alarms"
+  type        = string
+}
