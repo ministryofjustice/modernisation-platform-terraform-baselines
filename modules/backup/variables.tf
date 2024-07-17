@@ -63,7 +63,7 @@ variable "max_vault_retention_days" {
 }
 
 variable "min_vault_retention_days" {
-  default     = 30
+  default     = 7
   description = "AWS Backup Vault config value for the min retention in days"
   type        = number
 }
@@ -72,4 +72,10 @@ variable "aws_kms_alias_name" {
   default     = "alias/backup-alarms-key-multi-region"
   description = "KMS key name for backup alarms"
   type        = string
+}
+
+
+variable "reduced_preprod_backup_retention" {
+  description = "AWS Backup variable, if true, pre prod only retains 7 days of backups"
+  type        = bool
 }

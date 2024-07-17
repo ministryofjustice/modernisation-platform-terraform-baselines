@@ -61,3 +61,8 @@ variable "enabled_imdsv2_regions" {
   description = "Regions to enable IMDSv2 in"
   type        = list(string)
 }
+
+variable "reduced_preprod_backup_retention" {
+  description = "AWS Backup variable, if true, pre prod only retains 7 days of backups"
+  type        = bool
+}
