@@ -61,3 +61,9 @@ variable "aws_kms_alias_name" {
   description = "KMS key name for backup alarms"
   type        = string
 }
+
+variable "reduced_preprod_backup_retention" {
+  description = "AWS Backup variable, if true, pre prod only retains 7 days of backups"
+  type        = bool
+  default     = false
+}
