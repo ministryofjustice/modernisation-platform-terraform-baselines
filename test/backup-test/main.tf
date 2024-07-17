@@ -11,7 +11,7 @@ module "backup-test" {
   max_vault_retention_days             = var.max_vault_retention_days
   min_vault_retention_days             = var.min_vault_retention_days
   backup_vault_lock_sns_topic_name     = var.backup_vault_lock_sns_topic_name
-
+  aws_kms_alias_name                   = var.aws_kms_alias_name
 }
 
 /*
