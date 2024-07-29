@@ -30,3 +30,15 @@ variable "tags" {
   description = "Tags to apply to resources, where applicable"
   type        = map(any)
 }
+
+variable "cloudtrail_name" {
+  description = "The name of the CloudTrail"
+  type        = string
+  default     = "cloudtrail"
+}
+
+variable "cloudtrail_policy_name" {
+  description = "The name of the IAM policy for CloudTrail"
+  type        = string
+  default     = "AWSCloudTrailPolicy"
+}

@@ -2,7 +2,7 @@ data "aws_caller_identity" "current" {}
 
 # Create an IAM role for AWS Support service access
 resource "aws_iam_role" "support" {
-  name               = "support"
+  name               = var.role_name
   assume_role_policy = data.aws_iam_policy_document.assume-role-policy.json
   tags               = var.tags
 }

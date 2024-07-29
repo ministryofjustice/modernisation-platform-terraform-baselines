@@ -9,7 +9,7 @@ locals {
 # As this is a multi-region trail, this resource doesn't set a provider,
 # so it's configured in the region from the caller's identity.
 resource "aws_cloudtrail" "cloudtrail" {
-  name                          = "cloudtrail"
+  name                          = var.cloudtrail_name
   cloud_watch_logs_group_arn    = "${aws_cloudwatch_log_group.cloudtrail.arn}:*"
   cloud_watch_logs_role_arn     = aws_iam_role.cloudtrail.arn
   enable_log_file_validation    = true
@@ -42,7 +42,7 @@ resource "aws_cloudtrail" "cloudtrail" {
 
 # IAM role for CloudTrail
 resource "aws_iam_role" "cloudtrail" {
-  name               = "cloudtrail"
+  name               = var.cloudtrail_name
   assume_role_policy = data.aws_iam_policy_document.cloudtrail-assume-role-policy.json
   tags               = var.tags
 }
@@ -62,7 +62,7 @@ data "aws_iam_policy_document" "cloudtrail-assume-role-policy" {
 
 # IAM role: role log policy
 resource "aws_iam_policy" "cloudtrail" {
-  name   = "AWSCloudTrail"
+  name   = var.cloudtrail_policy_name
   policy = data.aws_iam_policy_document.cloudtrail-role-policy.json
 }
 
@@ -91,7 +91,7 @@ data "aws_iam_policy_document" "cloudtrail-role-policy" {
 
 # CloudWatch log groups & log streams for CloudTrail
 resource "aws_cloudwatch_log_group" "cloudtrail" {
-  name              = "cloudtrail"
+  name              = var.cloudtrail_name
   kms_key_id        = var.cloudtrail_kms_key
   tags              = var.tags
   retention_in_days = var.retention_days
@@ -164,7 +164,7 @@ resource "aws_cloudwatch_log_stream" "cloudtrail-stream" {
 
 # SNS for CloudTrail
 resource "aws_sns_topic" "cloudtrail" {
-  name              = "cloudtrail"
+  name              = var.cloudtrail_name
   kms_master_key_id = var.cloudtrail_kms_key
   tags              = var.tags
 }
