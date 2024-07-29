@@ -1,17 +1,17 @@
 resource "aws_s3_bucket" "cloudtrail_s3_bucket" {
-  bucket = var.cloudtrail_bucket
+  bucket        = var.cloudtrail_bucket
   force_destroy = true
-  tags   = local.tags
+  tags          = local.tags
 }
 
 resource "aws_s3_bucket_policy" "s3_cloudtrail_policy" {
   depends_on = [aws_s3_bucket.cloudtrail_s3_bucket]
-  bucket = aws_s3_bucket.cloudtrail_s3_bucket.id
-  policy = data.aws_iam_policy_document.cloudtrail_bucket_policy.json
+  bucket     = aws_s3_bucket.cloudtrail_s3_bucket.id
+  policy     = data.aws_iam_policy_document.cloudtrail_bucket_policy.json
 }
 
-data "aws_iam_policy_document" "cloudtrail_bucket_policy" { 
-   statement {
+data "aws_iam_policy_document" "cloudtrail_bucket_policy" {
+  statement {
     sid       = "AllowListBucketACL"
     effect    = "Allow"
     actions   = ["s3:GetBucketAcl"]

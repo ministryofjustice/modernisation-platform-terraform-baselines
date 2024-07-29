@@ -52,7 +52,7 @@ data "aws_iam_policy_document" "cloudtrail_kms" {
       identifiers = ["cloudwatch.amazonaws.com"]
     }
 
-     principals {
+    principals {
       type        = "Service"
       identifiers = ["logging.s3.amazonaws.com"]
     }
@@ -64,15 +64,15 @@ data "aws_iam_policy_document" "cloudtrail_kms" {
   }
 
   statement {
-        effect    = "Allow"
-        actions    = [
-          "kms:*"
-        ]
-        resources = ["*"]
+    effect = "Allow"
+    actions = [
+      "kms:*"
+    ]
+    resources = ["*"]
 
-        principals {
-          type    = "Service"
-          identifiers = ["logs.eu-west-2.amazonaws.com"]
-        }
+    principals {
+      type        = "Service"
+      identifiers = ["logs.eu-west-2.amazonaws.com"]
+    }
   }
 }

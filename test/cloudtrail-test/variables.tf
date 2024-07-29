@@ -1,18 +1,18 @@
 variable "cloudtrail_name" {
   description = "The name of the CloudTrail"
   type        = string
-  default     = "cloudtrail"  
+  default     = "cloudtrail"
 }
 
 variable "cloudtrail_policy_name" {
   description = "The name of the IAM policy for CloudTrail"
   type        = string
-  default     = "AWSCloudTrailPolicy" 
+  default     = "AWSCloudTrailPolicy"
 }
 
 variable "bucket_name" {
   default = "cloudtrail_test_bucket"
-  type = string
+  type    = string
 }
 
 variable "aws_kms_alias_name" {

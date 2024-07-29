@@ -1,5 +1,5 @@
 module "support-test" {
-  source = "../../modules/support"
+  source    = "../../modules/support"
   role_name = var.role_name
-  tags   = local.tags
+  tags      = local.tags
 }

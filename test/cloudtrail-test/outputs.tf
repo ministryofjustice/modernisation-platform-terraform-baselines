@@ -10,7 +10,7 @@ output "cloudtrail_policy_arn" {
   value = module.cloudtrail-test.cloudtrail_policy_arn
 }
 
-output "cloudwatch_log_group_arn"{
+output "cloudwatch_log_group_arn" {
   value = module.cloudtrail-test.cloudwatch_log_group_arn
 }
 
