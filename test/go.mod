@@ -1,6 +1,6 @@
 module github.com/ministryofjustice/modernisation-platform-terraform-baselines
 
-go 1.22.5
+go 1.22
 
 require (
 	github.com/gruntwork-io/terratest v0.47.0
