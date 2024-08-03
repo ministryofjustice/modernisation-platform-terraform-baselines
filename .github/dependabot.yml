@@ -63,6 +63,14 @@ updates:
     directory: "/test/backup-test"
     schedule:
       interval: "daily"
+  - package-ecosystem: "terraform"
+    directory: "/test/cloudtrail-test"
+    schedule:
+      interval: "daily"
+  - package-ecosystem: "terraform"
+    directory: "/test/support-test"
+    schedule:
+      interval: "daily"
   - package-ecosystem: "gomod"
     directory: "/test"
     schedule:
