@@ -490,3 +490,66 @@ resource "aws_cloudwatch_metric_alarm" "vpc-changes" {
 
   tags = var.tags
 }
+
+resource "aws_cloudwatch_log_metric_filter" "NATGatewayErrorPortAllocation" {
+  name           = "ErrorPortAllocation"
+  pattern        = "{($.eventName=CreateNatGateway) || ($.eventName=DeleteNatGateway) || ($.eventName=AssociateNatGateway) || ($.eventName=DisassociateNatGateway) || ($.eventName=ModifyNatGateway)}"
+  log_group_name = "cloudtrail"
+
+  metric_transformation {
+    name      = "ErrorPortAllocation"
+    namespace = "LogMetrics"
+    value     = 1
+  }
+}
+resource "aws_cloudwatch_metric_alarm" "ErrorPortAllocation" {
+  alarm_name        = "ErrorPortAllocation"
+  alarm_description = "This alarm helps to detect when the NAT Gateway is unable to allocate ports to new connections."
+  alarm_actions     = [aws_sns_topic.securityhub-alarms.arn]
+
+  comparison_operator = "GreaterThanThreshold"
+  evaluation_periods  = "15"
+  metric_name         = aws_cloudwatch_log_metric_filter.NATGatewayErrorPortAllocation.id
+  namespace           = "LogMetrics"
+  period              = "60"
+  statistic           = "Sum"
+  threshold           = "0.0"
+  treat_missing_data  = "notBreaching"
+
+  tags = var.tags
+}
+
+
+resource "aws_cloudwatch_metric_alarm" "PacketsDropCount" {
+  alarm_name        = "PacketsDropCount"
+  alarm_description = "his alarm helps to detect when packets are dropped by NAT Gateway. This might happen because of an issue with NAT Gateway"
+  alarm_actions     = [aws_sns_topic.securityhub-alarms.arn]
+
+  comparison_operator = "GreaterThanThreshold"
+  evaluation_periods  = "5"
+  metric_name         = aws_cloudwatch_log_metric_filter.vpc-changes.id
+  namespace           = "LogMetrics"
+  period              = "60"
+  statistic           = "Sum"
+  threshold           = "0.0"
+  treat_missing_data  = "notBreaching"
+
+  tags = var.tags
+}
+
+resource "aws_cloudwatch_metric_alarm" "PrivateLinkEndpointsPacketsDropCount" {
+  alarm_name        = "PrivateLinkEndpointsPacketsDropCount"
+  alarm_description = "This alarm helps to detect if the endpoint or endpoint service is unhealthy by monitoring the number of packets dropped by the endpoint."
+  alarm_actions     = [aws_sns_topic.securityhub-alarms.arn]
+
+  comparison_operator = "GreaterThanThreshold"
+  evaluation_periods  = "5"
+  metric_name         = aws_cloudwatch_log_metric_filter.vpc-changes.id
+  namespace           = "LogMetrics"
+  period              = "60"
+  statistic           = "Sum"
+  threshold           = "1"
+  treat_missing_data  = "notBreaching"
+
+  tags = var.tags
+}
