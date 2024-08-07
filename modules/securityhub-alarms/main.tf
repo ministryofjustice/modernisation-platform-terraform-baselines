@@ -1,6 +1,6 @@
 data "aws_caller_identity" "current" {}
 
-data "aws_vpc_endpoints" "all_privatelink_endpoints" {
+data "aws_vpc_endpoint" "all_privatelink_endpoints" {
   # No filters here means it will fetch all VPC endpoints
 }
 data "aws_vpc_endpoint_service" "privatelink_services" {
@@ -554,8 +554,8 @@ resource "aws_cloudwatch_metric_alarm" "nat_packets_drop_count" {
 
 
 resource "aws_cloudwatch_metric_alarm" "privatelink_new_flow_count" {
-  count               = length(data.aws_vpc_endpoints.privatelink_endpoints.ids)
-  alarm_name          = "PrivateLink-NewFlowCount-${data.aws_vpc_endpoints.privatelink_endpoints.ids[count.index]}"
+  count               = length(data.aws_vpc_endpoint.privatelink_endpoints.ids)
+  alarm_name          = "PrivateLink-NewFlowCount-${data.aws_vpc_endpoint.privatelink_endpoints.ids[count.index]}"
   comparison_operator = "GreaterThanThreshold"
   evaluation_periods  = 3
   metric_name         = "NewFlowCount"
@@ -566,7 +566,7 @@ resource "aws_cloudwatch_metric_alarm" "privatelink_new_flow_count" {
   alarm_description   = "This alarm monitors the number of new flows or connections established through the VPC endpoint. A sudden increase in new flows might indicate a potential security issue or unexpected traffic pattern."
 
   dimensions = {
-    EndpointId = data.aws_vpc_endpoints.privatelink_endpoints.ids[count.index]
+    EndpointId = data.aws_vpc_endpoint.privatelink_endpoints.ids[count.index]
   }
 
   alarm_actions = [aws_sns_topic.securityhub-alarms.arn]
@@ -575,7 +575,7 @@ resource "aws_cloudwatch_metric_alarm" "privatelink_new_flow_count" {
 }
 
 resource "aws_cloudwatch_metric_alarm" "privatelink_active_flow_count" {
-  count               = length(data.aws_vpc_endpoints.privatelink_endpoints.ids)
+  count = length(data.aws_vpc_endpoints.privatelink_endpoints.ids)
   alarm_name          = "PrivateLink-ActiveFlowCount-${data.aws_vpc_endpoints.privatelink_endpoints.ids[count.index]}"
   comparison_operator = "GreaterThanThreshold"
   evaluation_periods  = 3
@@ -587,7 +587,7 @@ resource "aws_cloudwatch_metric_alarm" "privatelink_active_flow_count" {
   alarm_description   = "This alarm monitors the number of concurrent active flows or connections through the VPC endpoint. A high number of active flows might indicate high resource utilization or potential performance issues."
 
   dimensions = {
-    EndpointId = data.aws_vpc_endpoints.privatelink_endpoints.ids[count.index]
+    EndpointId = data.aws_vpc_endpoint.privatelink_endpoints.ids[count.index]
   }
 
   alarm_actions = [aws_sns_topic.securityhub-alarms.arn]
@@ -609,7 +609,7 @@ resource "aws_cloudwatch_metric_alarm" "privatelink_new_connection_count" {
   alarm_description   = "This alarm monitors the number of new connections established to the VPC Endpoint Service. A sudden increase might indicate unusual activity."
 
   dimensions = {
-    ServiceName = data.aws_vpc_endpoint_service.privatelink_services.service_names[count.index]
+    ServiceName = data.aws_vpc_endpoint_service.privatelink_services.service_name[count.index]
   }
 
   alarm_actions = [aws_sns_topic.securityhub-alarms.arn]
@@ -631,7 +631,7 @@ resource "aws_cloudwatch_metric_alarm" "privatelink_active_connection_count" {
   alarm_description   = "This alarm monitors the number of active connections to the VPC Endpoint Service. A high number might indicate high resource utilization."
 
   dimensions = {
-    ServiceName = data.aws_vpc_endpoint_service.privatelink_services.service_names[count.index]
+    ServiceName = data.aws_vpc_endpoint_service.privatelink_services.service_name[count.index]
   }
 
   alarm_actions = [aws_sns_topic.securityhub-alarms.arn]
