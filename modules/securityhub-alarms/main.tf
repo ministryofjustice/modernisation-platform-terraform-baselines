@@ -554,7 +554,7 @@ resource "aws_cloudwatch_metric_alarm" "nat_packets_drop_count" {
 
 
 resource "aws_cloudwatch_metric_alarm" "privatelink_new_flow_count" {
-  count = length(data.aws_vpc_endpoints.privatelink_endpoints.ids)
+  count               = length(data.aws_vpc_endpoints.privatelink_endpoints.ids)
   alarm_name          = "PrivateLink-NewFlowCount-${data.aws_vpc_endpoints.privatelink_endpoints.ids[count.index]}"
   comparison_operator = "GreaterThanThreshold"
   evaluation_periods  = 3
@@ -575,7 +575,7 @@ resource "aws_cloudwatch_metric_alarm" "privatelink_new_flow_count" {
 }
 
 resource "aws_cloudwatch_metric_alarm" "privatelink_active_flow_count" {
-  count = length(data.aws_vpc_endpoints.privatelink_endpoints.ids)
+  count               = length(data.aws_vpc_endpoints.privatelink_endpoints.ids)
   alarm_name          = "PrivateLink-ActiveFlowCount-${data.aws_vpc_endpoints.privatelink_endpoints.ids[count.index]}"
   comparison_operator = "GreaterThanThreshold"
   evaluation_periods  = 3
