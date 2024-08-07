@@ -533,8 +533,8 @@ resource "aws_cloudwatch_metric_alarm" "ErrorPortAllocation" {
 
 # NAT PacketsDropCount alarm
 resource "aws_cloudwatch_metric_alarm" "nat_packets_drop_count" {
-  count               = length(data.aws_nat_gateways.all.ids)
-  alarm_name          = "NAT-PacketsDropCount-${data.aws_nat_gateways.all.ids[count.index]}"
+  count               = length(data.aws_nat_gateways.all.id)
+  alarm_name          = "NAT-PacketsDropCount-${data.aws_nat_gateways.all.id[count.index]}"
   comparison_operator = "GreaterThanThreshold"
   evaluation_periods  = 5
   metric_name         = "PacketsDropCount"
@@ -545,7 +545,7 @@ resource "aws_cloudwatch_metric_alarm" "nat_packets_drop_count" {
   alarm_description   = "NAT Gateway is dropping packets. This might indicate an issue with the NAT Gateway."
 
   dimensions = {
-    NatGatewayId = data.aws_nat_gateways.all.ids[count.index]
+    NatGatewayId = data.aws_nat_gateways.all.id[count.index]
   }
 
   alarm_actions = [aws_sns_topic.securityhub-alarms.arn]
@@ -554,8 +554,8 @@ resource "aws_cloudwatch_metric_alarm" "nat_packets_drop_count" {
 
 
 resource "aws_cloudwatch_metric_alarm" "privatelink_new_flow_count" {
-  count               = length(data.aws_vpc_endpoint.privatelink_endpoints.ids)
-  alarm_name          = "PrivateLink-NewFlowCount-${data.aws_vpc_endpoint.privatelink_endpoints.ids[count.index]}"
+  count               = length(data.aws_vpc_endpoint.privatelink_endpoints.id)
+  alarm_name          = "PrivateLink-NewFlowCount-${data.aws_vpc_endpoint.privatelink_endpoints.id[count.index]}"
   comparison_operator = "GreaterThanThreshold"
   evaluation_periods  = 3
   metric_name         = "NewFlowCount"
@@ -566,7 +566,7 @@ resource "aws_cloudwatch_metric_alarm" "privatelink_new_flow_count" {
   alarm_description   = "This alarm monitors the number of new flows or connections established through the VPC endpoint. A sudden increase in new flows might indicate a potential security issue or unexpected traffic pattern."
 
   dimensions = {
-    EndpointId = data.aws_vpc_endpoint.privatelink_endpoints.ids[count.index]
+    EndpointId = data.aws_vpc_endpoint.privatelink_endpoints.id[count.index]
   }
 
   alarm_actions = [aws_sns_topic.securityhub-alarms.arn]
@@ -575,8 +575,8 @@ resource "aws_cloudwatch_metric_alarm" "privatelink_new_flow_count" {
 }
 
 resource "aws_cloudwatch_metric_alarm" "privatelink_active_flow_count" {
-  count               = length(data.aws_vpc_endpoints.privatelink_endpoints.ids)
-  alarm_name          = "PrivateLink-ActiveFlowCount-${data.aws_vpc_endpoints.privatelink_endpoints.ids[count.index]}"
+  count               = length(data.aws_vpc_endpoints.privatelink_endpoints.id)
+  alarm_name          = "PrivateLink-ActiveFlowCount-${data.aws_vpc_endpoints.privatelink_endpoints.id[count.index]}"
   comparison_operator = "GreaterThanThreshold"
   evaluation_periods  = 3
   metric_name         = "ActiveFlowCount"
@@ -587,7 +587,7 @@ resource "aws_cloudwatch_metric_alarm" "privatelink_active_flow_count" {
   alarm_description   = "This alarm monitors the number of concurrent active flows or connections through the VPC endpoint. A high number of active flows might indicate high resource utilization or potential performance issues."
 
   dimensions = {
-    EndpointId = data.aws_vpc_endpoint.privatelink_endpoints.ids[count.index]
+    EndpointId = data.aws_vpc_endpoint.privatelink_endpoints.id[count.index]
   }
 
   alarm_actions = [aws_sns_topic.securityhub-alarms.arn]
@@ -597,8 +597,8 @@ resource "aws_cloudwatch_metric_alarm" "privatelink_active_flow_count" {
 
 # New Connection Count Alarm
 resource "aws_cloudwatch_metric_alarm" "privatelink_new_connection_count" {
-  count               = length(data.aws_vpc_endpoint_service.privatelink_services.service_names)
-  alarm_name          = "PrivateLink-NewConnectionCount-${data.aws_vpc_endpoint_service.privatelink_services.service_names[count.index]}"
+  count               = length(data.aws_vpc_endpoint_service.privatelink_services.service_name)
+  alarm_name          = "PrivateLink-NewConnectionCount-${data.aws_vpc_endpoint_service.privatelink_services.service_name[count.index]}"
   comparison_operator = "GreaterThanThreshold"
   evaluation_periods  = 3
   metric_name         = "NewConnectionCount"
@@ -619,8 +619,8 @@ resource "aws_cloudwatch_metric_alarm" "privatelink_new_connection_count" {
 
 # Active Connection Count Alarm
 resource "aws_cloudwatch_metric_alarm" "privatelink_active_connection_count" {
-  count               = length(data.aws_vpc_endpoint_service.privatelink_services.service_names)
-  alarm_name          = "PrivateLink-ActiveConnectionCount-${data.aws_vpc_endpoint_service.privatelink_services.service_names[count.index]}"
+  count               = length(data.aws_vpc_endpoint_service.privatelink_services.service_name)
+  alarm_name          = "PrivateLink-ActiveConnectionCount-${data.aws_vpc_endpoint_service.privatelink_services.service_name[count.index]}"
   comparison_operator = "GreaterThanThreshold"
   evaluation_periods  = 3
   metric_name         = "ActiveConnectionCount"
