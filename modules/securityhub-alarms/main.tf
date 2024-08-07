@@ -1,5 +1,15 @@
 data "aws_caller_identity" "current" {}
 
+data "aws_vpc_endpoints" "all_privatelink_endpoints" {
+  # No filters here means it will fetch all VPC endpoints
+}
+data "aws_vpc_endpoint_service" "privatelink_services" {
+  # it will fetch all VPC Endpoint Services in the account
+}
+
+# Data source to fetch NAT Gateways
+data "aws_nat_gateways" "all" {}
+
 # AWS CloudWatch doesn't support using the AWS-managed KMS key for publishing things from CloudWatch to SNS
 # See: https://aws.amazon.com/premiumsupport/knowledge-center/cloudwatch-receive-sns-for-alarm-trigger/
 resource "aws_kms_key" "securityhub-alarms" {
@@ -493,63 +503,138 @@ resource "aws_cloudwatch_metric_alarm" "vpc-changes" {
 
 resource "aws_cloudwatch_log_metric_filter" "NATGatewayErrorPortAllocation" {
   name           = "ErrorPortAllocation"
-  pattern        = "{($.eventName=CreateNatGateway) || ($.eventName=DeleteNatGateway) || ($.eventName=AssociateNatGateway) || ($.eventName=DisassociateNatGateway) || ($.eventName=ModifyNatGateway)}"
+  pattern        = "{ $.eventSource = \"ec2.amazonaws.com\" && $.eventName = \"CreateNatGateway\" && $.errorCode = \"*\" && $.errorMessage = \"*Port Allocation*\" }"
   log_group_name = "cloudtrail"
 
   metric_transformation {
     name      = "ErrorPortAllocation"
-    namespace = "LogMetrics"
-    value     = 1
+    namespace = "NAT/Gateway"
+    value     = "1"
   }
 }
+
 resource "aws_cloudwatch_metric_alarm" "ErrorPortAllocation" {
-  alarm_name        = "ErrorPortAllocation"
-  alarm_description = "This alarm helps to detect when the NAT Gateway is unable to allocate ports to new connections."
+  alarm_name        = "NAT-Gateway-ErrorPortAllocation"
+  alarm_description = "This alarm detects when the NAT Gateway is unable to allocate ports to new connections."
   alarm_actions     = [aws_sns_topic.securityhub-alarms.arn]
 
   comparison_operator = "GreaterThanThreshold"
-  evaluation_periods  = "15"
-  metric_name         = aws_cloudwatch_log_metric_filter.NATGatewayErrorPortAllocation.id
-  namespace           = "LogMetrics"
-  period              = "60"
+  evaluation_periods  = "1"
+  metric_name         = "ErrorPortAllocation"
+  namespace           = "NAT/Gateway"
+  period              = "300"
   statistic           = "Sum"
-  threshold           = "0.0"
+  threshold           = "0"
   treat_missing_data  = "notBreaching"
 
   tags = var.tags
 }
 
 
-resource "aws_cloudwatch_metric_alarm" "PacketsDropCount" {
-  alarm_name        = "PacketsDropCount"
-  alarm_description = "his alarm helps to detect when packets are dropped by NAT Gateway. This might happen because of an issue with NAT Gateway"
-  alarm_actions     = [aws_sns_topic.securityhub-alarms.arn]
-
+# NAT PacketsDropCount alarm
+resource "aws_cloudwatch_metric_alarm" "nat_packets_drop_count" {
+  count               = length(data.aws_nat_gateways.all.ids)
+  alarm_name          = "NAT-PacketsDropCount-${data.aws_nat_gateways.all.ids[count.index]}"
   comparison_operator = "GreaterThanThreshold"
-  evaluation_periods  = "5"
-  metric_name         = aws_cloudwatch_log_metric_filter.vpc-changes.id
-  namespace           = "LogMetrics"
-  period              = "60"
-  statistic           = "Sum"
-  threshold           = "0.0"
-  treat_missing_data  = "notBreaching"
-
-  tags = var.tags
-}
-
-resource "aws_cloudwatch_metric_alarm" "PrivateLinkEndpointsPacketsDropCount" {
-  alarm_name        = "PrivateLinkEndpointsPacketsDropCount"
-  alarm_description = "This alarm helps to detect if the endpoint or endpoint service is unhealthy by monitoring the number of packets dropped by the endpoint."
-  alarm_actions     = [aws_sns_topic.securityhub-alarms.arn]
-
-  comparison_operator = "GreaterThanThreshold"
-  evaluation_periods  = "5"
-  metric_name         = aws_cloudwatch_log_metric_filter.vpc-changes.id
-  namespace           = "LogMetrics"
-  period              = "60"
+  evaluation_periods  = 5
+  metric_name         = "PacketsDropCount"
+  namespace           = "AWS/NATGateway"
+  period              = 60
   statistic           = "Sum"
   threshold           = "1"
-  treat_missing_data  = "notBreaching"
+  alarm_description   = "NAT Gateway is dropping packets. This might indicate an issue with the NAT Gateway."
+
+  dimensions = {
+    NatGatewayId = data.aws_nat_gateways.all.ids[count.index]
+  }
+
+  alarm_actions = [aws_sns_topic.securityhub-alarms.arn]
+  tags          = var.tags
+}
+
+
+resource "aws_cloudwatch_metric_alarm" "privatelink_new_flow_count" {
+  count = length(data.aws_vpc_endpoints.privatelink_endpoints.ids)
+  alarm_name          = "PrivateLink-NewFlowCount-${data.aws_vpc_endpoints.privatelink_endpoints.ids[count.index]}"
+  comparison_operator = "GreaterThanThreshold"
+  evaluation_periods  = 3
+  metric_name         = "NewFlowCount"
+  namespace           = "AWS/VpcEndpoints"
+  period              = 60
+  statistic           = "Average"
+  threshold           = "1"
+  alarm_description   = "This alarm monitors the number of new flows or connections established through the VPC endpoint. A sudden increase in new flows might indicate a potential security issue or unexpected traffic pattern."
+
+  dimensions = {
+    EndpointId = data.aws_vpc_endpoints.privatelink_endpoints.ids[count.index]
+  }
+
+  alarm_actions = [aws_sns_topic.securityhub-alarms.arn]
+
+  tags = var.tags
+}
+
+resource "aws_cloudwatch_metric_alarm" "privatelink_active_flow_count" {
+  count = length(data.aws_vpc_endpoints.privatelink_endpoints.ids)
+  alarm_name          = "PrivateLink-ActiveFlowCount-${data.aws_vpc_endpoints.privatelink_endpoints.ids[count.index]}"
+  comparison_operator = "GreaterThanThreshold"
+  evaluation_periods  = 3
+  metric_name         = "ActiveFlowCount"
+  namespace           = "AWS/VpcEndpoints"
+  period              = 60
+  statistic           = "Average"
+  threshold           = "1"
+  alarm_description   = "This alarm monitors the number of concurrent active flows or connections through the VPC endpoint. A high number of active flows might indicate high resource utilization or potential performance issues."
+
+  dimensions = {
+    EndpointId = data.aws_vpc_endpoints.privatelink_endpoints.ids[count.index]
+  }
+
+  alarm_actions = [aws_sns_topic.securityhub-alarms.arn]
+
+  tags = var.tags
+}
+
+# New Connection Count Alarm
+resource "aws_cloudwatch_metric_alarm" "privatelink_new_connection_count" {
+  count               = length(data.aws_vpc_endpoint_service.privatelink_services.service_names)
+  alarm_name          = "PrivateLink-NewConnectionCount-${data.aws_vpc_endpoint_service.privatelink_services.service_names[count.index]}"
+  comparison_operator = "GreaterThanThreshold"
+  evaluation_periods  = 3
+  metric_name         = "NewConnectionCount"
+  namespace           = "AWS/PrivateLinkServices"
+  period              = 60
+  statistic           = "Average"
+  threshold           = "1"
+  alarm_description   = "This alarm monitors the number of new connections established to the VPC Endpoint Service. A sudden increase might indicate unusual activity."
+
+  dimensions = {
+    ServiceName = data.aws_vpc_endpoint_service.privatelink_services.service_names[count.index]
+  }
+
+  alarm_actions = [aws_sns_topic.securityhub-alarms.arn]
+
+  tags = var.tags
+}
+
+# Active Connection Count Alarm
+resource "aws_cloudwatch_metric_alarm" "privatelink_active_connection_count" {
+  count               = length(data.aws_vpc_endpoint_service.privatelink_services.service_names)
+  alarm_name          = "PrivateLink-ActiveConnectionCount-${data.aws_vpc_endpoint_service.privatelink_services.service_names[count.index]}"
+  comparison_operator = "GreaterThanThreshold"
+  evaluation_periods  = 3
+  metric_name         = "ActiveConnectionCount"
+  namespace           = "AWS/PrivateLinkServices"
+  period              = 60
+  statistic           = "Average"
+  threshold           = "1"
+  alarm_description   = "This alarm monitors the number of active connections to the VPC Endpoint Service. A high number might indicate high resource utilization."
+
+  dimensions = {
+    ServiceName = data.aws_vpc_endpoint_service.privatelink_services.service_names[count.index]
+  }
+
+  alarm_actions = [aws_sns_topic.securityhub-alarms.arn]
 
   tags = var.tags
 }
