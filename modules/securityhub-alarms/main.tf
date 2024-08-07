@@ -575,8 +575,8 @@ resource "aws_cloudwatch_metric_alarm" "privatelink_new_flow_count" {
 }
 
 resource "aws_cloudwatch_metric_alarm" "privatelink_active_flow_count" {
-  count               = length(data.aws_vpc_endpoints.privatelink_endpoints.id)
-  alarm_name          = "PrivateLink-ActiveFlowCount-${data.aws_vpc_endpoints.privatelink_endpoints.id[count.index]}"
+  count               = length(data.aws_vpc_endpoint.privatelink_endpoints.id)
+  alarm_name          = "PrivateLink-ActiveFlowCount-${data.aws_vpc_endpoint.privatelink_endpoints.id[count.index]}"
   comparison_operator = "GreaterThanThreshold"
   evaluation_periods  = 3
   metric_name         = "ActiveFlowCount"
