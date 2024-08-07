@@ -1,6 +1,6 @@
 data "aws_caller_identity" "current" {}
 
-data "aws_vpc_endpoint" "all_privatelink_endpoints" {
+data "aws_vpc_endpoint" "privatelink_endpoints" {
   # No filters here means it will fetch all VPC endpoints
 }
 data "aws_vpc_endpoint_service" "privatelink_services" {
