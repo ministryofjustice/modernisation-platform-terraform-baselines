@@ -10,6 +10,12 @@ data "aws_vpc_endpoint_service" "privatelink_services" {
 # Data source to fetch NAT Gateways
 data "aws_nat_gateways" "all" {}
 
+locals {
+  nat_gateways_id = toset(data.aws_nat_gateways.all.id)
+  vpc_endpoint = toset(data.aws_vpc_endpoint.privatelink_endpoints.id)
+  vpc_endpoint_service = toset(data.aws_vpc_endpoint_service.privatelink_services.id)
+}
+
 # AWS CloudWatch doesn't support using the AWS-managed KMS key for publishing things from CloudWatch to SNS
 # See: https://aws.amazon.com/premiumsupport/knowledge-center/cloudwatch-receive-sns-for-alarm-trigger/
 resource "aws_kms_key" "securityhub-alarms" {
@@ -533,7 +539,8 @@ resource "aws_cloudwatch_metric_alarm" "ErrorPortAllocation" {
 
 # NAT PacketsDropCount alarm
 resource "aws_cloudwatch_metric_alarm" "nat_packets_drop_count" {
-  alarm_name          = "NAT-PacketsDropCount"
+  for_each            = local.nat_gateways_id
+  alarm_name          = "NAT-PacketsDropCount-${each.value}"
   comparison_operator = "GreaterThanThreshold"
   evaluation_periods  = 5
   metric_name         = "PacketsDropCount"
@@ -544,13 +551,20 @@ resource "aws_cloudwatch_metric_alarm" "nat_packets_drop_count" {
   alarm_description   = "NAT Gateway is dropping packets. This might indicate an issue with the NAT Gateway."
 
   dimensions = {
-    NatGatewayId = data.aws_nat_gateways.all.id
+    NatGatewayId = each.value
   }
 
   alarm_actions = [aws_sns_topic.securityhub-alarms.arn]
   tags          = var.tags
 }
+# Null resource to handle case when no NAT Gateways are found
+resource "null_resource" "no_nat_gateways_found" {
+  count = length(local.nat_gateways_id) == 0 ? 1 : 0
 
+  provisioner "local-exec" {
+    command = "echo 'No NAT Gateways found. Skipping alarm creation.'"
+  }
+}
 
 resource "aws_cloudwatch_metric_alarm" "privatelink_new_flow_count" {
   alarm_name          = "PrivateLink-NewFlowCount"
