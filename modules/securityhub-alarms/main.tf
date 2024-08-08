@@ -11,8 +11,8 @@ data "aws_vpc_endpoint_service" "privatelink_services" {
 data "aws_nat_gateways" "all" {}
 
 locals {
-  nat_gateways_id = toset(data.aws_nat_gateways.all.id)
-  vpc_endpoint = toset(data.aws_vpc_endpoint.privatelink_endpoints.id)
+  nat_gateways_id      = toset(data.aws_nat_gateways.all.id)
+  vpc_endpoint         = toset(data.aws_vpc_endpoint.privatelink_endpoints.id)
   vpc_endpoint_service = toset(data.aws_vpc_endpoint_service.privatelink_services.id)
 }
 
