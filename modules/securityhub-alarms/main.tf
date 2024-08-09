@@ -526,7 +526,7 @@ resource "aws_cloudwatch_metric_alarm" "nat_packets_drop_count_all" {
   alarm_name          = "NAT-PacketsDropCount-AllGateways"
   comparison_operator = "GreaterThanThreshold"
   evaluation_periods  = 5
-  threshold           = "100"  # Adjust this threshold as needed
+  threshold           = "100" # Adjust this threshold as needed
   alarm_description   = "NAT Gateways are dropping packets. This might indicate an issue with one or more NAT Gateways."
 
   metric_query {
@@ -553,7 +553,7 @@ resource "aws_cloudwatch_metric_alarm" "privatelink_new_flow_count_all" {
   alarm_name          = "PrivateLink-NewFlowCount-AllEndpoints"
   comparison_operator = "GreaterThanThreshold"
   evaluation_periods  = 3
-  threshold           = "100"  # Adjust this threshold as needed
+  threshold           = "100" # Adjust this threshold as needed
   alarm_description   = "This alarm monitors the total number of new flows across all VPC endpoints."
 
   metric_query {
@@ -581,7 +581,7 @@ resource "aws_cloudwatch_metric_alarm" "privatelink_active_flow_count_all" {
   alarm_name          = "PrivateLink-ActiveFlowCount-AllEndpoints"
   comparison_operator = "GreaterThanThreshold"
   evaluation_periods  = 3
-  threshold           = "1000"  # Adjust this threshold as needed
+  threshold           = "1000" # Adjust this threshold as needed
   alarm_description   = "This alarm monitors the total number of active flows across all VPC endpoints."
 
   metric_query {
@@ -610,7 +610,7 @@ resource "aws_cloudwatch_metric_alarm" "privatelink_service_new_connection_count
   alarm_name          = "PrivateLink-Service-NewConnectionCount-AllServices"
   comparison_operator = "GreaterThanThreshold"
   evaluation_periods  = 3
-  threshold           = "100"  # Adjust this threshold as needed
+  threshold           = "100" # Adjust this threshold as needed
   alarm_description   = "This alarm monitors the total number of new connections across all VPC Endpoint Services."
 
   metric_query {
@@ -638,7 +638,7 @@ resource "aws_cloudwatch_metric_alarm" "privatelink_service_active_connection_co
   alarm_name          = "PrivateLink-Service-ActiveConnectionCount-AllServices"
   comparison_operator = "GreaterThanThreshold"
   evaluation_periods  = 3
-  threshold           = "1000"  # Adjust this threshold as needed
+  threshold           = "1000" # Adjust this threshold as needed
   alarm_description   = "This alarm monitors the total number of active connections across all VPC Endpoint Services."
 
   metric_query {
