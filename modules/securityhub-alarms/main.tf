@@ -1,21 +1,5 @@
 data "aws_caller_identity" "current" {}
 
-data "aws_vpc_endpoint" "privatelink_endpoints" {
-  # No filters here means it will fetch all VPC endpoints
-}
-data "aws_vpc_endpoint_service" "privatelink_services" {
-  # it will fetch all VPC Endpoint Services in the account
-}
-
-# Data source to fetch NAT Gateways
-data "aws_nat_gateways" "all" {}
-
-locals {
-  nat_gateways_id      = toset(data.aws_nat_gateways.all.id)
-  vpc_endpoint         = toset(data.aws_vpc_endpoint.privatelink_endpoints.id)
-  vpc_endpoint_service = toset(data.aws_vpc_endpoint_service.privatelink_services.id)
-}
-
 # AWS CloudWatch doesn't support using the AWS-managed KMS key for publishing things from CloudWatch to SNS
 # See: https://aws.amazon.com/premiumsupport/knowledge-center/cloudwatch-receive-sns-for-alarm-trigger/
 resource "aws_kms_key" "securityhub-alarms" {
@@ -538,112 +522,142 @@ resource "aws_cloudwatch_metric_alarm" "ErrorPortAllocation" {
 
 
 # NAT PacketsDropCount alarm
-resource "aws_cloudwatch_metric_alarm" "nat_packets_drop_count" {
-  for_each            = local.nat_gateways_id
-  alarm_name          = "NAT-PacketsDropCount-${each.value}"
+resource "aws_cloudwatch_metric_alarm" "nat_packets_drop_count_all" {
+  alarm_name          = "NAT-PacketsDropCount-AllGateways"
   comparison_operator = "GreaterThanThreshold"
   evaluation_periods  = 5
-  metric_name         = "PacketsDropCount"
-  namespace           = "AWS/NATGateway"
-  period              = 60
-  statistic           = "Sum"
-  threshold           = "1"
-  alarm_description   = "NAT Gateway is dropping packets. This might indicate an issue with the NAT Gateway."
+  threshold           = "100"  # Adjust this threshold as needed
+  alarm_description   = "NAT Gateways are dropping packets. This might indicate an issue with one or more NAT Gateways."
 
-  dimensions = {
-    NatGatewayId = each.value
+  metric_query {
+    id          = "e1"
+    expression  = "SUM(METRICS())"
+    label       = "Total Dropped Packets"
+    return_data = "true"
+  }
+
+  metric_query {
+    id = "m1"
+    metric {
+      metric_name = "PacketsDropCount"
+      namespace   = "AWS/NATGateway"
+      period      = 60
+      stat        = "Sum"
+    }
   }
 
   alarm_actions = [aws_sns_topic.securityhub-alarms.arn]
   tags          = var.tags
 }
-# Null resource to handle case when no NAT Gateways are found
-resource "null_resource" "no_nat_gateways_found" {
-  count = length(local.nat_gateways_id) == 0 ? 1 : 0
-
-  provisioner "local-exec" {
-    command = "echo 'No NAT Gateways found. Skipping alarm creation.'"
-  }
-}
-
-resource "aws_cloudwatch_metric_alarm" "privatelink_new_flow_count" {
-  alarm_name          = "PrivateLink-NewFlowCount"
+resource "aws_cloudwatch_metric_alarm" "privatelink_new_flow_count_all" {
+  alarm_name          = "PrivateLink-NewFlowCount-AllEndpoints"
   comparison_operator = "GreaterThanThreshold"
   evaluation_periods  = 3
-  metric_name         = "NewFlowCount"
-  namespace           = "AWS/VpcEndpoints"
-  period              = 60
-  statistic           = "Average"
-  threshold           = "1"
-  alarm_description   = "This alarm monitors the number of new flows or connections established through the VPC endpoint. A sudden increase in new flows might indicate a potential security issue or unexpected traffic pattern."
+  threshold           = "100"  # Adjust this threshold as needed
+  alarm_description   = "This alarm monitors the total number of new flows across all VPC endpoints."
 
-  dimensions = {
-    EndpointId = data.aws_vpc_endpoint.privatelink_endpoints.id
+  metric_query {
+    id          = "e1"
+    expression  = "SUM(METRICS())"
+    label       = "Total New Flows"
+    return_data = "true"
+  }
+
+  metric_query {
+    id = "m1"
+    metric {
+      metric_name = "NewFlowCount"
+      namespace   = "AWS/VpcEndpoints"
+      period      = 60
+      stat        = "Sum"
+    }
   }
 
   alarm_actions = [aws_sns_topic.securityhub-alarms.arn]
-
-  tags = var.tags
+  tags          = var.tags
 }
 
-resource "aws_cloudwatch_metric_alarm" "privatelink_active_flow_count" {
-  alarm_name          = "PrivateLink-ActiveFlowCount"
+resource "aws_cloudwatch_metric_alarm" "privatelink_active_flow_count_all" {
+  alarm_name          = "PrivateLink-ActiveFlowCount-AllEndpoints"
   comparison_operator = "GreaterThanThreshold"
   evaluation_periods  = 3
-  metric_name         = "ActiveFlowCount"
-  namespace           = "AWS/VpcEndpoints"
-  period              = 60
-  statistic           = "Average"
-  threshold           = "1"
-  alarm_description   = "This alarm monitors the number of concurrent active flows or connections through the VPC endpoint. A high number of active flows might indicate high resource utilization or potential performance issues."
+  threshold           = "1000"  # Adjust this threshold as needed
+  alarm_description   = "This alarm monitors the total number of active flows across all VPC endpoints."
 
-  dimensions = {
-    EndpointId = data.aws_vpc_endpoint.privatelink_endpoints.id
+  metric_query {
+    id          = "e1"
+    expression  = "SUM(METRICS())"
+    label       = "Total Active Flows"
+    return_data = "true"
+  }
+
+  metric_query {
+    id = "m1"
+    metric {
+      metric_name = "ActiveFlowCount"
+      namespace   = "AWS/VpcEndpoints"
+      period      = 60
+      stat        = "Average"
+    }
   }
 
   alarm_actions = [aws_sns_topic.securityhub-alarms.arn]
-
-  tags = var.tags
+  tags          = var.tags
 }
 
 # New Connection Count Alarm
-resource "aws_cloudwatch_metric_alarm" "privatelink_new_connection_count" {
-  alarm_name          = "PrivateLink-NewConnectionCount"
+resource "aws_cloudwatch_metric_alarm" "privatelink_service_new_connection_count_all" {
+  alarm_name          = "PrivateLink-Service-NewConnectionCount-AllServices"
   comparison_operator = "GreaterThanThreshold"
   evaluation_periods  = 3
-  metric_name         = "NewConnectionCount"
-  namespace           = "AWS/PrivateLinkServices"
-  period              = 60
-  statistic           = "Average"
-  threshold           = "1"
-  alarm_description   = "This alarm monitors the number of new connections established to the VPC Endpoint Service. A sudden increase might indicate unusual activity."
+  threshold           = "100"  # Adjust this threshold as needed
+  alarm_description   = "This alarm monitors the total number of new connections across all VPC Endpoint Services."
 
-  dimensions = {
-    ServiceName = data.aws_vpc_endpoint_service.privatelink_services.service_name
+  metric_query {
+    id          = "e1"
+    expression  = "SUM(METRICS())"
+    label       = "Total New Connections"
+    return_data = "true"
+  }
+
+  metric_query {
+    id = "m1"
+    metric {
+      metric_name = "NewConnectionCount"
+      namespace   = "AWS/PrivateLinkServices"
+      period      = 60
+      stat        = "Sum"
+    }
   }
 
   alarm_actions = [aws_sns_topic.securityhub-alarms.arn]
-
-  tags = var.tags
+  tags          = var.tags
 }
 
-# Active Connection Count Alarm
-resource "aws_cloudwatch_metric_alarm" "privatelink_active_connection_count" {
-  alarm_name          = "PrivateLink-ActiveConnectionCount"
+resource "aws_cloudwatch_metric_alarm" "privatelink_service_active_connection_count_all" {
+  alarm_name          = "PrivateLink-Service-ActiveConnectionCount-AllServices"
   comparison_operator = "GreaterThanThreshold"
   evaluation_periods  = 3
-  metric_name         = "ActiveConnectionCount"
-  namespace           = "AWS/PrivateLinkServices"
-  period              = 60
-  statistic           = "Average"
-  threshold           = "1"
-  alarm_description   = "This alarm monitors the number of active connections to the VPC Endpoint Service. A high number might indicate high resource utilization."
+  threshold           = "1000"  # Adjust this threshold as needed
+  alarm_description   = "This alarm monitors the total number of active connections across all VPC Endpoint Services."
 
-  dimensions = {
-    ServiceName = data.aws_vpc_endpoint_service.privatelink_services.service_name
+  metric_query {
+    id          = "e1"
+    expression  = "SUM(METRICS())"
+    label       = "Total Active Connections"
+    return_data = "true"
+  }
+
+  metric_query {
+    id = "m1"
+    metric {
+      metric_name = "ActiveConnectionCount"
+      namespace   = "AWS/PrivateLinkServices"
+      period      = 60
+      stat        = "Average"
+    }
   }
 
   alarm_actions = [aws_sns_topic.securityhub-alarms.arn]
-
-  tags = var.tags
+  tags          = var.tags
 }
