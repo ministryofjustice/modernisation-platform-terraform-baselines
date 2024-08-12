@@ -2,10 +2,12 @@ package main
 
 import (
 	"fmt"
+	"regexp"
 	"testing"
 
 	"github.com/gruntwork-io/terratest/modules/random"
 	"github.com/gruntwork-io/terratest/modules/terraform"
+	"github.com/stretchr/testify/assert"
 )
 
 // // Backup Module Unit Testing
@@ -238,9 +240,46 @@ func TestTerraformSecurityHubAlarms(t *testing.T) {
 	// Test securityhub-alarms module
 
 	// Define Outputs
-	// AwsBackupVaultArn := terraform.Output(t, terraformOptions, "aws_backup_vault_arn")
+	SnsTopicArn := terraform.Output(t, terraformOptions, "securityhub_alarms_sns_topic_arn")
+	SecurityhubAlarmsKmsKeyArn := terraform.Output(t, terraformOptions, "securityhub_alarms_kms_key_arn")
+	SecurityhubAlarmsKmsAliasArn := terraform.Output(t, terraformOptions, "securityhub_alarms_kms_alias_arn")
+	SecurityhubAlarmsMultiRegionKmsKeyArn := terraform.Output(t, terraformOptions, "securityhub_alarms_multi_region_kms_key_arn")
+	SecurityhubAlarmsMultiRegionKmsAliasArn := terraform.Output(t, terraformOptions, "securityhub_alarms_multi_region_kms_alias_arn")
+	UnauthorisedApiCallsMetricFilterId := terraform.Output(t, terraformOptions, "unauthorised_api_calls_metric_filter_id")
+	UnauthorisedApiCallsAlarmArn := terraform.Output(t, terraformOptions, "unauthorised_api_calls_alarm_arn")
+	// SignInWithoutMfaMetricFilterId := terraform.Output(t, terraformOptions, "sign_in_without_mfa_metric_filter_id")
+	// SignInWithoutMfaAlarmArn := terraform.Output(t, terraformOptions, "sign_in_without_mfa_alarm_arn")
+	// RootAccountUsageMetricFilterId := terraform.Output(t, terraformOptions, "root_account_usage_metric_filter_id")
+	// RootAccountUsageAlarmArn := terraform.Output(t, terraformOptions, "root_account_usage_alarm_arn")
+	// IamPolicyChangesMetricFilterId := terraform.Output(t, terraformOptions, "iam_policy_changes_metric_filter_id")
+	// IamPolicyChangesAlarmArn := terraform.Output(t, terraformOptions, "iam_policy_changes_alarm_arn")
+	// CloudtrailConfigurationChangesMetricFilterId := terraform.Output(t, terraformOptions, "cloudtrail_configuration_changes_metric_filter_id")
+	// CloudtrailConfigurationChangesAlarmArn := terraform.Output(t, terraformOptions, "cloudtrail_configuration_changes_alarm_arn")
+	// SignInFailuresMetricFilterId := terraform.Output(t, terraformOptions, "sign_in_failures_metric_filter_id")
+	// SignInFailuresAlarmArn := terraform.Output(t, terraformOptions, "sign_in_failures_alarm_arn")
+	// CmkRemovalMetricFilterId := terraform.Output(t, terraformOptions, "cmk_removal_metric_filter_id")
+	// CmkRemovalAlarmArn := terraform.Output(t, terraformOptions, "cmk_removal_alarm_arn")
+	// S3BucketPolicyChangesMetricFilterId := terraform.Output(t, terraformOptions, "s3_bucket_policy_changes_metric_filter_id")
+	// S3BucketPolicyChangesAlarmArn := terraform.Output(t, terraformOptions, "s3_bucket_policy_changes_alarm_arn")
+	// ConfigConfigurationChangesMetricFilterId := terraform.Output(t, terraformOptions, "config_configuration_changes_metric_filter_id")
+	// ConfigConfigurationChangesAlarmArn := terraform.Output(t, terraformOptions, "config_configuration_changes_alarm_arn")
+	// SecurityGroupChangesMetricFilterId := terraform.Output(t, terraformOptions, "security_group_changes_metric_filter_id")
+	// SecurityGroupChangesAlarmArn := terraform.Output(t, terraformOptions, "security_group_changes_alarm_arn")
+	// NaclChangesMetricFilterId := terraform.Output(t, terraformOptions, "nacl_changes_metric_filter_id")
+	// NaclChangesAlarmArn := terraform.Output(t, terraformOptions, "nacl_changes_alarm_arn")
+	// NetworkGatewayChangesMetricFilterId := terraform.Output(t, terraformOptions, "network_gateway_changes_metric_filter_id")
+	// NetworkGatewayChangesAlarmArn := terraform.Output(t, terraformOptions, "network_gateway_changes_alarm_arn")
+	// RouteTableChangesMetricFilterId := terraform.Output(t, terraformOptions, "route_table_changes_metric_filter_id")
+	// RouteTableChangesAlarmArn := terraform.Output(t, terraformOptions, "route_table_changes_alarm_arn")
+	// VpcChangesMetricFilterId := terraform.Output(t, terraformOptions, "vpc_changes_metric_filter_id")
+	// VpcChangesAlarmArn := terraform.Output(t, terraformOptions, "vpc_changes_alarm_arn")
 
 	// Tests
-	// assert.Regexp(t, regexp.MustCompile(`^arn:aws:backup:eu-west-2:[0-9]{12}:backup-vault:everything-`+uniqueId), AwsBackupVaultArn)
-
+	assert.Regexp(t, regexp.MustCompile(`^arn:aws:sns:eu-west-2:[0-9]{12}:securityhub-alarms-`+uniqueId), SnsTopicArn)
+	assert.Regexp(t, regexp.MustCompile(`^arn:aws:kms:eu-west-2:[0-9]{12}:key/*`), SecurityhubAlarmsKmsKeyArn)                                                            // arn:aws:kms:eu-west-2:836052629367:key/4977ff9a-0d40-45d6-82e4-f12dec972e60
+	assert.Regexp(t, regexp.MustCompile(`^arn:aws:kms:eu-west-2:[0-9]{12}:alias/securityhub-alarms_key-`+uniqueId), SecurityhubAlarmsKmsAliasArn)                         // arn:aws:kms:eu-west-2:836052629367:alias/securityhub-alarms_key-2eStAu
+	assert.Regexp(t, regexp.MustCompile(`^arn:aws:kms:eu-west-2:[0-9]{12}:key/mrk-*`), SecurityhubAlarmsMultiRegionKmsKeyArn)                                             // arn:aws:kms:eu-west-2:836052629367:key/mrk-8a01840635f14b33854d2f51f30a8340
+	assert.Regexp(t, regexp.MustCompile(`^arn:aws:kms:eu-west-2:[0-9]{12}:alias/securityhub-alarms-key-multi-region-`+uniqueId), SecurityhubAlarmsMultiRegionKmsAliasArn) // arn:aws:kms:eu-west-2:836052629367:alias/securityhub-alarms-key-multi-region-2eStAu
+	assert.Regexp(t, regexp.MustCompile(UnauthorisedApiCallsFilterName), UnauthorisedApiCallsMetricFilterId)                                                              // unauthorised-api-calls-2eStAu
+	assert.Regexp(t, regexp.MustCompile(`^arn:aws:cloudwatch:eu-west-2:[0-9]{12}:alarm:`+UnauthorisedApiCallsAlarmName), UnauthorisedApiCallsAlarmArn)                    // arn:aws:cloudwatch:eu-west-2:836052629367:alarm:unauthorised-api-calls-2eStAu
 }
