@@ -1,9 +1,3 @@
-variable "tags" {
-  default     = {}
-  description = "Tags to apply to resources, where applicable"
-  type        = map(any)
-}
-
 variable "securityhub_alarms_kms_name" {
   default = "alias/securityhub-alarms_key"
   type    = string
