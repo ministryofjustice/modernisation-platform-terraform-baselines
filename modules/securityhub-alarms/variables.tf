@@ -26,6 +26,7 @@ variable "unauthorised_api_calls_log_metric_filter_name" {
 
 variable "unauthorised_api_calls_alarm_name" {
   default = "unauthorised-api-calls"
+  type    = string
 }
 
 variable "sign_in_without_mfa_metric_filter_name" {
@@ -185,6 +186,7 @@ variable "privatelink_active_flow_count_all_alarm_name" {
 
 variable "privatelink_service_new_connection_count_all_alarm_name" {
   default = "PrivateLink-Service-NewConnectionCount-AllServices"
+  type    = string
 }
 
 variable "privatelink_service_active_connection_count_all_alarm_name" {
