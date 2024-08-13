@@ -375,7 +375,7 @@ resource "aws_cloudwatch_metric_alarm" "security-group-changes" {
 
 # 3.11 - Ensure a log metric filter and alarm exist for changes to Network Access Control Lists (NACL)
 resource "aws_cloudwatch_log_metric_filter" "nacl-changes" {
-  name           = var.cloudtrail_configuration_changes_metric_filter_name
+  name           = var.nacl_changes_metric_filter_name
   pattern        = "{($.eventName=CreateNetworkAcl) || ($.eventName=CreateNetworkAclEntry) || ($.eventName=DeleteNetworkAcl) || ($.eventName=DeleteNetworkAclEntry) || ($.eventName=ReplaceNetworkAclEntry) || ($.eventName=ReplaceNetworkAclAssociation)}"
   log_group_name = "cloudtrail"
 
@@ -387,7 +387,7 @@ resource "aws_cloudwatch_log_metric_filter" "nacl-changes" {
 }
 
 resource "aws_cloudwatch_metric_alarm" "nacl-changes" {
-  alarm_name        = var.cloudtrail_configuration_changes_alarm_name
+  alarm_name        = var.nacl_changes_alarm_name
   alarm_description = "Monitors for AWS EC2 Network Access Control Lists changes."
   alarm_actions     = [aws_sns_topic.securityhub-alarms.arn]
 
@@ -417,7 +417,7 @@ resource "aws_cloudwatch_log_metric_filter" "network-gateway-changes" {
 }
 
 resource "aws_cloudwatch_metric_alarm" "network-gateway-changes" {
-  alarm_name        = var.cloudtrail_configuration_changes_alarm_name
+  alarm_name        = var.network_gateway_changes_alarm_name
   alarm_description = "Monitors for AWS EC2 network gateway changes."
   alarm_actions     = [aws_sns_topic.securityhub-alarms.arn]
 
