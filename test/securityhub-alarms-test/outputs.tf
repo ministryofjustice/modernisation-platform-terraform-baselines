@@ -161,3 +161,38 @@ output "vpc_changes_alarm_arn" {
   value       = module.securityhub-alarms-test.vpc_changes_alarm_arn
   description = "The ARN of the CloudWatch alarm for VPC changes"
 }
+
+output "nat_gateway_error_port_allocation_metric_filter_id" {
+  description = "The ID of the CloudWatch Log Metric Filter for NAT Gateway Error Port Allocation"
+  value       = module.securityhub-alarms-test.nat_gateway_error_port_allocation_metric_filter_id
+}
+
+output "nat_gateway_error_port_allocation_alarm_arn" {
+  description = "The ARN of the CloudWatch Alarm for NAT Gateway Error Port Allocation"
+  value       = module.securityhub-alarms-test.nat_gateway_error_port_allocation_alarm_arn
+}
+
+output "nat_packets_drop_count_alarm_arn" {
+  description = "The ARN of the CloudWatch Alarm for NAT Packets Drop Count"
+  value       = module.securityhub-alarms-test.nat_packets_drop_count_alarm_arn
+}
+
+output "privatelink_new_flow_count_alarm_arn" {
+  description = "The ARN of the CloudWatch Alarm for PrivateLink New Flow Count"
+  value       = module.securityhub-alarms-test.privatelink_new_flow_count_alarm_arn
+}
+
+output "privatelink_active_flow_count_alarm_arn" {
+  description = "The ARN of the CloudWatch Alarm for PrivateLink Active Flow Count"
+  value       = module.securityhub-alarms-test.privatelink_active_flow_count_alarm_arn
+}
+
+output "privatelink_service_new_connection_count_alarm_arn" {
+  description = "The ARN of the CloudWatch Alarm for PrivateLink Service New Connection Count"
+  value       = module.securityhub-alarms-test.privatelink_service_new_connection_count_alarm_arn
+}
+
+output "privatelink_service_active_connection_count_alarm_arn" {
+  description = "The ARN of the CloudWatch Alarm for PrivateLink Service Active Connection Count"
+  value       = module.securityhub-alarms-test.privatelink_service_active_connection_count_alarm_arn
+}

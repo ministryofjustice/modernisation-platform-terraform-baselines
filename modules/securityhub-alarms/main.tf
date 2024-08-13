@@ -492,7 +492,7 @@ resource "aws_cloudwatch_metric_alarm" "vpc-changes" {
 }
 
 resource "aws_cloudwatch_log_metric_filter" "NATGatewayErrorPortAllocation" {
-  name           = "ErrorPortAllocation"
+  name           = var.error_port_allocation_metric_filter_name
   pattern        = "{ $.eventSource = \"ec2.amazonaws.com\" && $.eventName = \"CreateNatGateway\" && $.errorCode = \"*\" && $.errorMessage = \"*Port Allocation*\" }"
   log_group_name = "cloudtrail"
 
@@ -504,7 +504,7 @@ resource "aws_cloudwatch_log_metric_filter" "NATGatewayErrorPortAllocation" {
 }
 
 resource "aws_cloudwatch_metric_alarm" "ErrorPortAllocation" {
-  alarm_name        = "NAT-Gateway-ErrorPortAllocation"
+  alarm_name        = var.error_port_allocation_alarm_name
   alarm_description = "This alarm detects when the NAT Gateway is unable to allocate ports to new connections."
   alarm_actions     = [aws_sns_topic.securityhub-alarms.arn]
 
@@ -523,7 +523,7 @@ resource "aws_cloudwatch_metric_alarm" "ErrorPortAllocation" {
 
 # NAT PacketsDropCount alarm
 resource "aws_cloudwatch_metric_alarm" "nat_packets_drop_count_all" {
-  alarm_name          = "NAT-PacketsDropCount-AllGateways"
+  alarm_name          = var.nat_packets_drop_count_all_alarm_name
   comparison_operator = "GreaterThanThreshold"
   evaluation_periods  = 5
   threshold           = "100" # Adjust this threshold as needed
@@ -550,7 +550,7 @@ resource "aws_cloudwatch_metric_alarm" "nat_packets_drop_count_all" {
   tags          = var.tags
 }
 resource "aws_cloudwatch_metric_alarm" "privatelink_new_flow_count_all" {
-  alarm_name          = "PrivateLink-NewFlowCount-AllEndpoints"
+  alarm_name          = var.privatelink_new_flow_count_all_alarm_name
   comparison_operator = "GreaterThanThreshold"
   evaluation_periods  = 3
   threshold           = "100" # Adjust this threshold as needed
@@ -578,7 +578,7 @@ resource "aws_cloudwatch_metric_alarm" "privatelink_new_flow_count_all" {
 }
 
 resource "aws_cloudwatch_metric_alarm" "privatelink_active_flow_count_all" {
-  alarm_name          = "PrivateLink-ActiveFlowCount-AllEndpoints"
+  alarm_name          = var.privatelink_active_flow_count_all_alarm_name
   comparison_operator = "GreaterThanThreshold"
   evaluation_periods  = 3
   threshold           = "1000" # Adjust this threshold as needed
@@ -607,7 +607,7 @@ resource "aws_cloudwatch_metric_alarm" "privatelink_active_flow_count_all" {
 
 # New Connection Count Alarm
 resource "aws_cloudwatch_metric_alarm" "privatelink_service_new_connection_count_all" {
-  alarm_name          = "PrivateLink-Service-NewConnectionCount-AllServices"
+  alarm_name          = var.privatelink_service_new_connection_count_all_alarm_name
   comparison_operator = "GreaterThanThreshold"
   evaluation_periods  = 3
   threshold           = "100" # Adjust this threshold as needed
@@ -635,7 +635,7 @@ resource "aws_cloudwatch_metric_alarm" "privatelink_service_new_connection_count
 }
 
 resource "aws_cloudwatch_metric_alarm" "privatelink_service_active_connection_count_all" {
-  alarm_name          = "PrivateLink-Service-ActiveConnectionCount-AllServices"
+  alarm_name          = var.privatelink_service_active_connection_count_all_alarm_name
   comparison_operator = "GreaterThanThreshold"
   evaluation_periods  = 3
   threshold           = "1000" # Adjust this threshold as needed

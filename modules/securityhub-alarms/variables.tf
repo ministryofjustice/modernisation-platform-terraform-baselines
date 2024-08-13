@@ -157,3 +157,37 @@ variable "vpc_changes_alarm_name" {
   default = "vpc-changes"
   type    = string
 }
+
+variable "error_port_allocation_metric_filter_name" {
+  default = "ErrorPortAllocation"
+  type    = string
+}
+
+variable "error_port_allocation_alarm_name" {
+  default = "NAT-Gateway-ErrorPortAllocation"
+  type    = string
+}
+
+variable "nat_packets_drop_count_all_alarm_name" {
+  default = "NAT-PacketsDropCount-AllGateways"
+  type    = string
+}
+
+variable "privatelink_new_flow_count_all_alarm_name" {
+  default = "PrivateLink-NewFlowCount-AllEndpoints"
+  type    = string
+}
+
+variable "privatelink_active_flow_count_all_alarm_name" {
+  default = "PrivateLink-ActiveFlowCount-AllEndpoints"
+  type    = string
+}
+
+variable "privatelink_service_new_connection_count_all_alarm_name" {
+  default = "PrivateLink-Service-NewConnectionCount-AllServices"
+}
+
+variable "privatelink_service_active_connection_count_all_alarm_name" {
+  default = "PrivateLink-Service-ActiveConnectionCount-AllServices"
+  type    = string
+}
