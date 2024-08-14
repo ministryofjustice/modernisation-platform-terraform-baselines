@@ -3,6 +3,7 @@ data "aws_caller_identity" "current" {}
 # AWS CloudWatch doesn't support using the AWS-managed KMS key for publishing things from CloudWatch to SNS
 # See: https://aws.amazon.com/premiumsupport/knowledge-center/cloudwatch-receive-sns-for-alarm-trigger/
 resource "aws_kms_key" "securityhub-alarms" {
+  bypass_policy_lockout_safety_check = false
   deletion_window_in_days = 7
   description             = "SecurityHub alarms encryption key"
   enable_key_rotation     = true
@@ -17,6 +18,7 @@ resource "aws_kms_alias" "securityhub-alarms" {
 
 # SecurityHub alarms KMS multi-Region
 resource "aws_kms_key" "securityhub_alarms_multi_region" {
+  bypass_policy_lockout_safety_check = false
   deletion_window_in_days = 7
   description             = "SecurityHub alarms encryption key"
   enable_key_rotation     = true
