@@ -11,7 +11,7 @@ resource "aws_kms_key" "securityhub-alarms" {
 }
 
 resource "aws_kms_alias" "securityhub-alarms" {
-  name          = "alias/securityhub-alarms_key"
+  name          = var.securityhub_alarms_kms_name
   target_key_id = aws_kms_key.securityhub-alarms.id
 }
 
@@ -26,7 +26,7 @@ resource "aws_kms_key" "securityhub_alarms_multi_region" {
 }
 
 resource "aws_kms_alias" "securityhub_alarms_multi_region" {
-  name          = "alias/securityhub-alarms-key-multi-region"
+  name          = var.securityhub_alarms_multi_region_kms_name
   target_key_id = aws_kms_key.securityhub_alarms_multi_region.id
 }
 
@@ -64,7 +64,7 @@ data "aws_iam_policy_document" "securityhub-alarms-kms" {
 
 # SNS topic, required for remediation
 resource "aws_sns_topic" "securityhub-alarms" {
-  name              = "securityhub-alarms"
+  name              = var.securityhub_alarms_sns_topic_name
   kms_master_key_id = aws_kms_key.securityhub-alarms.arn
   tags              = var.tags
 }
@@ -72,7 +72,7 @@ resource "aws_sns_topic" "securityhub-alarms" {
 # CloudWatch alarms for CIS
 # 3.1 - Ensure a log metric filter and alarm exist for unauthorized API calls
 resource "aws_cloudwatch_log_metric_filter" "unauthorised-api-calls" {
-  name           = "unauthorised-api-calls"
+  name           = var.unauthorised_api_calls_log_metric_filter_name
   pattern        = "{($.errorCode = \"*UnauthorizedOperation\") || ($.errorCode = \"AccessDenied*\" && $.eventName != \"ListDelegatedAdministrators\")}"
   log_group_name = "cloudtrail"
 
@@ -84,7 +84,7 @@ resource "aws_cloudwatch_log_metric_filter" "unauthorised-api-calls" {
 }
 
 resource "aws_cloudwatch_metric_alarm" "unauthorised-api-calls" {
-  alarm_name        = "unauthorised-api-calls"
+  alarm_name        = var.unauthorised_api_calls_alarm_name
   alarm_description = "Monitors for unauthorised API calls."
   alarm_actions     = [aws_sns_topic.securityhub-alarms.arn]
 
@@ -102,7 +102,7 @@ resource "aws_cloudwatch_metric_alarm" "unauthorised-api-calls" {
 
 # 3.2 - Ensure a log metric filter and alarm exist for Management Console sign-in without MFA
 resource "aws_cloudwatch_log_metric_filter" "sign-in-without-mfa" {
-  name           = "sign-in-without-mfa"
+  name           = var.sign_in_without_mfa_metric_filter_name
   pattern        = "{($.eventName=\"ConsoleLogin\") && ($.additionalEventData.MFAUsed !=\"Yes\") && ($.userIdentity.type =\"IAMUser\") && ($.responseElements.ConsoleLogin = \"Success\") }"
   log_group_name = "cloudtrail"
 
@@ -114,7 +114,7 @@ resource "aws_cloudwatch_log_metric_filter" "sign-in-without-mfa" {
 }
 
 resource "aws_cloudwatch_metric_alarm" "sign-in-without-mfa" {
-  alarm_name        = "sign-in-without-mfa"
+  alarm_name        = var.sign_in_without_mfa_alarm_name
   alarm_description = "Monitors for AWS Console sign-in without MFA."
   alarm_actions     = [aws_sns_topic.securityhub-alarms.arn]
 
@@ -133,7 +133,7 @@ resource "aws_cloudwatch_metric_alarm" "sign-in-without-mfa" {
 # 3.3 - Ensure a log metric filter and alarm exist for usage of "root" account and
 # 1.1 – Avoid the use of the "root" account
 resource "aws_cloudwatch_log_metric_filter" "root-account-usage" {
-  name           = "root-account-usage"
+  name           = var.root_account_usage_metric_filter_name
   pattern        = "{$.userIdentity.type=\"Root\" && $.userIdentity.invokedBy NOT EXISTS && $.eventType !=\"AwsServiceEvent\"}"
   log_group_name = "cloudtrail"
 
@@ -145,7 +145,7 @@ resource "aws_cloudwatch_log_metric_filter" "root-account-usage" {
 }
 
 resource "aws_cloudwatch_metric_alarm" "root-account-usage" {
-  alarm_name        = "root-account-usage"
+  alarm_name        = var.root_account_usage_alarm_name
   alarm_description = "Monitors for root account usage."
   alarm_actions     = [aws_sns_topic.securityhub-alarms.arn]
 
@@ -163,7 +163,7 @@ resource "aws_cloudwatch_metric_alarm" "root-account-usage" {
 
 # 3.4 - Ensure a log metric filter and alarm exist for IAM policy changes
 resource "aws_cloudwatch_log_metric_filter" "iam-policy-changes" {
-  name           = "iam-policy-changes"
+  name           = var.iam_policy_changes_metric_filter_name
   pattern        = "{($.eventName=DeleteGroupPolicy) || ($.eventName=DeleteRolePolicy) || ($.eventName=DeleteUserPolicy) || ($.eventName=PutGroupPolicy) || ($.eventName=PutRolePolicy) || ($.eventName=PutUserPolicy) || ($.eventName=CreatePolicy) || ($.eventName=DeletePolicy) || ($.eventName=CreatePolicyVersion) || ($.eventName=DeletePolicyVersion) || ($.eventName=AttachRolePolicy) || ($.eventName=DetachRolePolicy) || ($.eventName=AttachUserPolicy) || ($.eventName=DetachUserPolicy) || ($.eventName=AttachGroupPolicy) || ($.eventName=DetachGroupPolicy)}"
   log_group_name = "cloudtrail"
 
@@ -175,7 +175,7 @@ resource "aws_cloudwatch_log_metric_filter" "iam-policy-changes" {
 }
 
 resource "aws_cloudwatch_metric_alarm" "iam-policy-changes" {
-  alarm_name        = "iam-policy-changes"
+  alarm_name        = var.iam_policy_changes_alarm_name
   alarm_description = "Monitors for IAM policy changes."
   alarm_actions     = [aws_sns_topic.securityhub-alarms.arn]
 
@@ -193,7 +193,7 @@ resource "aws_cloudwatch_metric_alarm" "iam-policy-changes" {
 
 # 3.5 - Ensure a log metric filter and alarm exist for CloudTrail configuration changes
 resource "aws_cloudwatch_log_metric_filter" "cloudtrail-configuration-changes" {
-  name           = "cloudtrail-configuration-changes"
+  name           = var.cloudtrail_configuration_changes_metric_filter_name
   pattern        = "{($.eventName=CreateTrail) || ($.eventName=UpdateTrail) || ($.eventName=DeleteTrail) || ($.eventName=StartLogging) || ($.eventName=StopLogging)}"
   log_group_name = "cloudtrail"
 
@@ -205,7 +205,7 @@ resource "aws_cloudwatch_log_metric_filter" "cloudtrail-configuration-changes" {
 }
 
 resource "aws_cloudwatch_metric_alarm" "cloudtrail-configuration-changes" {
-  alarm_name        = "cloudtrail-configuration-changes"
+  alarm_name        = var.cloudtrail_configuration_changes_alarm_name
   alarm_description = "Monitors for CloudTrail configuration changes."
   alarm_actions     = [aws_sns_topic.securityhub-alarms.arn]
 
@@ -223,7 +223,7 @@ resource "aws_cloudwatch_metric_alarm" "cloudtrail-configuration-changes" {
 
 # 3.6 - Ensure a log metric filter and alarm exist for AWS Management Console authentication failures
 resource "aws_cloudwatch_log_metric_filter" "sign-in-failures" {
-  name           = "sign-in-failures"
+  name           = var.sign_in_failures_metric_filter_name
   pattern        = "{($.eventName=ConsoleLogin) && ($.errorMessage=\"Failed authentication\")}"
   log_group_name = "cloudtrail"
 
@@ -235,7 +235,7 @@ resource "aws_cloudwatch_log_metric_filter" "sign-in-failures" {
 }
 
 resource "aws_cloudwatch_metric_alarm" "sign-in-failures" {
-  alarm_name        = "sign-in-failures"
+  alarm_name        = var.sign_in_failures_alarm_name
   alarm_description = "Monitors for AWS Console sign-in failures."
   alarm_actions     = [aws_sns_topic.securityhub-alarms.arn]
 
@@ -253,7 +253,7 @@ resource "aws_cloudwatch_metric_alarm" "sign-in-failures" {
 
 # 3.7 - Ensure a log metric filter and alarm exist for disabling or scheduled deletion of customer created CMKs
 resource "aws_cloudwatch_log_metric_filter" "cmk-removal" {
-  name           = "cmk-removal"
+  name           = var.cmk_removal_metric_filter_name
   pattern        = "{($.eventSource=kms.amazonaws.com) && (($.eventName=DisableKey) || ($.eventName=ScheduleKeyDeletion))}"
   log_group_name = "cloudtrail"
 
@@ -265,7 +265,7 @@ resource "aws_cloudwatch_log_metric_filter" "cmk-removal" {
 }
 
 resource "aws_cloudwatch_metric_alarm" "cmk-removal" {
-  alarm_name        = "cmk-removal"
+  alarm_name        = var.cmk_removal_alarm_name
   alarm_description = "Monitors for AWS KMS customer-created CMK removal (deletion or disabled)."
   alarm_actions     = [aws_sns_topic.securityhub-alarms.arn]
 
@@ -283,7 +283,7 @@ resource "aws_cloudwatch_metric_alarm" "cmk-removal" {
 
 # 3.8 - Ensure a log metric filter and alarm exist for S3 bucket policy changes
 resource "aws_cloudwatch_log_metric_filter" "s3-bucket-policy-changes" {
-  name           = "s3-bucket-policy-changes"
+  name           = var.s3_bucket_policy_changes_metric_filter_name
   pattern        = "{($.eventSource=s3.amazonaws.com) && (($.eventName=PutBucketAcl) || ($.eventName=PutBucketPolicy) || ($.eventName=PutBucketCors) || ($.eventName=PutBucketLifecycle) || ($.eventName=PutBucketReplication) || ($.eventName=DeleteBucketPolicy) || ($.eventName=DeleteBucketCors) || ($.eventName=DeleteBucketLifecycle) || ($.eventName=DeleteBucketReplication))}"
   log_group_name = "cloudtrail"
 
@@ -295,7 +295,7 @@ resource "aws_cloudwatch_log_metric_filter" "s3-bucket-policy-changes" {
 }
 
 resource "aws_cloudwatch_metric_alarm" "s3-bucket-policy-changes" {
-  alarm_name        = "s3-bucket-policy-changes"
+  alarm_name        = var.s3_bucket_policy_changes_alarm_name
   alarm_description = "Monitors for AWS S3 bucket policy changes."
   alarm_actions     = [aws_sns_topic.securityhub-alarms.arn]
 
@@ -313,7 +313,7 @@ resource "aws_cloudwatch_metric_alarm" "s3-bucket-policy-changes" {
 
 # 3.9 - Ensure a log metric filter and alarm exist for AWS Config configuration changes
 resource "aws_cloudwatch_log_metric_filter" "config-configuration-changes" {
-  name           = "config-configuration-changes"
+  name           = var.config_configuration_changes_metric_filter_name
   pattern        = "{($.eventSource=config.amazonaws.com) && (($.eventName=StopConfigurationRecorder) || ($.eventName=DeleteDeliveryChannel) || ($.eventName=PutDeliveryChannel) || ($.eventName=PutConfigurationRecorder))}"
   log_group_name = "cloudtrail"
 
@@ -325,7 +325,7 @@ resource "aws_cloudwatch_log_metric_filter" "config-configuration-changes" {
 }
 
 resource "aws_cloudwatch_metric_alarm" "config-configuration-changes" {
-  alarm_name        = "config-configuration-changes"
+  alarm_name        = var.config_configuration_changes_alarm_name
   alarm_description = "Monitors for AWS Config configuration changes."
   alarm_actions     = [aws_sns_topic.securityhub-alarms.arn]
 
@@ -343,7 +343,7 @@ resource "aws_cloudwatch_metric_alarm" "config-configuration-changes" {
 
 # 3.10 - Ensure a log metric filter and alarm exist for security group changes
 resource "aws_cloudwatch_log_metric_filter" "security-group-changes" {
-  name           = "security-group-changes"
+  name           = var.security_group_changes_metric_filter_name
   pattern        = "{($.eventName=AuthorizeSecurityGroupIngress) || ($.eventName=AuthorizeSecurityGroupEgress) || ($.eventName=RevokeSecurityGroupIngress) || ($.eventName=RevokeSecurityGroupEgress) || ($.eventName=CreateSecurityGroup) || ($.eventName=DeleteSecurityGroup)}"
   log_group_name = "cloudtrail"
 
@@ -355,7 +355,7 @@ resource "aws_cloudwatch_log_metric_filter" "security-group-changes" {
 }
 
 resource "aws_cloudwatch_metric_alarm" "security-group-changes" {
-  alarm_name        = "security-group-changes"
+  alarm_name        = var.security_group_changes_alarm_name
   alarm_description = "Monitors for AWS EC2 Security Group changes."
   alarm_actions     = [aws_sns_topic.securityhub-alarms.arn]
 
@@ -373,7 +373,7 @@ resource "aws_cloudwatch_metric_alarm" "security-group-changes" {
 
 # 3.11 - Ensure a log metric filter and alarm exist for changes to Network Access Control Lists (NACL)
 resource "aws_cloudwatch_log_metric_filter" "nacl-changes" {
-  name           = "nacl-changes"
+  name           = var.nacl_changes_metric_filter_name
   pattern        = "{($.eventName=CreateNetworkAcl) || ($.eventName=CreateNetworkAclEntry) || ($.eventName=DeleteNetworkAcl) || ($.eventName=DeleteNetworkAclEntry) || ($.eventName=ReplaceNetworkAclEntry) || ($.eventName=ReplaceNetworkAclAssociation)}"
   log_group_name = "cloudtrail"
 
@@ -385,7 +385,7 @@ resource "aws_cloudwatch_log_metric_filter" "nacl-changes" {
 }
 
 resource "aws_cloudwatch_metric_alarm" "nacl-changes" {
-  alarm_name        = "nacl-changes"
+  alarm_name        = var.nacl_changes_alarm_name
   alarm_description = "Monitors for AWS EC2 Network Access Control Lists changes."
   alarm_actions     = [aws_sns_topic.securityhub-alarms.arn]
 
@@ -403,7 +403,7 @@ resource "aws_cloudwatch_metric_alarm" "nacl-changes" {
 
 # 3.12 - Ensure a log metric filter and alarm exist for changes to network gateways
 resource "aws_cloudwatch_log_metric_filter" "network-gateway-changes" {
-  name           = "network-gateway-changes"
+  name           = var.network_gateway_changes_metric_filter_name
   pattern        = "{($.eventName=CreateCustomerGateway) || ($.eventName=DeleteCustomerGateway) || ($.eventName=AttachInternetGateway) || ($.eventName=CreateInternetGateway) || ($.eventName=DeleteInternetGateway) || ($.eventName=DetachInternetGateway)}"
   log_group_name = "cloudtrail"
 
@@ -415,7 +415,7 @@ resource "aws_cloudwatch_log_metric_filter" "network-gateway-changes" {
 }
 
 resource "aws_cloudwatch_metric_alarm" "network-gateway-changes" {
-  alarm_name        = "network-gateway-changes"
+  alarm_name        = var.network_gateway_changes_alarm_name
   alarm_description = "Monitors for AWS EC2 network gateway changes."
   alarm_actions     = [aws_sns_topic.securityhub-alarms.arn]
 
@@ -433,7 +433,7 @@ resource "aws_cloudwatch_metric_alarm" "network-gateway-changes" {
 
 # 3.13 - Ensure a log metric filter and alarm exist for route table changes
 resource "aws_cloudwatch_log_metric_filter" "route-table-changes" {
-  name           = "route-table-changes"
+  name           = var.route_table_changes_metric_filter_name
   pattern        = "{($.eventName=CreateRoute) || ($.eventName=CreateRouteTable) || ($.eventName=ReplaceRoute) || ($.eventName=ReplaceRouteTableAssociation) || ($.eventName=DeleteRouteTable) || ($.eventName=DeleteRoute) || ($.eventName=DisassociateRouteTable)}"
   log_group_name = "cloudtrail"
 
@@ -445,7 +445,7 @@ resource "aws_cloudwatch_log_metric_filter" "route-table-changes" {
 }
 
 resource "aws_cloudwatch_metric_alarm" "route-table-changes" {
-  alarm_name        = "route-table-changes"
+  alarm_name        = var.route_table_changes_alarm_name
   alarm_description = "Monitors for AWS EC2 route table changes."
   alarm_actions     = [aws_sns_topic.securityhub-alarms.arn]
 
@@ -463,7 +463,7 @@ resource "aws_cloudwatch_metric_alarm" "route-table-changes" {
 
 # 3.14 - Ensure a log metric filter and alarm exist for VPC changes
 resource "aws_cloudwatch_log_metric_filter" "vpc-changes" {
-  name           = "vpc-changes"
+  name           = var.vpc_changes_metric_filter_name
   pattern        = "{($.eventName=CreateVpc) || ($.eventName=DeleteVpc) || ($.eventName=ModifyVpcAttribute) || ($.eventName=AcceptVpcPeeringConnection) || ($.eventName=CreateVpcPeeringConnection) || ($.eventName=DeleteVpcPeeringConnection) || ($.eventName=RejectVpcPeeringConnection) || ($.eventName=AttachClassicLinkVpc) || ($.eventName=DetachClassicLinkVpc) || ($.eventName=DisableVpcClassicLink) || ($.eventName=EnableVpcClassicLink)}"
   log_group_name = "cloudtrail"
 
@@ -475,7 +475,7 @@ resource "aws_cloudwatch_log_metric_filter" "vpc-changes" {
 }
 
 resource "aws_cloudwatch_metric_alarm" "vpc-changes" {
-  alarm_name        = "vpc-changes"
+  alarm_name        = var.vpc_changes_alarm_name
   alarm_description = "Monitors for AWS VPC changes."
   alarm_actions     = [aws_sns_topic.securityhub-alarms.arn]
 
@@ -492,7 +492,7 @@ resource "aws_cloudwatch_metric_alarm" "vpc-changes" {
 }
 
 resource "aws_cloudwatch_log_metric_filter" "NATGatewayErrorPortAllocation" {
-  name           = "ErrorPortAllocation"
+  name           = var.error_port_allocation_metric_filter_name
   pattern        = "{ $.eventSource = \"ec2.amazonaws.com\" && $.eventName = \"CreateNatGateway\" && $.errorCode = \"*\" && $.errorMessage = \"*Port Allocation*\" }"
   log_group_name = "cloudtrail"
 
@@ -504,7 +504,7 @@ resource "aws_cloudwatch_log_metric_filter" "NATGatewayErrorPortAllocation" {
 }
 
 resource "aws_cloudwatch_metric_alarm" "ErrorPortAllocation" {
-  alarm_name        = "NAT-Gateway-ErrorPortAllocation"
+  alarm_name        = var.error_port_allocation_alarm_name
   alarm_description = "This alarm detects when the NAT Gateway is unable to allocate ports to new connections."
   alarm_actions     = [aws_sns_topic.securityhub-alarms.arn]
 
@@ -523,7 +523,7 @@ resource "aws_cloudwatch_metric_alarm" "ErrorPortAllocation" {
 
 # NAT PacketsDropCount alarm
 resource "aws_cloudwatch_metric_alarm" "nat_packets_drop_count_all" {
-  alarm_name          = "NAT-PacketsDropCount-AllGateways"
+  alarm_name          = var.nat_packets_drop_count_all_alarm_name
   comparison_operator = "GreaterThanThreshold"
   evaluation_periods  = 5
   threshold           = "100" # Adjust this threshold as needed
@@ -550,7 +550,7 @@ resource "aws_cloudwatch_metric_alarm" "nat_packets_drop_count_all" {
   tags          = var.tags
 }
 resource "aws_cloudwatch_metric_alarm" "privatelink_new_flow_count_all" {
-  alarm_name          = "PrivateLink-NewFlowCount-AllEndpoints"
+  alarm_name          = var.privatelink_new_flow_count_all_alarm_name
   comparison_operator = "GreaterThanThreshold"
   evaluation_periods  = 3
   threshold           = "100" # Adjust this threshold as needed
@@ -578,7 +578,7 @@ resource "aws_cloudwatch_metric_alarm" "privatelink_new_flow_count_all" {
 }
 
 resource "aws_cloudwatch_metric_alarm" "privatelink_active_flow_count_all" {
-  alarm_name          = "PrivateLink-ActiveFlowCount-AllEndpoints"
+  alarm_name          = var.privatelink_active_flow_count_all_alarm_name
   comparison_operator = "GreaterThanThreshold"
   evaluation_periods  = 3
   threshold           = "1000" # Adjust this threshold as needed
@@ -607,7 +607,7 @@ resource "aws_cloudwatch_metric_alarm" "privatelink_active_flow_count_all" {
 
 # New Connection Count Alarm
 resource "aws_cloudwatch_metric_alarm" "privatelink_service_new_connection_count_all" {
-  alarm_name          = "PrivateLink-Service-NewConnectionCount-AllServices"
+  alarm_name          = var.privatelink_service_new_connection_count_all_alarm_name
   comparison_operator = "GreaterThanThreshold"
   evaluation_periods  = 3
   threshold           = "100" # Adjust this threshold as needed
@@ -635,7 +635,7 @@ resource "aws_cloudwatch_metric_alarm" "privatelink_service_new_connection_count
 }
 
 resource "aws_cloudwatch_metric_alarm" "privatelink_service_active_connection_count_all" {
-  alarm_name          = "PrivateLink-Service-ActiveConnectionCount-AllServices"
+  alarm_name          = var.privatelink_service_active_connection_count_all_alarm_name
   comparison_operator = "GreaterThanThreshold"
   evaluation_periods  = 3
   threshold           = "1000" # Adjust this threshold as needed
