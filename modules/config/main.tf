@@ -2,7 +2,7 @@ data "aws_region" "current" {}
 
 # Enable AWS Config
 resource "aws_config_configuration_recorder" "default" {
-  name     = "config"
+  name     = "var.config_name"
   role_arn = var.iam_role_arn
 
   recording_group {
@@ -12,7 +12,7 @@ resource "aws_config_configuration_recorder" "default" {
 }
 
 resource "aws_config_delivery_channel" "default" {
-  name           = "config"
+  name           = "var.config_name"
   s3_bucket_name = var.s3_bucket_id
   sns_topic_arn  = aws_sns_topic.default.arn
 
@@ -27,7 +27,7 @@ resource "aws_config_configuration_recorder_status" "default" {
 
   #checkov:skip=CKV2_AWS_45: "Ensure AWS Config recorder is enabled to record all supported resources - by default AWS config is enabled to record all supported resources"
 
-  name       = "config"
+  name       = "var.config_name"
   is_enabled = true
   depends_on = [aws_config_delivery_channel.default]
 }
@@ -36,7 +36,7 @@ resource "aws_config_configuration_recorder_status" "default" {
 # AWS-managed account key appropriate for default topic
 # tfsec:ignore:aws-sns-topic-encryption-use-cmk
 resource "aws_sns_topic" "default" {
-  name              = "config"
+  name              = "var.config_name"
   kms_master_key_id = "alias/aws/sns"
   tags              = var.tags
 }
@@ -45,7 +45,7 @@ resource "aws_sns_topic" "default" {
 resource "aws_config_config_rule" "access-keys-rotated" {
   count = (var.home_region == data.aws_region.current.name) ? 1 : 0
 
-  name                        = "access-keys-rotated"
+  name                        = "var.access-keys-rotated_name"
   maximum_execution_frequency = "TwentyFour_Hours"
 
   input_parameters = jsonencode({
@@ -65,7 +65,7 @@ resource "aws_config_config_rule" "access-keys-rotated" {
 resource "aws_config_config_rule" "account-part-of-organizations" {
   count = (var.home_region == data.aws_region.current.name) ? 1 : 0
 
-  name                        = "account-part-of-organizations"
+  name                        = "var.account-part-of-organizations_name"
   maximum_execution_frequency = "TwentyFour_Hours"
 
   input_parameters = jsonencode({
@@ -85,7 +85,7 @@ resource "aws_config_config_rule" "account-part-of-organizations" {
 resource "aws_config_config_rule" "cloud-trail-cloud-watch-logs-enabled" {
   count = (var.home_region == data.aws_region.current.name) ? 1 : 0
 
-  name                        = "cloud-trail-cloud-watch-logs-enabled"
+  name                        = "var.cloud-trail-cloud-watch-logs-enabled_name"
   maximum_execution_frequency = "TwentyFour_Hours"
 
   source {
@@ -101,7 +101,7 @@ resource "aws_config_config_rule" "cloud-trail-cloud-watch-logs-enabled" {
 resource "aws_config_config_rule" "cloud-trail-encryption-enabled" {
   count = (var.home_region == data.aws_region.current.name) ? 1 : 0
 
-  name                        = "cloud-trail-encryption-enabled"
+  name                        = "var.cloud-trail-encryption-enabled_name"
   maximum_execution_frequency = "TwentyFour_Hours"
 
   source {
@@ -117,7 +117,7 @@ resource "aws_config_config_rule" "cloud-trail-encryption-enabled" {
 resource "aws_config_config_rule" "cloud-trail-log-file-validation-enabled" {
   count = (var.home_region == data.aws_region.current.name) ? 1 : 0
 
-  name                        = "cloud-trail-log-file-validation-enabled"
+  name                        = "var.cloud-trail-log-file-validation-enabled_name"
   maximum_execution_frequency = "TwentyFour_Hours"
 
   source {
@@ -133,7 +133,7 @@ resource "aws_config_config_rule" "cloud-trail-log-file-validation-enabled" {
 resource "aws_config_config_rule" "cloudtrail-enabled" {
   count = (var.home_region == data.aws_region.current.name) ? 1 : 0
 
-  name                        = "cloudtrail-enabled"
+  name                        = "var.cloudtrail-enabled_name"
   maximum_execution_frequency = "TwentyFour_Hours"
 
   input_parameters = jsonencode({
@@ -155,7 +155,7 @@ resource "aws_config_config_rule" "cloudtrail-enabled" {
 resource "aws_config_config_rule" "cloudtrail-s3-dataevents-enabled" {
   count = (var.home_region == data.aws_region.current.name) ? 1 : 0
 
-  name                        = "cloudtrail-s3-dataevents-enabled"
+  name                        = "var.cloudtrail-s3-dataevents-enabled_name"
   maximum_execution_frequency = "TwentyFour_Hours"
 
   source {
@@ -171,7 +171,7 @@ resource "aws_config_config_rule" "cloudtrail-s3-dataevents-enabled" {
 resource "aws_config_config_rule" "cloudtrail-security-trail-enabled" {
   count = (var.home_region == data.aws_region.current.name) ? 1 : 0
 
-  name                        = "cloudtrail-security-trail-enabled"
+  name                        = "var.cloudtrail-security-trail-enabled_name"
   maximum_execution_frequency = "TwentyFour_Hours"
 
   source {
@@ -187,7 +187,7 @@ resource "aws_config_config_rule" "cloudtrail-security-trail-enabled" {
 resource "aws_config_config_rule" "iam-group-has-users-check" {
   count = (var.home_region == data.aws_region.current.name) ? 1 : 0
 
-  name = "iam-group-has-users-check"
+  name = "var.iam-group-has-users-check_name"
 
   source {
     owner             = "AWS"
@@ -202,7 +202,7 @@ resource "aws_config_config_rule" "iam-group-has-users-check" {
 resource "aws_config_config_rule" "iam-no-inline-policy-check" {
   count = (var.home_region == data.aws_region.current.name) ? 1 : 0
 
-  name = "iam-no-inline-policy-check"
+  name = "var.iam-no-inline-policy-check_name"
 
   source {
     owner             = "AWS"
@@ -217,7 +217,7 @@ resource "aws_config_config_rule" "iam-no-inline-policy-check" {
 resource "aws_config_config_rule" "iam-password-policy" {
   count = (var.home_region == data.aws_region.current.name) ? 1 : 0
 
-  name                        = "iam-password-policy"
+  name                        = "var.iam-password-policy_name"
   maximum_execution_frequency = "TwentyFour_Hours"
 
   input_parameters = jsonencode({
@@ -242,7 +242,7 @@ resource "aws_config_config_rule" "iam-password-policy" {
 resource "aws_config_config_rule" "iam-root-access-key-check" {
   count = (var.home_region == data.aws_region.current.name) ? 1 : 0
 
-  name                        = "iam-root-access-key-check"
+  name                        = "var.iam-root-access-key-check_name"
   maximum_execution_frequency = "TwentyFour_Hours"
 
   source {
@@ -258,7 +258,7 @@ resource "aws_config_config_rule" "iam-root-access-key-check" {
 resource "aws_config_config_rule" "iam-user-mfa-enabled" {
   count = (var.home_region == data.aws_region.current.name) ? 1 : 0
 
-  name                        = "iam-user-mfa-enabled"
+  name                        = "var.iam-user-mfa-enabled_name"
   maximum_execution_frequency = "TwentyFour_Hours"
 
   source {
@@ -274,7 +274,7 @@ resource "aws_config_config_rule" "iam-user-mfa-enabled" {
 resource "aws_config_config_rule" "iam-user-unused-credentials-check" {
   count = (var.home_region == data.aws_region.current.name) ? 1 : 0
 
-  name                        = "iam-user-unused-credentials-check"
+  name                        = "var.iam-user-unused-credentials-check_name"
   maximum_execution_frequency = "TwentyFour_Hours"
 
   input_parameters = jsonencode({
@@ -294,7 +294,7 @@ resource "aws_config_config_rule" "iam-user-unused-credentials-check" {
 resource "aws_config_config_rule" "mfa-enabled-for-iam-console-access" {
   count = (var.home_region == data.aws_region.current.name) ? 1 : 0
 
-  name                        = "mfa-enabled-for-iam-console-access"
+  name                        = "var.mfa-enabled-for-iam-console-access_name"
   maximum_execution_frequency = "TwentyFour_Hours"
 
   source {
@@ -310,7 +310,7 @@ resource "aws_config_config_rule" "mfa-enabled-for-iam-console-access" {
 resource "aws_config_config_rule" "multi-region-cloudtrail-enabled" {
   count = (var.home_region == data.aws_region.current.name) ? 1 : 0
 
-  name                        = "multi-region-cloudtrail-enabled"
+  name                        = "var.multi-region-cloudtrail-enabled_name"
   maximum_execution_frequency = "TwentyFour_Hours"
 
   input_parameters = jsonencode({
@@ -332,7 +332,7 @@ resource "aws_config_config_rule" "multi-region-cloudtrail-enabled" {
 }
 
 resource "aws_config_config_rule" "required-tags" {
-  name = "required-tags"
+  name = "var.required-tags_name"
 
   input_parameters = jsonencode({
     tag1Key : "business-unit",
@@ -354,7 +354,7 @@ resource "aws_config_config_rule" "required-tags" {
 resource "aws_config_config_rule" "root-account-mfa-enabled" {
   count = (var.home_region == data.aws_region.current.name) ? 1 : 0
 
-  name                        = "root-account-mfa-enabled"
+  name                        = "var.root-account-mfa-enabled_name"
   maximum_execution_frequency = "TwentyFour_Hours"
 
   source {
@@ -370,7 +370,7 @@ resource "aws_config_config_rule" "root-account-mfa-enabled" {
 resource "aws_config_config_rule" "s3-account-level-public-access-blocks" {
   count = (var.home_region == data.aws_region.current.name) ? 1 : 0
 
-  name = "s3-account-level-public-access-blocks"
+  name = "var.s3-account-level-public-access-blocks_name"
 
   source {
     owner             = "AWS"
@@ -383,7 +383,7 @@ resource "aws_config_config_rule" "s3-account-level-public-access-blocks" {
 }
 
 resource "aws_config_config_rule" "s3-bucket-public-read-prohibited" {
-  name = "s3-bucket-public-read-prohibited"
+  name = "var.s3-bucket-public-read-prohibited_name"
 
   source {
     owner             = "AWS"
@@ -396,7 +396,7 @@ resource "aws_config_config_rule" "s3-bucket-public-read-prohibited" {
 }
 
 resource "aws_config_config_rule" "s3-bucket-public-write-prohibited" {
-  name = "s3-bucket-public-write-prohibited"
+  name = "var.s3-bucket-public-write-prohibited_name"
 
   source {
     owner             = "AWS"
@@ -409,7 +409,7 @@ resource "aws_config_config_rule" "s3-bucket-public-write-prohibited" {
 }
 
 resource "aws_config_config_rule" "s3-bucket-server-side-encryption-enabled" {
-  name = "s3-bucket-server-side-encryption-enabled"
+  name = "var.s3-bucket-server-side-encryption-enabled_name"
 
   source {
     owner             = "AWS"
@@ -422,7 +422,7 @@ resource "aws_config_config_rule" "s3-bucket-server-side-encryption-enabled" {
 }
 
 resource "aws_config_config_rule" "s3-bucket-ssl-requests-only" {
-  name = "s3-bucket-ssl-requests-only"
+  name = "var.s3-bucket-ssl-requests-only_name"
 
   source {
     owner             = "AWS"
@@ -435,7 +435,7 @@ resource "aws_config_config_rule" "s3-bucket-ssl-requests-only" {
 }
 
 resource "aws_config_config_rule" "securityhub-enabled" {
-  name                        = "securityhub-enabled"
+  name                        = "var.securityhub-enabled_name"
   maximum_execution_frequency = "TwentyFour_Hours"
 
   source {
@@ -449,7 +449,7 @@ resource "aws_config_config_rule" "securityhub-enabled" {
 }
 
 resource "aws_config_config_rule" "sns-encrypted-kms" {
-  name = "sns-encrypted-kms"
+  name = "var.sns-encrypted-kms_name"
 
   source {
     owner             = "AWS"
