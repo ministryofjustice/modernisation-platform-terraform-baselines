@@ -1,7 +1,7 @@
 output "sns_topic_arns" {
   value = {
     default                          = module.config-test.sns_topic_arn
-    default_aws                      = module.config-test-test.default_aws_sns_topic_arn
+    default_aws                      = module.config-test.default_aws_sns_topic_arn
     sns_encrypted_kms                = module.config-test.sns_encrypted_kms_aws_config_config_rule_arn
   }
   description = "ARNs of SNS topics"
@@ -22,7 +22,7 @@ output "config_delivery_channel_arn" {
 
 output "config_rule_arns" {
   value = {
-    access_keys_rotated                = module.config-test-test.access_keys_rotated_aws_config_config_rule_arn
+    access_keys_rotated                = module.config-test.access_keys_rotated_aws_config_config_rule_arn
     account_part_of_organizations      = module.config-test.account_part_of_organizations_aws_config_config_rule_arn
     cloud_trail_cloud_watch_logs       = module.config-test.cloud_trail_cloud_watch_logs_enabled_aws_config_config_rule_arn
     cloud_trail_encryption             = module.config-test.cloud_trail_encryption_enable_aws_config_config_rule_arn
