@@ -3,7 +3,7 @@ package main
 import (
 	"fmt"
 	"regexp"
-	"strings"
+	// "strings"
 	"testing"
 
 	"github.com/gruntwork-io/terratest/modules/random"
@@ -337,4 +337,133 @@ func TestTerraformSecurityHubAlarms(t *testing.T) {
 	assert.Regexp(t, regexp.MustCompile(`^arn:aws:cloudwatch:eu-west-2:[0-9]{12}:alarm:`+PrivatelinkActiveFlowCountAllAlarmName), PrivatelinkActiveFlowCountAllAlarmArn)
 	assert.Regexp(t, regexp.MustCompile(`^arn:aws:cloudwatch:eu-west-2:[0-9]{12}:alarm:`+PrivatelinkServiceNewConnectionCountAllAlarmName), PrivatelinkServiceNewConnectionCountAllAlarmArn)
 	assert.Regexp(t, regexp.MustCompile(`^arn:aws:cloudwatch:eu-west-2:[0-9]{12}:alarm:`+PrivatelinkServiceActiveConnectionCountAllAlarmName), PrivatelinkServiceActiveConnectionCountAllAlarmArn)
+}
+
+// / Config Unit Testing
+
+func TestTerraformConfig(t *testing.T) {
+	// Define Terraform Directory
+	terraformDir := "./config-test"
+	uniqueId := random.UniqueId()
+
+	// Define unique names for Config resources
+	ConfigName := fmt.Sprintf("config-%s", uniqueId)
+	ConfigRuleAccessKeysRotatedName := fmt.Sprintf("access-keys-rotated-%s", uniqueId)
+	ConfigRuleAccountPartOfOrganizationsName := fmt.Sprintf("account-part-of-organizations-%s", uniqueId)
+	ConfigRuleCloudTrailCloudWatchLogsEnabledName := fmt.Sprintf("cloud-trail-cloud-watch-logs-enabled-%s", uniqueId)
+	ConfigRuleCloudTrailEncryptionEnabledName := fmt.Sprintf("cloud-trail-encryption-enabled-%s", uniqueId)
+	ConfigRuleCloudTrailLogFileValidationEnabledName := fmt.Sprintf("cloud-trail-log-file-validation-enabled-%s", uniqueId)
+	ConfigRuleCloudtrailEnabledName := fmt.Sprintf("cloudtrail-enabled-%s", uniqueId)
+	ConfigRuleCloudtrailS3DataeventsEnabledName := fmt.Sprintf("cloudtrail-s3-dataevents-enabled-%s", uniqueId)
+	ConfigRuleCloudtrailSecurityTrailEnabledName := fmt.Sprintf("cloudtrail-security-trail-enabled-%s", uniqueId)
+	ConfigRuleIamGroupHasUsersCheckName := fmt.Sprintf("iam-group-has-users-check-%s", uniqueId)
+	ConfigRuleIamNoInlinePolicyCheckName := fmt.Sprintf("iam-no-inline-policy-check-%s", uniqueId)
+	ConfigRuleIamPasswordPolicyName := fmt.Sprintf("iam-password-policy-%s", uniqueId)
+	ConfigRuleIamRootAccessKeyCheckName := fmt.Sprintf("iam-root-access-key-check-%s", uniqueId)
+	ConfigRuleIamUserMfaEnabledName := fmt.Sprintf("iam-user-mfa-enabled-%s", uniqueId)
+	ConfigRuleIamUserUnusedCredentialsCheckName := fmt.Sprintf("iam-user-unused-credentials-check-%s", uniqueId)
+	ConfigRuleMfaEnabledForIamConsoleAccessName := fmt.Sprintf("mfa-enabled-for-iam-console-access-%s", uniqueId)
+	ConfigRuleMultiRegionCloudtrailEnabledName := fmt.Sprintf("multi-region-cloudtrail-enabled-%s", uniqueId)
+	ConfigRuleRequiredTagsName := fmt.Sprintf("required-tags-%s", uniqueId)
+	ConfigRuleRootAccountMfaEnabledName := fmt.Sprintf("root-account-mfa-enabled-%s", uniqueId)
+	ConfigRuleS3AccountLevelPublicAccessBlocksName := fmt.Sprintf("s3-account-level-public-access-blocks-%s", uniqueId)
+	ConfigRuleS3BucketPublicReadProhibitedName := fmt.Sprintf("s3-bucket-public-read-prohibited-%s", uniqueId)
+	ConfigRuleS3BucketPublicWriteProhibitedName := fmt.Sprintf("s3-bucket-public-write-prohibited-%s", uniqueId)
+	ConfigRuleS3BucketServerSideEncryptionEnabledName := fmt.Sprintf("s3-bucket-server-side-encryption-enabled-%s", uniqueId)
+	ConfigRuleS3BucketSslRequestsOnlyName := fmt.Sprintf("s3-bucket-ssl-requests-only-%s", uniqueId)
+	ConfigRuleSecurityhubEnabledName := fmt.Sprintf("securityhub-enabled-%s", uniqueId)
+	ConfigRuleSnsEncryptedKmsName := fmt.Sprintf("sns-encrypted-kms-%s", uniqueId)
+
+	// Define Terraform options
+	terraformOptions := &terraform.Options{
+		TerraformDir: terraformDir,
+		Vars: map[string]interface{}{
+			// Pass in unique names as terraform command line options
+			"config_name":                                      ConfigName,
+			"config_rule_access_keys_rotated_name":             ConfigRuleAccessKeysRotatedName,
+			"config_rule_account_part_of_organizations_name":   ConfigRuleAccountPartOfOrganizationsName,
+			"config_rule_cloud_trail_cloud_watch_logs_enabled_name": ConfigRuleCloudTrailCloudWatchLogsEnabledName,
+			"config_rule_cloud_trail_encryption_enabled_name":  ConfigRuleCloudTrailEncryptionEnabledName,
+			"config_rule_cloud_trail_log_file_validation_enabled_name": ConfigRuleCloudTrailLogFileValidationEnabledName,
+			"config_rule_cloudtrail_enabled_name":              ConfigRuleCloudtrailEnabledName,
+			"config_rule_cloudtrail_s3_dataevents_enabled_name": ConfigRuleCloudtrailS3DataeventsEnabledName,
+			"config_rule_cloudtrail_security_trail_enabled_name": ConfigRuleCloudtrailSecurityTrailEnabledName,
+			"config_rule_iam_group_has_users_check_name":       ConfigRuleIamGroupHasUsersCheckName,
+			"config_rule_iam_no_inline_policy_check_name":      ConfigRuleIamNoInlinePolicyCheckName,
+			"config_rule_iam_password_policy_name":             ConfigRuleIamPasswordPolicyName,
+			"config_rule_iam_root_access_key_check_name":       ConfigRuleIamRootAccessKeyCheckName,
+			"config_rule_iam_user_mfa_enabled_name":            ConfigRuleIamUserMfaEnabledName,
+			"config_rule_iam_user_unused_credentials_check_name": ConfigRuleIamUserUnusedCredentialsCheckName,
+			"config_rule_mfa_enabled_for_iam_console_access_name": ConfigRuleMfaEnabledForIamConsoleAccessName,
+			"config_rule_multi_region_cloudtrail_enabled_name": ConfigRuleMultiRegionCloudtrailEnabledName,
+			"config_rule_required_tags_name":                   ConfigRuleRequiredTagsName,
+			"config_rule_root_account_mfa_enabled_name":        ConfigRuleRootAccountMfaEnabledName,
+			"config_rule_s3_account_level_public_access_blocks_name": ConfigRuleS3AccountLevelPublicAccessBlocksName,
+			"config_rule_s3_bucket_public_read_prohibited_name": ConfigRuleS3BucketPublicReadProhibitedName,
+			"config_rule_s3_bucket_public_write_prohibited_name": ConfigRuleS3BucketPublicWriteProhibitedName,
+			"config_rule_s3_bucket_server_side_encryption_enabled_name": ConfigRuleS3BucketServerSideEncryptionEnabledName,
+			"config_rule_s3_bucket_ssl_requests_only_name":     ConfigRuleS3BucketSslRequestsOnlyName,
+			"config_rule_securityhub_enabled_name":             ConfigRuleSecurityhubEnabledName,
+			"config_rule_sns_encrypted_kms_name":               ConfigRuleSnsEncryptedKmsName,
+		},
+	}
+
+	// Initialize and apply the Terraform configuration
+	defer terraform.Destroy(t, terraformOptions)
+	terraform.InitAndApply(t, terraformOptions)
+
+	// Group 1: SNS Topic ARNs
+	// Define Outputs for SNS Topic ARNs
+	SnsTopicArns := terraform.OutputMap(t, terraformOptions, "sns_topic_arns")
+
+	// Tests (comparing outputs to regex for SNS Topic ARNs)
+	assert.Regexp(t, regexp.MustCompile(`^arn:aws:sns:eu-west-2:[0-9]{12}:default-`+uniqueId), SnsTopicArns["default"])
+	assert.Regexp(t, regexp.MustCompile(`^arn:aws:sns:eu-west-2:[0-9]{12}:default-aws-`+uniqueId), SnsTopicArns["default_aws"])
+	assert.Regexp(t, regexp.MustCompile(`^arn:aws:sns:eu-west-2:[0-9]{12}:sns-encrypted-kms-`+uniqueId), SnsTopicArns["sns_encrypted_kms"])
+
+	// Group 2: Config Configuration Recorder ARNs
+	// Define Outputs for Config Configuration Recorder ARNs
+	ConfigConfigurationRecorderArns := terraform.OutputMap(t, terraformOptions, "config_configuration_recorder_arns")
+
+	// Tests (comparing outputs to regex for Config Configuration Recorder ARNs)
+	assert.Regexp(t, regexp.MustCompile(`^arn:aws:config:eu-west-2:[0-9]{12}:config-recorder-`+uniqueId), ConfigConfigurationRecorderArns["default"])
+	assert.Regexp(t, regexp.MustCompile(`^arn:aws:config:eu-west-2:[0-9]{12}:config-recorder-status-`+uniqueId), ConfigConfigurationRecorderArns["status"])
+
+	// Group 3: Config Delivery Channel ARN
+	// Define Output for Config Delivery Channel ARN
+	ConfigDeliveryChannelArn := terraform.Output(t, terraformOptions, "config_delivery_channel_arn")
+
+	// Test (comparing output to regex for Config Delivery Channel ARN)
+	assert.Regexp(t, regexp.MustCompile(`^arn:aws:config:eu-west-2:[0-9]{12}:delivery-channel-`+uniqueId), ConfigDeliveryChannelArn)
+
+	// Group 4: Config Rule ARNs
+	// Define Outputs for Config Rule ARNs
+	ConfigRuleArns := terraform.OutputMap(t, terraformOptions, "config_rule_arns")
+
+	// Tests (comparing outputs to regex for Config Rule ARNs)
+	assert.Regexp(t, regexp.MustCompile(`^arn:aws:config:eu-west-2:[0-9]{12}:access-keys-rotated-`+uniqueId), ConfigRuleArns["access_keys_rotated"])
+	assert.Regexp(t, regexp.MustCompile(`^arn:aws:config:eu-west-2:[0-9]{12}:account-part-of-organizations-`+uniqueId), ConfigRuleArns["account_part_of_organizations"])
+	assert.Regexp(t, regexp.MustCompile(`^arn:aws:config:eu-west-2:[0-9]{12}:cloud-trail-cloud-watch-logs-enabled-`+uniqueId), ConfigRuleArns["cloud_trail_cloud_watch_logs"])
+	assert.Regexp(t, regexp.MustCompile(`^arn:aws:config:eu-west-2:[0-9]{12}:cloud-trail-encryption-enable-`+uniqueId), ConfigRuleArns["cloud_trail_encryption"])
+	assert.Regexp(t, regexp.MustCompile(`^arn:aws:config:eu-west-2:[0-9]{12}:cloud-trail-log-file-validation-enabled-`+uniqueId), ConfigRuleArns["cloud_trail_log_file_validation"])
+	assert.Regexp(t, regexp.MustCompile(`^arn:aws:config:eu-west-2:[0-9]{12}:cloudtrail-enabled-`+uniqueId), ConfigRuleArns["cloudtrail_enabled"])
+	assert.Regexp(t, regexp.MustCompile(`^arn:aws:config:eu-west-2:[0-9]{12}:cloudtrail-s3-dataevents-enabled-`+uniqueId), ConfigRuleArns["cloudtrail_s3_dataevents"])
+	assert.Regexp(t, regexp.MustCompile(`^arn:aws:config:eu-west-2:[0-9]{12}:cloudtrail-security-trail-enabled-`+uniqueId), ConfigRuleArns["cloudtrail_security_trail"])
+	assert.Regexp(t, regexp.MustCompile(`^arn:aws:config:eu-west-2:[0-9]{12}:iam-group-has-users-check-`+uniqueId), ConfigRuleArns["iam_group_has_users_check"])
+	assert.Regexp(t, regexp.MustCompile(`^arn:aws:config:eu-west-2:[0-9]{12}:iam-no-inline-policy-check-`+uniqueId), ConfigRuleArns["iam_no_inline_policy_check"])
+	assert.Regexp(t, regexp.MustCompile(`^arn:aws:config:eu-west-2:[0-9]{12}:iam-password-policy-`+uniqueId), ConfigRuleArns["iam_password_policy"])
+	assert.Regexp(t, regexp.MustCompile(`^arn:aws:config:eu-west-2:[0-9]{12}:iam-root-access-key-check-`+uniqueId), ConfigRuleArns["iam_root_access_key_check"])
+	assert.Regexp(t, regexp.MustCompile(`^arn:aws:config:eu-west-2:[0-9]{12}:iam-user-mfa-enabled-`+uniqueId), ConfigRuleArns["iam_user_mfa_enabled"])
+	assert.Regexp(t, regexp.MustCompile(`^arn:aws:config:eu-west-2:[0-9]{12}:iam-user-unused-credentials-check-`+uniqueId), ConfigRuleArns["iam_user_unused_credentials"])
+	assert.Regexp(t, regexp.MustCompile(`^arn:aws:config:eu-west-2:[0-9]{12}:mfa-enabled-for-iam-console-access-`+uniqueId), ConfigRuleArns["mfa_enabled_for_console_access"])
+	assert.Regexp(t, regexp.MustCompile(`^arn:aws:config:eu-west-2:[0-9]{12}:multi-region-cloudtrail-enabled-`+uniqueId), ConfigRuleArns["multi_region_cloudtrail"])
+	assert.Regexp(t, regexp.MustCompile(`^arn:aws:config:eu-west-2:[0-9]{12}:required-tags-`+uniqueId), ConfigRuleArns["required_tags"])
+	assert.Regexp(t, regexp.MustCompile(`^arn:aws:config:eu-west-2:[0-9]{12}:root-account-mfa-enabled-`+uniqueId), ConfigRuleArns["root_account_mfa_enabled"])
+	assert.Regexp(t, regexp.MustCompile(`^arn:aws:config:eu-west-2:[0-9]{12}:s3-account-level-public-access-blocks-`+uniqueId), ConfigRuleArns["s3_account_level_public_access"])
+	assert.Regexp(t, regexp.MustCompile(`^arn:aws:config:eu-west-2:[0-9]{12}:s3-bucket-public-read-prohibited-`+uniqueId), ConfigRuleArns["s3_bucket_public_read_prohibited"])
+	assert.Regexp(t, regexp.MustCompile(`^arn:aws:config:eu-west-2:[0-9]{12}:s3-bucket-public-write-prohibited-`+uniqueId), ConfigRuleArns["s3_bucket_public_write_prohibited"])
+	assert.Regexp(t, regexp.MustCompile(`^arn:aws:config:eu-west-2:[0-9]{12}:s3-bucket-server-side-encryption-enabled-`+uniqueId), ConfigRuleArns["s3_bucket_server_side_encryption"])
+	assert.Regexp(t, regexp.MustCompile(`^arn:aws:config:eu-west-2:[0-9]{12}:s3-bucket-ssl-requests-only-`+uniqueId), ConfigRuleArns["s3_bucket_ssl_requests_only"])
+	assert.Regexp(t, regexp.MustCompile(`^arn:aws:config:eu-west-2:[0-9]{12}:securityhub-enabled-`+uniqueId), ConfigRuleArns["securityhub_enabled"])
+
 }
