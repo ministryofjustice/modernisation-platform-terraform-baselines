@@ -25,7 +25,7 @@ output "config_rule_arns" {
     access_keys_rotated                = module.config-test.access_keys_rotated_aws_config_config_rule_arn
     account_part_of_organizations      = module.config-test.account_part_of_organizations_aws_config_config_rule_arn
     cloud_trail_cloud_watch_logs       = module.config-test.cloud_trail_cloud_watch_logs_enabled_aws_config_config_rule_arn
-    cloud_trail_encryption             = module.config-test.cloud_trail_encryption_enable_aws_config_config_rule_arn
+    cloud_trail_encryption             = module.config-test.cloud_trail_encryption_enabled_aws_config_config_rule_arn
     cloud_trail_log_file_validation    = module.config-test.cloud_trail_log_file_validation_enabled_aws_config_config_rule_arn
     cloudtrail_enabled                 = module.config-test.cloudtrail_enabled_aws_config_config_rule_arn
     cloudtrail_s3_dataevents           = module.config-test.cloudtrail_s3_dataevents_enabled_aws_config_config_rule_arn
@@ -44,9 +44,12 @@ output "config_rule_arns" {
     s3_bucket_public_read_prohibited   = module.config-test.s3_bucket_public_read_prohibited_aws_config_config_rule_arn
     s3_bucket_public_write_prohibited  = module.config-test.s3_bucket_public_write_prohibited_aws_config_config_rule_arn
     s3_bucket_server_side_encryption   = module.config-test.s3_bucket_server_side_encryption_enabled_aws_config_config_rule_arn
-    s3_bucket_ssl_requests_only        = module.config-test.s3_bucket-ssl-requests-only_aws_config_config_rule_arn
-    securityhub_enabled                = module.config-test.securityhub-enabled_aws_config_config_rule_arn
+    s3_bucket_ssl_requests_only        = module.config-test.s3_bucket_ssl_requests_only_aws_config_config_rule_arn
+    securityhub_enabled                = module.config-test.securityhub_enabled_aws_config_config_rule_arn
   }
   description = "ARNs of Config rules"
 }
+
+
+
 
