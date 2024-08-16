@@ -44,8 +44,9 @@ output "config_rule_arns" {
     s3_bucket_public_read_prohibited   = module.config-test.s3_bucket_public_read_prohibited_aws_config_config_rule_arn
     s3_bucket_public_write_prohibited  = module.config-test.s3_bucket_public_write_prohibited_aws_config_config_rule_arn
     s3_bucket_server_side_encryption   = module.config-test.s3_bucket_server_side_encryption_enabled_aws_config_config_rule_arn
-    s3_bucket_ssl_requests_only        = module.config-test.s3_bucket_ssl_requests_only_aws_config_config_rule_arn
-    securityhub_enabled                = module.config-test.securityhub_enabled_aws_config_config_rule_arn
+    s3_bucket_ssl_requests_only        = module.config-test.s3_bucket-ssl-requests-only_aws_config_config_rule_arn
+    securityhub_enabled                = module.config-test.securityhub-enabled_aws_config_config_rule_arn
   }
   description = "ARNs of Config rules"
 }
+
