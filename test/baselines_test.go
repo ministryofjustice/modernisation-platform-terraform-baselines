@@ -1,7 +1,5 @@
 package main
 
-// kudzai
-
 import (
 	"fmt"
 	"regexp"
