@@ -2,7 +2,7 @@ data "aws_region" "current" {}
 
 # Enable AWS Config
 resource "aws_config_configuration_recorder" "default" {
-  name     = "var.config_name"
+  name     = var.config_name
   role_arn = var.iam_role_arn
 
   recording_group {
@@ -12,7 +12,7 @@ resource "aws_config_configuration_recorder" "default" {
 }
 
 resource "aws_config_delivery_channel" "default" {
-  name           = "var.config_name"
+  name           = var.config_name
   s3_bucket_name = var.s3_bucket_id
   sns_topic_arn  = aws_sns_topic.default.arn
 
@@ -27,7 +27,7 @@ resource "aws_config_configuration_recorder_status" "default" {
 
   #checkov:skip=CKV2_AWS_45: "Ensure AWS Config recorder is enabled to record all supported resources - by default AWS config is enabled to record all supported resources"
 
-  name       = "var.config_name"
+  name       = var.config_name
   is_enabled = true
   depends_on = [aws_config_delivery_channel.default]
 }
@@ -36,7 +36,7 @@ resource "aws_config_configuration_recorder_status" "default" {
 # AWS-managed account key appropriate for default topic
 # tfsec:ignore:aws-sns-topic-encryption-use-cmk
 resource "aws_sns_topic" "default" {
-  name              = "var.config_name"
+  name              = var.config_name
   kms_master_key_id = "alias/aws/sns"
   tags              = var.tags
 }
