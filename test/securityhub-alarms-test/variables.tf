@@ -153,21 +153,6 @@ variable "vpc_changes_alarm_name" {
   type    = string
 }
 
-variable "error_port_allocation_metric_filter_name" {
-  default = "ErrorPortAllocation"
-  type    = string
-}
-
-variable "error_port_allocation_alarm_name" {
-  default = "NAT-Gateway-ErrorPortAllocation"
-  type    = string
-}
-
-variable "nat_packets_drop_count_all_alarm_name" {
-  default = "NAT-PacketsDropCount-AllGateways"
-  type    = string
-}
-
 variable "privatelink_new_flow_count_all_alarm_name" {
   default = "PrivateLink-NewFlowCount-AllEndpoints"
   type    = string
