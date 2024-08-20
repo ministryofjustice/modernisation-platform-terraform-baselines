@@ -162,21 +162,6 @@ output "vpc_changes_alarm_arn" {
   description = "The ARN of the CloudWatch alarm for VPC changes"
 }
 
-output "nat_gateway_error_port_allocation_metric_filter_id" {
-  description = "The ID of the CloudWatch Log Metric Filter for NAT Gateway Error Port Allocation"
-  value       = aws_cloudwatch_log_metric_filter.NATGatewayErrorPortAllocation.id
-}
-
-output "nat_gateway_error_port_allocation_alarm_arn" {
-  description = "The ARN of the CloudWatch Alarm for NAT Gateway Error Port Allocation"
-  value       = aws_cloudwatch_metric_alarm.ErrorPortAllocation.arn
-}
-
-output "nat_packets_drop_count_alarm_arn" {
-  description = "The ARN of the CloudWatch Alarm for NAT Packets Drop Count"
-  value       = aws_cloudwatch_metric_alarm.nat_packets_drop_count_all.arn
-}
-
 output "privatelink_new_flow_count_alarm_arn" {
   description = "The ARN of the CloudWatch Alarm for PrivateLink New Flow Count"
   value       = aws_cloudwatch_metric_alarm.privatelink_new_flow_count_all.arn

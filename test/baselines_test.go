@@ -191,9 +191,6 @@ func TestTerraformSecurityHubAlarms(t *testing.T) {
 	RouteTableChangesMetricFilterName := fmt.Sprintf("route-table-changes-%s", uniqueId)
 	VpcChangesAlarmName := fmt.Sprintf("vpc-changes-%s", uniqueId)
 	VpcChangesMetricFilterName := fmt.Sprintf("vpc-changes-%s", uniqueId)
-	ErrorPortAllocationMetricFilterName := fmt.Sprintf("ErrorPortAllocation-%s", uniqueId)
-	ErrorPortAllocationAlarmName := fmt.Sprintf("NAT-Gateway-ErrorPortAllocation-%s", uniqueId)
-	NatPacketsDropCountAllAlarmName := fmt.Sprintf("NAT-PacketsDropCount-AllGateways-%s", uniqueId)
 	PrivatelinkNewFlowCountAllAlarmName := fmt.Sprintf("PrivateLink-NewFlowCount-AllEndpoints-%s", uniqueId)
 	PrivatelinkActiveFlowCountAllAlarmName := fmt.Sprintf("PrivateLink-ActiveFlowCount-AllEndpoints-%s", uniqueId)
 	PrivatelinkServiceNewConnectionCountAllAlarmName := fmt.Sprintf("PrivateLink-Service-NewConnectionCount-AllServices-%s", uniqueId)
@@ -234,9 +231,6 @@ func TestTerraformSecurityHubAlarms(t *testing.T) {
 			"route_table_changes_metric_filter_name":                     RouteTableChangesMetricFilterName,
 			"vpc_changes_alarm_name":                                     VpcChangesAlarmName,
 			"vpc_changes_metric_filter_name":                             VpcChangesMetricFilterName,
-			"error_port_allocation_metric_filter_name":                   ErrorPortAllocationMetricFilterName,
-			"error_port_allocation_alarm_name":                           ErrorPortAllocationAlarmName,
-			"nat_packets_drop_count_all_alarm_name":                      NatPacketsDropCountAllAlarmName,
 			"privatelink_new_flow_count_all_alarm_name":                  PrivatelinkNewFlowCountAllAlarmName,
 			"privatelink_active_flow_count_all_alarm_name":               PrivatelinkActiveFlowCountAllAlarmName,
 			"privatelink_service_new_connection_count_all_alarm_name":    PrivatelinkServiceNewConnectionCountAllAlarmName,
@@ -288,9 +282,6 @@ func TestTerraformSecurityHubAlarms(t *testing.T) {
 	RouteTableChangesAlarmArn := terraform.Output(t, terraformOptions, "route_table_changes_alarm_arn")
 	VpcChangesMetricFilterId := terraform.Output(t, terraformOptions, "vpc_changes_metric_filter_id")
 	VpcChangesAlarmArn := terraform.Output(t, terraformOptions, "vpc_changes_alarm_arn")
-	ErrorPortAllocationMetricFilterId := terraform.Output(t, terraformOptions, "nat_gateway_error_port_allocation_metric_filter_id")
-	ErrorPortAllocationAlarmArn := terraform.Output(t, terraformOptions, "nat_gateway_error_port_allocation_alarm_arn")
-	NatPacketsDropCountAllAlarmArn := terraform.Output(t, terraformOptions, "nat_packets_drop_count_alarm_arn")
 	PrivatelinkNewFlowCountAllAlarmArn := terraform.Output(t, terraformOptions, "privatelink_new_flow_count_alarm_arn")
 	PrivatelinkActiveFlowCountAllAlarmArn := terraform.Output(t, terraformOptions, "privatelink_active_flow_count_alarm_arn")
 	PrivatelinkServiceNewConnectionCountAllAlarmArn := terraform.Output(t, terraformOptions, "privatelink_service_new_connection_count_alarm_arn")
@@ -330,9 +321,6 @@ func TestTerraformSecurityHubAlarms(t *testing.T) {
 	assert.Regexp(t, regexp.MustCompile(`^arn:aws:cloudwatch:eu-west-2:[0-9]{12}:alarm:`+RouteTableChangesAlarmName), RouteTableChangesAlarmArn)
 	assert.Regexp(t, regexp.MustCompile(VpcChangesMetricFilterName), VpcChangesMetricFilterId)
 	assert.Regexp(t, regexp.MustCompile(`^arn:aws:cloudwatch:eu-west-2:[0-9]{12}:alarm:`+VpcChangesAlarmName), VpcChangesAlarmArn)
-	assert.Regexp(t, regexp.MustCompile(ErrorPortAllocationMetricFilterName), ErrorPortAllocationMetricFilterId)
-	assert.Regexp(t, regexp.MustCompile(`^arn:aws:cloudwatch:eu-west-2:[0-9]{12}:alarm:`+ErrorPortAllocationAlarmName), ErrorPortAllocationAlarmArn)
-	assert.Regexp(t, regexp.MustCompile(`^arn:aws:cloudwatch:eu-west-2:[0-9]{12}:alarm:`+NatPacketsDropCountAllAlarmName), NatPacketsDropCountAllAlarmArn)
 	assert.Regexp(t, regexp.MustCompile(`^arn:aws:cloudwatch:eu-west-2:[0-9]{12}:alarm:`+PrivatelinkNewFlowCountAllAlarmName), PrivatelinkNewFlowCountAllAlarmArn)
 	assert.Regexp(t, regexp.MustCompile(`^arn:aws:cloudwatch:eu-west-2:[0-9]{12}:alarm:`+PrivatelinkActiveFlowCountAllAlarmName), PrivatelinkActiveFlowCountAllAlarmArn)
 	assert.Regexp(t, regexp.MustCompile(`^arn:aws:cloudwatch:eu-west-2:[0-9]{12}:alarm:`+PrivatelinkServiceNewConnectionCountAllAlarmName), PrivatelinkServiceNewConnectionCountAllAlarmArn)

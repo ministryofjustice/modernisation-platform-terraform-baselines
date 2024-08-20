@@ -31,9 +31,6 @@ module "securityhub-alarms-test" {
   route_table_changes_metric_filter_name                     = var.route_table_changes_metric_filter_name
   vpc_changes_alarm_name                                     = var.vpc_changes_alarm_name
   vpc_changes_metric_filter_name                             = var.vpc_changes_metric_filter_name
-  error_port_allocation_alarm_name                           = var.error_port_allocation_alarm_name
-  error_port_allocation_metric_filter_name                   = var.error_port_allocation_metric_filter_name
-  nat_packets_drop_count_all_alarm_name                      = var.nat_packets_drop_count_all_alarm_name
   privatelink_new_flow_count_all_alarm_name                  = var.privatelink_new_flow_count_all_alarm_name
   privatelink_active_flow_count_all_alarm_name               = var.privatelink_active_flow_count_all_alarm_name
   privatelink_service_new_connection_count_all_alarm_name    = var.privatelink_service_new_connection_count_all_alarm_name
