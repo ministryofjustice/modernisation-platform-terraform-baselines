@@ -22,7 +22,7 @@ jobs:
             with:
               go-version: 1.22
               cache-dependency-path: "test/go.sum"
-          - uses: hashicorp/setup-terraform@651471c36a6092792c552e8b1bef71e592b462d8 # v3.1.1
+          - uses: hashicorp/setup-terraform@b9cd54a3c349d3f38e8881555d616ced269862dd # v3.1.2
             with:
               terraform_version: ~1.3
               terraform_wrapper: false
