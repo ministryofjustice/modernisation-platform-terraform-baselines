@@ -493,6 +493,7 @@ resource "aws_cloudwatch_metric_alarm" "vpc-changes" {
   tags = var.tags
 }
 
+#New Alarms
 resource "aws_cloudwatch_metric_alarm" "privatelink_new_flow_count_all" {
   alarm_name          = var.privatelink_new_flow_count_all_alarm_name
   comparison_operator = "GreaterThanThreshold"
