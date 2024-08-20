@@ -493,64 +493,6 @@ resource "aws_cloudwatch_metric_alarm" "vpc-changes" {
   tags = var.tags
 }
 
-resource "aws_cloudwatch_log_metric_filter" "NATGatewayErrorPortAllocation" {
-  name           = var.error_port_allocation_metric_filter_name
-  pattern        = "{ $.eventSource = \"ec2.amazonaws.com\" && $.eventName = \"CreateNatGateway\" && $.errorCode = \"*\" && $.errorMessage = \"*Port Allocation*\" }"
-  log_group_name = "cloudtrail"
-
-  metric_transformation {
-    name      = "ErrorPortAllocation"
-    namespace = "NAT/Gateway"
-    value     = "1"
-  }
-}
-
-resource "aws_cloudwatch_metric_alarm" "ErrorPortAllocation" {
-  alarm_name        = var.error_port_allocation_alarm_name
-  alarm_description = "This alarm detects when the NAT Gateway is unable to allocate ports to new connections."
-  alarm_actions     = [aws_sns_topic.securityhub-alarms.arn]
-
-  comparison_operator = "GreaterThanThreshold"
-  evaluation_periods  = "1"
-  metric_name         = "ErrorPortAllocation"
-  namespace           = "NAT/Gateway"
-  period              = "300"
-  statistic           = "Sum"
-  threshold           = "0"
-  treat_missing_data  = "notBreaching"
-
-  tags = var.tags
-}
-
-
-# NAT PacketsDropCount alarm
-resource "aws_cloudwatch_metric_alarm" "nat_packets_drop_count_all" {
-  alarm_name          = var.nat_packets_drop_count_all_alarm_name
-  comparison_operator = "GreaterThanThreshold"
-  evaluation_periods  = 5
-  threshold           = "100" # Adjust this threshold as needed
-  alarm_description   = "NAT Gateways are dropping packets. This might indicate an issue with one or more NAT Gateways."
-
-  metric_query {
-    id          = "e1"
-    expression  = "SUM(METRICS())"
-    label       = "Total Dropped Packets"
-    return_data = "true"
-  }
-
-  metric_query {
-    id = "m1"
-    metric {
-      metric_name = "PacketsDropCount"
-      namespace   = "AWS/NATGateway"
-      period      = 60
-      stat        = "Sum"
-    }
-  }
-
-  alarm_actions = [aws_sns_topic.securityhub-alarms.arn]
-  tags          = var.tags
-}
 resource "aws_cloudwatch_metric_alarm" "privatelink_new_flow_count_all" {
   alarm_name          = var.privatelink_new_flow_count_all_alarm_name
   comparison_operator = "GreaterThanThreshold"
