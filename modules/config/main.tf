@@ -3,7 +3,7 @@ data "aws_region" "current" {}
 # Enable AWS Config
 resource "aws_config_configuration_recorder" "default" {
   name     = var.config_name
-  role_arn = var.iam_role_arn
+  role_arn = "arn:aws:iam::836052629367:role/AWSConfig"
 
   recording_group {
     all_supported                 = true

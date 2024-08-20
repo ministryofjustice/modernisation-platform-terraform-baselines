@@ -1,13 +1,13 @@
-data "aws_iam_role" "config" {
-  name = "AWSConfig"  # Ensure this matches the IAM role name in AWS
-}
+# data "aws_iam_role" "config" {
+#   name = "AWSConfig"  # Ensure this matches the IAM role name in AWS
+# }
 
 module "config-test" {
   source                                                    = "../../modules/config"
   cloudtrail                                                = var.cloudtrail
   root_account_id                                           = var.root_account_id
-  iam_role_arn                                              = data.aws_iam_role.config.arn
-  s3_bucket_id                                              = var.s3_bucket_id
+  iam_role_arn                                              = var.iam_role_arn
+  s3_bucket_id                                              = var.config_s3_bucket_id 
   home_region                                               = var.home_region
   tags                                                      = var.tags
   config_name                                               = var.config_name

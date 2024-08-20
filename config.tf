@@ -152,6 +152,15 @@ module "config-bucket" {
   tags = var.tags
 }
 
+variable "config_s3_bucket_id" {
+  description = "The ID of the S3 bucket to store AWS Config data"
+  type        = string
+}
+
+output "config_s3_bucket_id" {
+  value = module.config-bucket.bucket_id
+}
+
 # AWS Config: bucket policy, and require secure transport
 # Extrapolated from:
 # https://docs.aws.amazon.com/config/latest/developerguide/s3-bucket-policy.html

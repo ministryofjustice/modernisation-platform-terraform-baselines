@@ -24,6 +24,12 @@ variable "s3_bucket_id" {
 
 }
 
+variable "config_s3_bucket_id" {
+  type        = string
+  description = "The ID of the S3 bucket to store AWS Config data"
+  default     = ""
+}
+
 variable "home_region" {
   type        = string
   default     = ""
