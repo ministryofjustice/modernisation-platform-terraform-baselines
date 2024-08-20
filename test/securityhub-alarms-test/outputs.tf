@@ -162,12 +162,6 @@ output "vpc_changes_alarm_arn" {
   description = "The ARN of the CloudWatch alarm for VPC changes"
 }
 
-output "nat_gateway_error_port_allocation_metric_filter_id" {
-  description = "The ID of the CloudWatch Log Metric Filter for NAT Gateway Error Port Allocation"
-  value       = module.securityhub-alarms-test.nat_gateway_error_port_allocation_metric_filter_id
-}
-
-
 output "privatelink_new_flow_count_alarm_arn" {
   description = "The ARN of the CloudWatch Alarm for PrivateLink New Flow Count"
   value       = module.securityhub-alarms-test.privatelink_new_flow_count_alarm_arn
