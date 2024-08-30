@@ -195,6 +195,8 @@ func TestTerraformSecurityHubAlarms(t *testing.T) {
 	PrivatelinkActiveFlowCountAllAlarmName := fmt.Sprintf("PrivateLink-ActiveFlowCount-AllEndpoints-%s", uniqueId)
 	PrivatelinkServiceNewConnectionCountAllAlarmName := fmt.Sprintf("PrivateLink-Service-NewConnectionCount-AllServices-%s", uniqueId)
 	PrivatelinkServiceActiveConnectionCountAllAlarmName := fmt.Sprintf("PrivateLink-Service-ActiveConnectionCount-AllServices-%s", uniqueId)
+	AdminRoleUsageAlarmName := fmt.Sprintf("admin-role-usage-%s", uniqueId)
+	AdminRoleUsageMetricFilterName := fmt.Sprintf("admin-role-usage-%s", uniqueId)
 
 	terraformOptions := &terraform.Options{
 		TerraformDir: terraformDir,
@@ -235,6 +237,8 @@ func TestTerraformSecurityHubAlarms(t *testing.T) {
 			"privatelink_active_flow_count_all_alarm_name":               PrivatelinkActiveFlowCountAllAlarmName,
 			"privatelink_service_new_connection_count_all_alarm_name":    PrivatelinkServiceNewConnectionCountAllAlarmName,
 			"privatelink_service_active_connection_count_all_alarm_name": PrivatelinkServiceActiveConnectionCountAllAlarmName,
+			"admin_role_usage_alarm_name":                                AdminRoleUsageAlarmName,
+			"admin_role_usage_metric_filter_name":                        AdminRoleUsageMetricFilterName,
 		},
 	}
 	// Clean up resources with "terraform destroy" at the end of the test
@@ -286,6 +290,8 @@ func TestTerraformSecurityHubAlarms(t *testing.T) {
 	PrivatelinkActiveFlowCountAllAlarmArn := terraform.Output(t, terraformOptions, "privatelink_active_flow_count_alarm_arn")
 	PrivatelinkServiceNewConnectionCountAllAlarmArn := terraform.Output(t, terraformOptions, "privatelink_service_new_connection_count_alarm_arn")
 	PrivatelinkServiceActiveConnectionCountAllAlarmArn := terraform.Output(t, terraformOptions, "privatelink_service_active_connection_count_alarm_arn")
+	AdminRoleUsageAlarmArn := terraform.Output(t, terraformOptions, "admin_role_usage_alarm_arn")
+	AdminRoleUsageMetricFilterId := terraform.Output(t, terraformOptions, "admin_role_usage_metric_filter_id")
 
 	// Tests (comparing outputs to regex)
 	assert.Regexp(t, regexp.MustCompile(`^arn:aws:sns:eu-west-2:[0-9]{12}:securityhub-alarms-`+uniqueId), SnsTopicArn)
@@ -325,4 +331,6 @@ func TestTerraformSecurityHubAlarms(t *testing.T) {
 	assert.Regexp(t, regexp.MustCompile(`^arn:aws:cloudwatch:eu-west-2:[0-9]{12}:alarm:`+PrivatelinkActiveFlowCountAllAlarmName), PrivatelinkActiveFlowCountAllAlarmArn)
 	assert.Regexp(t, regexp.MustCompile(`^arn:aws:cloudwatch:eu-west-2:[0-9]{12}:alarm:`+PrivatelinkServiceNewConnectionCountAllAlarmName), PrivatelinkServiceNewConnectionCountAllAlarmArn)
 	assert.Regexp(t, regexp.MustCompile(`^arn:aws:cloudwatch:eu-west-2:[0-9]{12}:alarm:`+PrivatelinkServiceActiveConnectionCountAllAlarmName), PrivatelinkServiceActiveConnectionCountAllAlarmArn)
+	assert.Regexp(t, regexp.MustCompile(AdminRoleUsageMetricFilterName), AdminRoleUsageMetricFilterId)
+	assert.Regexp(t, regexp.MustCompile(`^arn:aws:cloudwatch:eu-west-2:[0-9]{12}:alarm:`+AdminRoleUsageAlarmName), AdminRoleUsageAlarmArn)
 }
