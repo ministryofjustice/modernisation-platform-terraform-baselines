@@ -181,3 +181,13 @@ output "privatelink_service_active_connection_count_alarm_arn" {
   description = "The ARN of the CloudWatch Alarm for PrivateLink Service Active Connection Count"
   value       = aws_cloudwatch_metric_alarm.privatelink_service_active_connection_count_all.arn
 }
+
+output "admin_role_usage_metric_filter_id" {
+  value       = aws_cloudwatch_log_metric_filter.admin_role_usage.id
+  description = "The ID of the CloudWatch metric filter for admin role usage"
+}
+
+output "admin_role_usage_alarm_arn" {
+  description = "The ARN of the CloudWatch Alarm for admin role usage"
+  value       = aws_cloudwatch_metric_alarm.admin_role_usage.arn
+}

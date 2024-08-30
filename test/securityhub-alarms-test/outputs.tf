@@ -181,3 +181,13 @@ output "privatelink_service_active_connection_count_alarm_arn" {
   description = "The ARN of the CloudWatch Alarm for PrivateLink Service Active Connection Count"
   value       = module.securityhub-alarms-test.privatelink_service_active_connection_count_alarm_arn
 }
+
+output "admin_role_usage_alarm_arn" {
+  description = "The ARN of teh CloudWatch Alarm for admin role usage"
+  value       = module.securityhub-alarms-test.admin_role_usage_alarm_arn
+}
+
+output "admin_role_usage_metric_filter_id" {
+  description = "The ID of the CloudWatch metric filter for admin role usage"
+  value       = module.securityhub-alarms-test.admin_role_usage_metric_filter_id
+}

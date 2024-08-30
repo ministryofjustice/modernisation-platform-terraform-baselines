@@ -35,4 +35,6 @@ module "securityhub-alarms-test" {
   privatelink_active_flow_count_all_alarm_name               = var.privatelink_active_flow_count_all_alarm_name
   privatelink_service_new_connection_count_all_alarm_name    = var.privatelink_service_new_connection_count_all_alarm_name
   privatelink_service_active_connection_count_all_alarm_name = var.privatelink_service_active_connection_count_all_alarm_name
+  admin_role_usage_alarm_name                                = var.admin_role_usage_alarm_name
+  admin_role_usage_metric_filter_name                        = var.admin_role_usage_metric_filter_name
 }

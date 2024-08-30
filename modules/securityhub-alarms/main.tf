@@ -604,3 +604,34 @@ resource "aws_cloudwatch_metric_alarm" "privatelink_service_active_connection_co
   alarm_actions = [aws_sns_topic.securityhub-alarms.arn]
   tags          = var.tags
 }
+
+# Alarm for use of the AdministratorAccess Role
+
+resource "aws_cloudwatch_log_metric_filter" "admin_role_usage" {
+  name           = var.admin_role_usage_metric_filter_name
+  pattern        = "{ $.eventName = \"AssumeRoleWithSAML\" && $.requestParameters.roleArn = \"*AdministratorAccess*\" }"
+  log_group_name = "cloudtrail"
+
+  metric_transformation {
+    name      = "admin-role-usage"
+    namespace = "LogMetrics"
+    value     = 1
+  }
+}
+
+resource "aws_cloudwatch_metric_alarm" "admin_role_usage" {
+  alarm_name        = var.admin_role_usage_alarm_name
+  alarm_description = "Monitors for use of the AdministratorAccess role."
+  alarm_actions     = [aws_sns_topic.securityhub-alarms.arn]
+
+  comparison_operator = "GreaterThanOrEqualToThreshold"
+  evaluation_periods  = "1"
+  metric_name         = aws_cloudwatch_log_metric_filter.admin_role_usage.id
+  namespace           = "LogMetrics"
+  period              = "300"
+  statistic           = "Sum"
+  threshold           = "1"
+  treat_missing_data  = "notBreaching"
+
+  tags = var.tags
+}

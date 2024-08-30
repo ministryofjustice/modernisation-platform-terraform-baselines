@@ -193,3 +193,13 @@ variable "privatelink_service_active_connection_count_all_alarm_name" {
   default = "PrivateLink-Service-ActiveConnectionCount-AllServices"
   type    = string
 }
+
+variable "admin_role_usage_metric_filter_name" {
+  default = "admin-role-usage"
+  type    = string
+}
+
+variable "admin_role_usage_alarm_name" {
+  default = "admin-role-usage"
+  type    = string
+}
