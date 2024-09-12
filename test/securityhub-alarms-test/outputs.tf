@@ -22,6 +22,16 @@ output "securityhub_alarms_multi_region_kms_alias_arn" {
   description = "The ARN of the multi-region KMS alias for SecurityHub alarms"
 }
 
+output "securityhub_alarms_multi_region_kms_key_arn" {
+  value       = module.securityhub-alarms-test.securityhub_alarms_multi_region__replica_kms_key_arn
+  description = "The ARN of the multi-region replica KMS key for SecurityHub alarms"
+}
+
+output "securityhub_alarms_multi_region_kms_alias_arn" {
+  value       = module.securityhub-alarms-test.securityhub_alarms_multi_region_replica_kms_alias_arn
+  description = "The ARN of the multi-region KMS replica alias for SecurityHub alarms"
+}
+
 output "unauthorised_api_calls_metric_filter_id" {
   value       = module.securityhub-alarms-test.unauthorised_api_calls_metric_filter_id
   description = "The ID of the CloudWatch metric filter for unauthorised API calls"
