@@ -22,12 +22,12 @@ output "securityhub_alarms_multi_region_kms_alias_arn" {
   description = "The ARN of the multi-region KMS alias for SecurityHub alarms"
 }
 
-output "securityhub_alarms_multi_region_kms_key_arn" {
+output "securityhub_alarms_multi_region_kms_key_replica_arn" {
   value       = module.securityhub-alarms-test.securityhub_alarms_multi_region__replica_kms_key_arn
   description = "The ARN of the multi-region replica KMS key for SecurityHub alarms"
 }
 
-output "securityhub_alarms_multi_region_kms_alias_arn" {
+output "securityhub_alarms_multi_region_kms_alias_replica_arn" {
   value       = module.securityhub-alarms-test.securityhub_alarms_multi_region_replica_kms_alias_arn
   description = "The ARN of the multi-region KMS replica alias for SecurityHub alarms"
 }
