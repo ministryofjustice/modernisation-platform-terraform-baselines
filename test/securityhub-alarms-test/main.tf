@@ -2,6 +2,7 @@ module "securityhub-alarms-test" {
   source                                                     = "../../modules/securityhub-alarms"
   securityhub_alarms_kms_name                                = var.securityhub_alarms_kms_name
   securityhub_alarms_multi_region_kms_name                   = var.securityhub_alarms_multi_region_kms_name
+  securityhub_alarms_multi_region_kms_replica_name           = var.securityhub_alarms_multi_region_kms_replica_name
   securityhub_alarms_sns_topic_name                          = var.securityhub_alarms_sns_topic_name
   unauthorised_api_calls_alarm_name                          = var.unauthorised_api_calls_alarm_name
   unauthorised_api_calls_log_metric_filter_name              = var.unauthorised_api_calls_log_metric_filter_name
