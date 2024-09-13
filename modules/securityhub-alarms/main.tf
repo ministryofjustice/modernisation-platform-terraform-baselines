@@ -30,6 +30,18 @@ resource "aws_kms_alias" "securityhub_alarms_multi_region" {
   target_key_id = aws_kms_key.securityhub_alarms_multi_region.id
 }
 
+resource "aws_kms_replica_key" "securityhub-alarms_multi_region_replica" {
+  description             = "AWS Secretsmanager CMK replica key"
+  deletion_window_in_days = 30
+  primary_key_arn         = aws_kms_key.securityhub-alarms_multi_region.arn
+  provider                = aws.modernisation-platform-eu-west-1
+}
+
+resource "aws_kms_alias" "securityhub-alarms_multi_region_replica" {
+  name          = var.securityhub_alarms_multi_region_kms_replica_name
+  target_key_id = aws_kms_replica_key.securityhub-alarms_multi_region_replica.id
+}
+
 data "aws_iam_policy_document" "securityhub-alarms-kms" {
 
   #checkov:skip=CKV_AWS_356: "Permissions required by sec-hub"

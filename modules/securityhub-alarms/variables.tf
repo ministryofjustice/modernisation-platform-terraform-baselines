@@ -14,6 +14,11 @@ variable "securityhub_alarms_multi_region_kms_name" {
   type    = string
 }
 
+variable "securityhub_alarms_multi_region_kms_replica_name" {
+  default = "alias/securityhub-alarms-key-multi-region-replica"
+  type    = string
+}
+
 variable "securityhub_alarms_sns_topic_name" {
   default = "securityhub-alarms"
   type    = string
