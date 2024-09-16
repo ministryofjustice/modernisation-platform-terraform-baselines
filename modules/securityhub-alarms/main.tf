@@ -33,7 +33,7 @@ resource "aws_kms_alias" "securityhub_alarms_multi_region" {
 resource "aws_kms_replica_key" "securityhub-alarms_multi_region_replica" {
   description             = "AWS Secretsmanager CMK replica key"
   deletion_window_in_days = 30
-  primary_key_arn         = aws_kms_replica_key.securityhub-alarms_multi_region.arn
+  primary_key_arn         = aws_kms_key.securityhub_alarms_multi_region.arn
   provider                = aws.modernisation-platform-eu-west-1
 }
 
