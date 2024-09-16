@@ -68,7 +68,7 @@ data "aws_iam_policy_document" "backup-alarms-kms" {
     }
   }
 
-  # Statement allowing specific IAM user to replicate the KMS key dynamically
+  # Statement allowing specific IAM user to replicate the KMS key
   statement {
     effect    = "Allow"
     actions   = ["kms:ReplicateKey"]
@@ -76,8 +76,7 @@ data "aws_iam_policy_document" "backup-alarms-kms" {
 
     principals {
       type        = "AWS"
-      # Dynamically referencing the IAM user for replication permission
-      identifiers = ["arn:aws:iam::${data.aws_caller_identity.current.account_id}:user/testing-ci"]
+      identifiers = ["arn:aws:iam::REDACTED:user/testing-ci"]
     }
   }
 }
