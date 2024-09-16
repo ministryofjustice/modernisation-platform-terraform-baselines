@@ -27,7 +27,7 @@ output "securityhub_alarms_multi_region_kms_key_replica_arn" {
   description = "The ARN of the multi-region replica KMS key for SecurityHub alarms"
 }
 
-output "securityhub_alarms_multi_region_kms__replica_alias_arn" {
+output "securityhub_alarms_multi_region_kms_alias_replica_arn" {
   value       = aws_kms_alias.securityhub-alarms_multi_region_replica.arn
   description = "The ARN of the multi-region KMS replica alias for SecurityHub alarms"
 }
