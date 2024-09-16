@@ -1,5 +1,9 @@
 module "securityhub-alarms-test" {
   source                                                     = "../../modules/securityhub-alarms"
+    providers = {
+    aws.eu-west-2 = aws
+    aws.eu-west-1 = aws.modernisation-platform-eu-west-1
+  }
   securityhub_alarms_kms_name                                = var.securityhub_alarms_kms_name
   securityhub_alarms_multi_region_kms_name                   = var.securityhub_alarms_multi_region_kms_name
   securityhub_alarms_multi_region_kms_replica_name           = var.securityhub_alarms_multi_region_kms_replica_name
