@@ -1,6 +1,6 @@
 module "securityhub-alarms-test" {
-  source                                                     = "../../modules/securityhub-alarms"
-    providers = {
+  source = "../../modules/securityhub-alarms"
+  providers = {
     aws.eu-west-2 = aws
     aws.eu-west-1 = aws.modernisation-platform-eu-west-1
   }
