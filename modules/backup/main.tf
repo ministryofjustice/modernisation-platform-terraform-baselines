@@ -10,6 +10,7 @@ data "aws_region" "current" {}
 
 # Backup alarms KMS multi-Region
 resource "aws_kms_key" "backup_alarms_multi_region" {
+  provider                = aws.eu-west-2
   deletion_window_in_days = 7
   description             = "Backup alarms encryption key"
   enable_key_rotation     = true
@@ -19,18 +20,20 @@ resource "aws_kms_key" "backup_alarms_multi_region" {
 }
 
 resource "aws_kms_alias" "backup_alarms_multi_region" {
+  provider      = aws.eu-west-2
   name          = var.aws_kms_alias_name
   target_key_id = aws_kms_key.backup_alarms_multi_region.id
 }
 
 resource "aws_kms_replica_key" "backup_alarms_multi_region_replica" {
+  provider                = aws.eu-west-1
   description             = "AWS Secretsmanager CMK replica key"
   deletion_window_in_days = 30
   primary_key_arn         = aws_kms_key.backup_alarms_multi_region.arn
-  provider                = aws.modernisation-platform-eu-west-1
 }
 
 resource "aws_kms_alias" "backup_alarms_multi_region_replica" {
+  provider                = aws.eu-west-1
   name          = var.aws_kms_replica_alias_name
   target_key_id = aws_kms_replica_key.backup_alarms_multi_region_replica.id
 }
@@ -70,6 +73,7 @@ data "aws_iam_policy_document" "backup-alarms-kms" {
 # Define the SNS topic, conditionally created if the region is eu-west-2 and is production
 resource "aws_sns_topic" "backup_vault_topic" {
   #checkov:skip=CKV_AWS_26:"topic is encrypted, but doesn't like the local reference"  
+  provider          = aws.eu-west-2
   count             = (local.is_production && data.aws_region.current.name == "eu-west-2") ? 1 : 0
   kms_master_key_id = aws_kms_key.backup_alarms_multi_region.id
   name              = var.backup_vault_lock_sns_topic_name
@@ -80,12 +84,14 @@ resource "aws_sns_topic" "backup_vault_topic" {
 
 resource "aws_backup_vault" "default" {
   #checkov:skip=CKV_AWS_166: "Ensure Backup Vault is encrypted at rest using KMS CMK - Tricky to implement, hence using AWS managed KMS key"
-  name = var.aws_backup_vault_name
-  tags = var.tags
+  provider = aws.eu-west-2
+  name     = var.aws_backup_vault_name
+  tags     = var.tags
 }
 
 # Backup vault lock
 resource "aws_backup_vault_lock_configuration" "default" {
+  provider           = aws.eu-west-2
   count              = local.is_production ? 1 : 0
   backup_vault_name  = aws_backup_vault.default.name
   min_retention_days = var.min_vault_retention_days
@@ -96,7 +102,7 @@ resource "aws_backup_vault_lock_configuration" "default" {
 # Production backups
 resource "aws_backup_plan" "default" {
   #checkov:skip=CKV_AWS_166: "Ensure Backup Vault is encrypted at rest using KMS CMK - Tricky to implement, hence using AWS managed KMS key"
-
+  provider = aws.eu-west-2
   name = var.production_backup_plan_name
   rule {
     rule_name         = "backup-daily-retain-30-days"
@@ -130,6 +136,7 @@ resource "aws_backup_plan" "default" {
 }
 
 resource "aws_backup_selection" "production" {
+  provider     = aws.eu-west-2
   name         = var.production_backup_selection_name
   iam_role_arn = var.iam_role_arn
   plan_id      = aws_backup_plan.default.id
@@ -149,6 +156,7 @@ resource "aws_backup_selection" "production" {
 
 # Non production backups
 resource "aws_backup_plan" "non_production" {
+  provider = aws.eu-west-2
   name = var.non_production_backup_plan_name
 
   rule {
@@ -180,6 +188,7 @@ resource "aws_backup_plan" "non_production" {
 }
 
 resource "aws_backup_selection" "non_production" {
+  provider     = aws.eu-west-2
   name         = var.non_production_backup_selection_name
   iam_role_arn = var.iam_role_arn
   plan_id      = aws_backup_plan.non_production.id
@@ -200,7 +209,8 @@ resource "aws_backup_selection" "non_production" {
 # SNS topic
 # trivy:ignore:avd-aws-0136
 resource "aws_sns_topic" "backup_failure_topic" {
-  count = (local.is_production && data.aws_region.current.name == "eu-west-2") ? 1 : 0
+  provider  = aws.eu-west-2
+  count     = (local.is_production && data.aws_region.current.name == "eu-west-2") ? 1 : 0
   #checkov:skip=CKV_AWS_26:"topic is encrypted, but doesn't like the local reference"
   kms_master_key_id = aws_kms_key.backup_alarms_multi_region.id
   name              = var.backup_aws_sns_topic_name
@@ -211,6 +221,7 @@ resource "aws_sns_topic" "backup_failure_topic" {
 
 # Attaches the SNS topic to the backup vault to subscribe for notifications
 resource "aws_backup_vault_notifications" "aws_backup_vault_notifications" {
+  provider            = aws.eu-west-2
   count               = (local.is_production && data.aws_region.current.name == "eu-west-2") ? 1 : 0
   backup_vault_events = ["BACKUP_JOB_FAILED"]
   backup_vault_name   = aws_backup_vault.default.name

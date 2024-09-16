@@ -1,5 +1,9 @@
 module "backup-test" {
   source                               = "../../modules/backup"
+  providers = {
+    aws.eu-west-2 = aws
+    aws.eu-west-1 = aws.modernisation-platform-eu-west-1
+  }
   iam_role_arn                         = aws_iam_role.backup.arn
   aws_backup_vault_name                = var.aws_backup_vault_name
   production_backup_plan_name          = var.production_backup_plan_name
