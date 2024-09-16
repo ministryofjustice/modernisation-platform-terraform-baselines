@@ -41,6 +41,7 @@ data "aws_iam_policy_document" "backup-alarms-kms" {
   #checkov:skip=CKV_AWS_111: "Ensure IAM policies does not allow write access without constraints"
   #checkov:skip=CKV_AWS_109: "Ensure IAM policies does not allow permissions management / resource exposure without constraints - This is applied to a specific SNS topic"
 
+  # Statement allowing root account full KMS access
   statement {
     effect    = "Allow"
     actions   = ["kms:*"]
@@ -52,6 +53,7 @@ data "aws_iam_policy_document" "backup-alarms-kms" {
     }
   }
 
+  # Statement allowing CloudWatch specific actions
   statement {
     effect = "Allow"
     actions = [
@@ -65,7 +67,20 @@ data "aws_iam_policy_document" "backup-alarms-kms" {
       identifiers = ["cloudwatch.amazonaws.com"]
     }
   }
+
+  # Statement allowing specific IAM user to replicate the KMS key
+  statement {
+    effect = "Allow"
+    actions = ["kms:ReplicateKey"]
+    resources = ["*"]
+
+    principals {
+      type        = "AWS"
+      identifiers = ["arn:aws:iam::REDACTED:user/testing-ci"]
+    }
+  }
 }
+
 
 
 # Define the SNS topic, conditionally created if the region is eu-west-2 and is production
