@@ -31,7 +31,7 @@ resource "aws_kms_replica_key" "backup_alarms_multi_region_replica" {
 }
 
 resource "aws_kms_alias" "backup_alarms_multi_region_replica" {
-  name          = "alias/backup_alarms-multi-region-replica"
+  name          = var.aws_kms_replica_alias_name
   target_key_id = aws_kms_replica_key.backup_alarms_multi_region_replica.id
 }
 
