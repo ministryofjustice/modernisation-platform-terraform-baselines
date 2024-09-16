@@ -70,8 +70,8 @@ data "aws_iam_policy_document" "backup-alarms-kms" {
 
   # Statement allowing specific IAM user to replicate the KMS key
   statement {
-    effect = "Allow"
-    actions = ["kms:ReplicateKey"]
+    effect    = "Allow"
+    actions   = ["kms:ReplicateKey"]
     resources = ["*"]
 
     principals {
