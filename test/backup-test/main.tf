@@ -1,5 +1,5 @@
 module "backup-test" {
-  source                               = "../../modules/backup"
+  source = "../../modules/backup"
   providers = {
     aws.eu-west-2 = aws
     aws.eu-west-1 = aws.modernisation-platform-eu-west-1
