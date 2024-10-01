@@ -73,7 +73,7 @@ resource "aws_sns_topic" "securityhub-alarms" {
 # 3.1 - Ensure a log metric filter and alarm exist for unauthorized API calls
 resource "aws_cloudwatch_log_metric_filter" "unauthorised-api-calls" {
   name           = var.unauthorised_api_calls_log_metric_filter_name
-  pattern        = "{($.errorCode = \"*UnauthorizedOperation\") || ($.errorCode = \"AccessDenied*\" && $.eventName != \"ListDelegatedAdministrators\")}"
+  pattern        = "{($.errorCode = \"*UnauthorizedOperation\") || ($.errorCode = \"AccessDenied*\" && ($.eventName != \"ListDelegatedAdministrators\") && ($.eventName != \"GetMacieSession\"))}"
   log_group_name = "cloudtrail"
 
   metric_transformation {
