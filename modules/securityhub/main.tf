@@ -62,3 +62,32 @@ resource "aws_securityhub_standards_control" "pci_disable_ensure_mfa_for_root" {
   disabled_reason       = "Root login actions prevented with SCPs"
   depends_on            = [aws_securityhub_standards_subscription.pci]
 }
+
+# SecurityHub Alerting
+
+# Filter for New, High & Critical SecHub findings but exclude Inspector
+resource "aws_cloudwatch_event_rule" "sechub-high-and-critical-findings" {
+  name        = "sechub-high-and-critical-findings"
+  description = "Check for High or Critical Severity SecHub findings"
+  event_pattern = jsonencode({
+    "source" : ["aws.securityhub"],
+    "detail-type" : ["Security Hub Findings - Imported"],
+    "detail" : {
+      "findings" : {
+        "Severity" : {
+          "Label" : ["HIGH", "CRITICAL"]
+        },
+        "Workflow" : {
+          "Status" : ["NEW"]
+        },
+        "ProductFields" : {
+          "aws/securityhub/ProductName" : [
+            {
+              "anything-but" : "Inspector"
+            }
+          ]
+        }
+      }
+    }
+  })
+}
