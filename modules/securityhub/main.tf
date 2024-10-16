@@ -91,3 +91,131 @@ resource "aws_cloudwatch_event_rule" "sechub-high-and-critical-findings" {
     }
   })
 }
+
+# When eventbridge rule is triggered send findings to SNS topic
+resource "aws_cloudwatch_event_target" "sechub_findings_sns_topic" {
+  rule      = aws_cloudwatch_event_rule.sechub_findings-event-rule.name
+  target_id = "SendToSNS"
+  arn       = aws_sns_topic.sechub_findings_sns_topic.arn
+}
+
+# Create SNS topic and access policy
+resource "aws_sns_topic" "sechub_findings_sns_topic" {
+  name              = "sechub_findings_sns_topic"
+  kms_master_key_id = aws_kms_key.sns_kms_key.id
+}
+resource "aws_sns_topic_policy" "sechub_findings_sns_topic" {
+  arn    = aws_sns_topic.sechub_findings_sns_topic.arn
+  policy = data.aws_iam_policy_document.sechub_findings_sns_topic_policy.json
+}
+
+data "aws_iam_policy_document" "sechub_findings_sns_topic_policy" {
+  policy_id = "sechub findings sns topic policy"
+
+  statement {
+    sid    = "Allow topic owner to manage sns topic"
+    effect = "Allow"
+    actions = [
+      "sns:Publish",
+      "sns:RemovePermission",
+      "sns:SetTopicAttributes",
+      "sns:DeleteTopic",
+      "sns:ListSubscriptionsByTopic",
+      "sns:GetTopicAttributes",
+      "sns:AddPermission",
+      "sns:Subscribe"
+    ]
+    resources = [
+      aws_sns_topic.sechub_findings_sns_topic.arn,
+    ]
+    condition {
+      test     = "StringEquals"
+      variable = "AWS:SourceOwner"
+      values = [
+        data.aws_caller_identity.current.account_id
+      ]
+    }
+    principals {
+      type = "AWS"
+      identifiers = [
+        "*"
+      ]
+    }
+  }
+  statement {
+    sid    = "Allow eventbridge to publish messages to sns topic"
+    effect = "Allow"
+    actions = [
+      "sns:Publish",
+    ]
+    resources = [
+      aws_sns_topic.sechub_findings_sns_topic.arn,
+    ]
+    principals {
+      type = "Service"
+      identifiers = [
+        "events.amazonaws.com"
+      ]
+    }
+  }
+}
+
+# Create CMK to encrypt SNS topic
+resource "aws_kms_key" "sns_kms_key" {
+  description         = "KMS key for SNS topic encryption"
+  enable_key_rotation = true
+  policy              = data.aws_iam_policy_document.sns-kms.json
+}
+
+resource "aws_kms_alias" "sns_kms_alias" {
+  name          = "alias/sns-kms-key"
+  target_key_id = aws_kms_key.sns_kms_key.id
+}
+
+# Static code analysis ignores:
+# - CKV_AWS_109 and CKV_AWS_111: Ignore warnings regarding resource = ["*"]. See https://docs.aws.amazon.com/kms/latest/developerguide/key-policies.html
+#   Specifically: "In a key policy, the value of the Resource element is "*", which means "this KMS key." The asterisk ("*") identifies the KMS key to which the key policy is attached."
+data "aws_iam_policy_document" "sns-kms" {
+  # checkov:skip=CKV_AWS_109: "Key policy requires asterisk resource - see note above"
+  # checkov:skip=CKV_AWS_111: "Key policy requires asterisk resource - see note above"
+  # checkov:skip=CKV_AWS_356: "Key policy requires asterisk resource - see note above"
+
+  statement {
+    sid    = "Allow management access of the key to the owning account"
+    effect = "Allow"
+    actions = [
+      "kms:*"
+    ]
+    resources = [
+      "*"
+    ]
+    principals {
+      type = "AWS"
+      identifiers = [
+        data.aws_caller_identity.current.account_id
+      ]
+    }
+  }
+  statement {
+    sid     = "Allow SNS and Eventbridge services to use the key"
+    effect  = "Allow"
+    actions = ["kms:*"]
+
+    resources = ["*"]
+
+    principals {
+      type        = "Service"
+      identifiers = ["sns.amazonaws.com"]
+    }
+
+    principals {
+      type        = "Service"
+      identifiers = ["events.amazonaws.com"]
+    }
+
+    principals {
+      type        = "AWS"
+      identifiers = ["arn:aws:iam::${data.aws_caller_identity.current.account_id}:root"]
+    }
+  }
+}
