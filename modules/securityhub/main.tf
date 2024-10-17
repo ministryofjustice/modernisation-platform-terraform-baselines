@@ -164,7 +164,7 @@ data "aws_iam_policy_document" "sechub_findings_sns_topic_policy" {
 resource "aws_kms_key" "sns_kms_key" {
   description         = "KMS key for SNS topic encryption"
   enable_key_rotation = true
-  policy              = data.aws_iam_policy_document.sns-kms.json
+  policy              = data.aws_iam_policy_document.sns_kms.json
 }
 
 resource "aws_kms_alias" "sns_kms_alias" {
