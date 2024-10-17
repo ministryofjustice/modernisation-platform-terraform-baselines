@@ -67,7 +67,7 @@ resource "aws_securityhub_standards_control" "pci_disable_ensure_mfa_for_root" {
 
 # Filter for New, High & Critical SecHub findings but exclude Inspector
 resource "aws_cloudwatch_event_rule" "sechub_high_and_critical_findings" {
-  name        = "sechub-high-and-critical-findings"
+  name        = var.sechub_eventbridge_rule_name
   description = "Check for High or Critical Severity SecHub findings"
   event_pattern = jsonencode({
     "source" : ["aws.securityhub"],
@@ -101,7 +101,7 @@ resource "aws_cloudwatch_event_target" "sechub_findings_sns_topic" {
 
 # Create SNS topic and access policy
 resource "aws_sns_topic" "sechub_findings_sns_topic" {
-  name              = "sechub_findings_sns_topic"
+  name              = var.sechub_sns_topic_name
   kms_master_key_id = aws_kms_key.sns_kms_key.id
 }
 resource "aws_sns_topic_policy" "sechub_findings_sns_topic" {
@@ -168,7 +168,7 @@ resource "aws_kms_key" "sns_kms_key" {
 }
 
 resource "aws_kms_alias" "sns_kms_alias" {
-  name          = "alias/sns-kms-key"
+  name          = var.sechub_sns_kms_key_name
   target_key_id = aws_kms_key.sns_kms_key.id
 }
 
