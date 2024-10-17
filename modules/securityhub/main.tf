@@ -66,7 +66,7 @@ resource "aws_securityhub_standards_control" "pci_disable_ensure_mfa_for_root" {
 # SecurityHub Alerting
 
 # Filter for New, High & Critical SecHub findings but exclude Inspector
-resource "aws_cloudwatch_event_rule" "sechub-high-and-critical-findings" {
+resource "aws_cloudwatch_event_rule" "sechub_high_and_critical_findings" {
   name        = "sechub-high-and-critical-findings"
   description = "Check for High or Critical Severity SecHub findings"
   event_pattern = jsonencode({
@@ -175,7 +175,7 @@ resource "aws_kms_alias" "sns_kms_alias" {
 # Static code analysis ignores:
 # - CKV_AWS_109 and CKV_AWS_111: Ignore warnings regarding resource = ["*"]. See https://docs.aws.amazon.com/kms/latest/developerguide/key-policies.html
 #   Specifically: "In a key policy, the value of the Resource element is "*", which means "this KMS key." The asterisk ("*") identifies the KMS key to which the key policy is attached."
-data "aws_iam_policy_document" "sns-kms" {
+data "aws_iam_policy_document" "sns_kms" {
   # checkov:skip=CKV_AWS_109: "Key policy requires asterisk resource - see note above"
   # checkov:skip=CKV_AWS_111: "Key policy requires asterisk resource - see note above"
   # checkov:skip=CKV_AWS_356: "Key policy requires asterisk resource - see note above"
