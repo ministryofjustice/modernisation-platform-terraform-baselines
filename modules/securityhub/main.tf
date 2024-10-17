@@ -94,7 +94,7 @@ resource "aws_cloudwatch_event_rule" "sechub_high_and_critical_findings" {
 
 # When eventbridge rule is triggered send findings to SNS topic
 resource "aws_cloudwatch_event_target" "sechub_findings_sns_topic" {
-  rule      = aws_cloudwatch_event_rule.sechub-high-and-critical-findings.name
+  rule      = aws_cloudwatch_event_rule.sechub_high_and_critical_findings.name
   target_id = "SendToSNS"
   arn       = aws_sns_topic.sechub_findings_sns_topic.arn
 }
