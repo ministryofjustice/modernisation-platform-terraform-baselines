@@ -1,0 +1,85 @@
+name: "ECS/EKS AMIs Check and Deploy Lambda"
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - test/ecs-eks-ami-script
+
+env:
+  AWS_REGION: "eu-west-2"
+  ENVIRONMENT_MANAGEMENT: ${{ secrets.MODERNISATION_PLATFORM_ENVIRONMENTS }}
+
+permissions:
+  id-token: write # This is required for requesting the JWT
+  contents: read  # This is required for actions/checkout
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  deploy-lambda:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4.1.1
+
+      - name: Set Account Number
+        run: echo "ACCOUNT_NUMBER=$(jq -r -e '.modernisation_platform_account_id' <<< $ENVIRONMENT_MANAGEMENT)" >> $GITHUB_ENV
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: "arn:aws:iam::${{ env.ACCOUNT_NUMBER }}:role/github-actions"
+          role-session-name: githubactionsrolesession
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Zip Lambda Function
+        run: zip lambda_function.zip lambda_function.py
+
+      - name: Setup Terraform
+        id: setup
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: "~1"
+          terraform_wrapper: false
+
+      - name: Initialize Terraform
+        run: terraform init
+
+      - name: Plan Terraform Deployment
+        run: terraform plan
+
+      - name: Apply Terraform Deployment
+        run: terraform apply -auto-approve
+
+      - name: Upload Terraform State
+        uses: actions/upload-artifact@v4
+        with:
+          name: terraform-state
+          path: ./terraform.tfstate
+          retention-days: 5
+
+  trigger-lambda:
+    runs-on: ubuntu-latest
+    needs: deploy-lambda
+
+    steps:
+      - name: Set Account Number
+        run: echo "ACCOUNT_NUMBER=$(jq -r -e '.modernisation_platform_account_id' <<< $ENVIRONMENT_MANAGEMENT)" >> $GITHUB_ENV
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: "arn:aws:iam::${{ env.ACCOUNT_NUMBER }}:role/github-actions"
+          role-session-name: githubactionsrolesession
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Trigger Lambda Function
+        run: |
+          aws lambda invoke --function-name "CheckOutdatedAMIs" \
+                            --region ${{ env.AWS_REGION }} \
+                            out.json \
+                            --log-type Tail --query 'LogResult' --output text | base64 -d
