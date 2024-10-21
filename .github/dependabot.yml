@@ -72,6 +72,10 @@ updates:
     schedule:
       interval: "daily"
   - package-ecosystem: "terraform"
+    directory: "/test/securityhub-test"
+    schedule:
+      interval: "daily"
+  - package-ecosystem: "terraform"
     directory: "/test/support-test"
     schedule:
       interval: "daily"
