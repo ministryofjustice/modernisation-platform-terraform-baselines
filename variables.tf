@@ -66,3 +66,9 @@ variable "reduced_preprod_backup_retention" {
   description = "AWS Backup variable, if true, pre prod only retains 7 days of backups"
   type        = bool
 }
+
+variable "pagerduty_integration_key" {
+  default     = ""
+  description = "A PagerDuty integration key to pass into a PagerDuty integration"
+  type        = string
+}

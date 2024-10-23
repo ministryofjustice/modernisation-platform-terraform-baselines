@@ -219,3 +219,13 @@ data "aws_iam_policy_document" "sns_kms" {
     }
   }
 }
+
+# Setup PagerDuty Alerting in all enabled regions
+module "pagerduty_alerts_securityhub" {
+  depends_on = [
+    aws_sns_topic.sechub_findings_sns_topic
+  ]
+  source                    = "github.com/ministryofjustice/modernisation-platform-terraform-pagerduty-integration?ref=0179859e6fafc567843cd55c0b05d325d5012dc4" # v2.0.0
+  sns_topics                = [aws_sns_topic.sechub_findings_sns_topic.name]
+  pagerduty_integration_key = var.pagerduty_integration_key
+}
