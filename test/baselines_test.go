@@ -345,7 +345,7 @@ func TestTerraformSecurityHub(t *testing.T) {
 	// Unique names for SecurityHub resources
 	SecHubEventbridgeRuleName := fmt.Sprintf("sechub_high_and_critical_findings-%s", uniqueId)
 	SecHubSNSTopicName := fmt.Sprintf("sechub_findings_sns_topic-%s", uniqueId)
-	SecHubSNSTopicKMSKey := fmt.Sprintf("alias/sechub-sns-kms-key-%s", uniqueId)
+	SecHubSNSTopicKMSKey := fmt.Sprintf("alias/sns-kms-key-%s", uniqueId)
 
 	terraformOptions := &terraform.Options{
 		TerraformDir: terraformDir,
