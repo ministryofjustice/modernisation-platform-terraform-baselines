@@ -168,7 +168,7 @@ resource "aws_kms_key" "sns_kms_key" {
 }
 
 resource "aws_kms_alias" "sns_kms_alias" {
-  name          = var.sechub_sns_kms_key_name
+  name_prefix   = var.sechub_sns_kms_key_name
   target_key_id = aws_kms_key.sns_kms_key.id
 }
 
