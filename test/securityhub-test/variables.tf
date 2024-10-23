@@ -12,6 +12,6 @@ variable "sechub_sns_topic_name" {
 
 variable "sechub_sns_kms_key_name" {
   description = "SecurityHub SNS Topic KMS key name"
-  default     = "alias/sechub-sns-kms-key"
+  default     = "alias/sns-kms-key"
   type        = string
 }
