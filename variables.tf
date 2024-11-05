@@ -72,3 +72,9 @@ variable "pagerduty_integration_key" {
   description = "A PagerDuty integration key to pass into a PagerDuty integration"
   type        = string
 }
+
+variable "sechub_alerting_region" {
+  default     = "eu-west-2"
+  description = "The AWS region where securityhub alerting resources are selectively created"
+  type        = string
+}

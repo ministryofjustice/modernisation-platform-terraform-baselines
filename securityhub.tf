@@ -95,6 +95,7 @@ module "securityhub-eu-west-2" {
   providers = {
     aws = aws.eu-west-2
   }
+  sechub_alerting_region    = var.sechub_alerting_region
   pagerduty_integration_key = var.pagerduty_integration_key
 }
 

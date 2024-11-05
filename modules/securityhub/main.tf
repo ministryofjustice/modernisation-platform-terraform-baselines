@@ -67,6 +67,7 @@ resource "aws_securityhub_standards_control" "pci_disable_ensure_mfa_for_root" {
 
 # Filter for New, High & Critical SecHub findings but exclude Inspector
 resource "aws_cloudwatch_event_rule" "sechub_high_and_critical_findings" {
+  count       = var.sechub_alerting_region == "eu-west-2" ? 1 : 0
   name        = var.sechub_eventbridge_rule_name
   description = "Check for High or Critical Severity SecHub findings"
   event_pattern = jsonencode({
@@ -75,7 +76,7 @@ resource "aws_cloudwatch_event_rule" "sechub_high_and_critical_findings" {
     "detail" : {
       "findings" : {
         "Severity" : {
-          "Label" : ["HIGH", "CRITICAL"]
+          "Label" : ["CRITICAL"]
         },
         "Workflow" : {
           "Status" : ["NEW"]
@@ -94,6 +95,7 @@ resource "aws_cloudwatch_event_rule" "sechub_high_and_critical_findings" {
 
 # When eventbridge rule is triggered send findings to SNS topic
 resource "aws_cloudwatch_event_target" "sechub_findings_sns_topic" {
+  count     = var.sechub_alerting_region == "eu-west-2" ? 1 : 0
   rule      = aws_cloudwatch_event_rule.sechub_high_and_critical_findings.name
   target_id = "SendToSNS"
   arn       = aws_sns_topic.sechub_findings_sns_topic.arn
@@ -101,10 +103,12 @@ resource "aws_cloudwatch_event_target" "sechub_findings_sns_topic" {
 
 # Create SNS topic and access policy
 resource "aws_sns_topic" "sechub_findings_sns_topic" {
+  count             = var.sechub_alerting_region == "eu-west-2" ? 1 : 0
   name              = var.sechub_sns_topic_name
   kms_master_key_id = aws_kms_key.sns_kms_key.id
 }
 resource "aws_sns_topic_policy" "sechub_findings_sns_topic" {
+  count  = var.sechub_alerting_region == "eu-west-2" ? 1 : 0
   arn    = aws_sns_topic.sechub_findings_sns_topic.arn
   policy = data.aws_iam_policy_document.sechub_findings_sns_topic_policy.json
 }
@@ -162,12 +166,14 @@ data "aws_iam_policy_document" "sechub_findings_sns_topic_policy" {
 
 # Create CMK to encrypt SNS topic
 resource "aws_kms_key" "sns_kms_key" {
+  count               = var.sechub_alerting_region == "eu-west-2" ? 1 : 0
   description         = "KMS key for SNS topic encryption"
   enable_key_rotation = true
   policy              = data.aws_iam_policy_document.sns_kms.json
 }
 
 resource "aws_kms_alias" "sns_kms_alias" {
+  count         = var.sechub_alerting_region == "eu-west-2" ? 1 : 0
   name_prefix   = var.sechub_sns_kms_key_name
   target_key_id = aws_kms_key.sns_kms_key.id
 }
@@ -220,8 +226,9 @@ data "aws_iam_policy_document" "sns_kms" {
   }
 }
 
-# Setup PagerDuty Alerting in all enabled regions
+# Setup PagerDuty Alerting in eu-west-2 region
 module "pagerduty_alerts_securityhub" {
+  count = var.sechub_alerting_region == "eu-west-2" ? 1 : 0
   depends_on = [
     aws_sns_topic.sechub_findings_sns_topic
   ]

@@ -1,3 +1,9 @@
+variable "sechub_alerting_region" {
+  default     = "eu-west-2"
+  description = "The AWS region where securityhub alerting resources are selectively created"
+  type        = string
+}
+
 variable "sechub_eventbridge_rule_name" {
   description = "SecurityHub Eventbridge rule name"
   default     = "sechub_high_and_critical_findings"
