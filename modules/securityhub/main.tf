@@ -105,7 +105,7 @@ resource "aws_cloudwatch_event_target" "sechub_findings_sns_topic" {
 resource "aws_sns_topic" "sechub_findings_sns_topic" {
   count             = var.sechub_alerting_region == "eu-west-2" ? 1 : 0
   name              = var.sechub_sns_topic_name
-  kms_master_key_id = aws_kms_key.sns_kms_key.id
+  kms_master_key_id = aws_kms_key.sns_kms_key[0].id
 }
 resource "aws_sns_topic_policy" "sechub_findings_sns_topic" {
   count  = var.sechub_alerting_region == "eu-west-2" ? 1 : 0
@@ -175,7 +175,7 @@ resource "aws_kms_key" "sns_kms_key" {
 resource "aws_kms_alias" "sns_kms_alias" {
   count         = var.sechub_alerting_region == "eu-west-2" ? 1 : 0
   name_prefix   = var.sechub_sns_kms_key_name
-  target_key_id = aws_kms_key.sns_kms_key.id
+  target_key_id = aws_kms_key.sns_kms_key[0].id
 }
 
 # Static code analysis ignores:

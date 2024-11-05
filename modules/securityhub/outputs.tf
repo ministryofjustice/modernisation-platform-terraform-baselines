@@ -9,5 +9,5 @@ output "sechub_sns_topic_arn" {
 
 output "sechub_sns_kms_key_arn" {
   description = "The ARN of the SecurityHub SNS Topic KMS key"
-  value       = aws_kms_key.sns_kms_key.arn
+  value       = aws_kms_key.sns_kms_key[0].arn
 }
