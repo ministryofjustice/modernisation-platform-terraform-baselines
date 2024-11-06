@@ -62,6 +62,12 @@ variable "enabled_imdsv2_regions" {
   type        = list(string)
 }
 
+variable "enable_securityhub_alerts" {
+  default     = false
+  description = "Flag to indicate if alerting resources should be created in the region"
+  type        = bool
+}
+
 variable "reduced_preprod_backup_retention" {
   description = "AWS Backup variable, if true, pre prod only retains 7 days of backups"
   type        = bool

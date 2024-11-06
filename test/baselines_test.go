@@ -363,6 +363,7 @@ func TestTerraformSecurityHub(t *testing.T) {
 			"sechub_eventbridge_rule_name": SecHubEventbridgeRuleName,
 			"sechub_sns_topic_name":        SecHubSNSTopicName,
 			"sechub_sns_kms_key_name":      SecHubSNSTopicKMSKey,
+			"enable_securityhub_alerts":	true,
 		},
 	}
 	// Clean up resources with "terraform destroy" at the end of the test

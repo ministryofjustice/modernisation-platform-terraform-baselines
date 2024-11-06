@@ -15,3 +15,9 @@ variable "sechub_sns_kms_key_name" {
   default     = "alias/sns-kms-key"
   type        = string
 }
+
+variable "enable_securityhub_alerts" {
+  default     = false
+  description = "Flag to indicate if alerting resources should be created in the region"
+  type        = bool
+}
