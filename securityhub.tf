@@ -95,6 +95,7 @@ module "securityhub-eu-west-2" {
   providers = {
     aws = aws.eu-west-2
   }
+  enable_securityhub_alerts = var.enable_securityhub_alerts
   pagerduty_integration_key = var.pagerduty_integration_key
 }
 

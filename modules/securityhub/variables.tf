@@ -1,3 +1,9 @@
+variable "enable_securityhub_alerts" {
+  default     = false
+  description = "Flag to indicate if alerting resources should be created in the region"
+  type        = bool
+}
+
 variable "sechub_eventbridge_rule_name" {
   description = "SecurityHub Eventbridge rule name"
   default     = "sechub_high_and_critical_findings"
