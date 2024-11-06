@@ -114,7 +114,7 @@ resource "aws_sns_topic_policy" "sechub_findings_sns_topic" {
 }
 
 data "aws_iam_policy_document" "sechub_findings_sns_topic_policy" {
-  count = length(aws_sns_topic.sechub_findings_sns_topic) > 0 ? 1 : 0 
+  count     = length(aws_sns_topic.sechub_findings_sns_topic) > 0 ? 1 : 0
   policy_id = "sechub findings sns topic policy"
 
   statement {
@@ -131,7 +131,7 @@ data "aws_iam_policy_document" "sechub_findings_sns_topic_policy" {
       "sns:Subscribe"
     ]
     resources = [
-       aws_sns_topic.sechub_findings_sns_topic[0].arn
+      aws_sns_topic.sechub_findings_sns_topic[0].arn
     ]
     condition {
       test     = "StringEquals"
