@@ -67,7 +67,7 @@ resource "aws_securityhub_standards_control" "pci_disable_ensure_mfa_for_root" {
 
 # Filter for New, High & Critical SecHub findings but exclude Inspector
 resource "aws_cloudwatch_event_rule" "sechub_high_and_critical_findings" {
-  count       = var.sechub_alerting_region == "eu-west-2" ? 1 : 0
+  count       = var.enable_securityhub_alerts ? 1 : 0
   name        = var.sechub_eventbridge_rule_name
   description = "Check for High or Critical Severity SecHub findings"
   event_pattern = jsonencode({
@@ -95,25 +95,26 @@ resource "aws_cloudwatch_event_rule" "sechub_high_and_critical_findings" {
 
 # When eventbridge rule is triggered send findings to SNS topic
 resource "aws_cloudwatch_event_target" "sechub_findings_sns_topic" {
-  count     = var.sechub_alerting_region == "eu-west-2" ? 1 : 0
-  rule      = aws_cloudwatch_event_rule.sechub_high_and_critical_findings.name
+  count     = var.enable_securityhub_alerts ? 1 : 0
+  rule      = aws_cloudwatch_event_rule.sechub_high_and_critical_findings[0].name
   target_id = "SendToSNS"
-  arn       = aws_sns_topic.sechub_findings_sns_topic.arn
+  arn       = aws_sns_topic.sechub_findings_sns_topic[0].arn
 }
 
 # Create SNS topic and access policy
 resource "aws_sns_topic" "sechub_findings_sns_topic" {
-  count             = var.sechub_alerting_region == "eu-west-2" ? 1 : 0
+  count             = var.enable_securityhub_alerts ? 1 : 0
   name              = var.sechub_sns_topic_name
-  kms_master_key_id = aws_kms_key.sns_kms_key[0].id
+  kms_master_key_id = length(aws_kms_key.sns_kms_key) > 0 ? aws_kms_key.sns_kms_key[0].id : null
 }
 resource "aws_sns_topic_policy" "sechub_findings_sns_topic" {
-  count  = var.sechub_alerting_region == "eu-west-2" ? 1 : 0
-  arn    = aws_sns_topic.sechub_findings_sns_topic.arn
-  policy = data.aws_iam_policy_document.sechub_findings_sns_topic_policy.json
+  count  = var.enable_securityhub_alerts ? 1 : 0
+  arn    = aws_sns_topic.sechub_findings_sns_topic[0].arn
+  policy = data.aws_iam_policy_document.sechub_findings_sns_topic_policy[0].json
 }
 
 data "aws_iam_policy_document" "sechub_findings_sns_topic_policy" {
+  count = length(aws_sns_topic.sechub_findings_sns_topic) > 0 ? 1 : 0 
   policy_id = "sechub findings sns topic policy"
 
   statement {
@@ -130,7 +131,7 @@ data "aws_iam_policy_document" "sechub_findings_sns_topic_policy" {
       "sns:Subscribe"
     ]
     resources = [
-      aws_sns_topic.sechub_findings_sns_topic.arn,
+       aws_sns_topic.sechub_findings_sns_topic[0].arn
     ]
     condition {
       test     = "StringEquals"
@@ -153,7 +154,7 @@ data "aws_iam_policy_document" "sechub_findings_sns_topic_policy" {
       "sns:Publish",
     ]
     resources = [
-      aws_sns_topic.sechub_findings_sns_topic.arn,
+      aws_sns_topic.sechub_findings_sns_topic[0].arn
     ]
     principals {
       type = "Service"
@@ -166,14 +167,14 @@ data "aws_iam_policy_document" "sechub_findings_sns_topic_policy" {
 
 # Create CMK to encrypt SNS topic
 resource "aws_kms_key" "sns_kms_key" {
-  count               = var.sechub_alerting_region == "eu-west-2" ? 1 : 0
+  count               = var.enable_securityhub_alerts ? 1 : 0
   description         = "KMS key for SNS topic encryption"
   enable_key_rotation = true
   policy              = data.aws_iam_policy_document.sns_kms.json
 }
 
 resource "aws_kms_alias" "sns_kms_alias" {
-  count         = var.sechub_alerting_region == "eu-west-2" ? 1 : 0
+  count         = var.enable_securityhub_alerts ? 1 : 0
   name_prefix   = var.sechub_sns_kms_key_name
   target_key_id = aws_kms_key.sns_kms_key[0].id
 }
@@ -228,11 +229,11 @@ data "aws_iam_policy_document" "sns_kms" {
 
 # Setup PagerDuty Alerting in eu-west-2 region
 module "pagerduty_alerts_securityhub" {
-  count = var.sechub_alerting_region == "eu-west-2" ? 1 : 0
+  count = var.enable_securityhub_alerts ? 1 : 0
   depends_on = [
     aws_sns_topic.sechub_findings_sns_topic
   ]
   source                    = "github.com/ministryofjustice/modernisation-platform-terraform-pagerduty-integration?ref=0179859e6fafc567843cd55c0b05d325d5012dc4" # v2.0.0
-  sns_topics                = [aws_sns_topic.sechub_findings_sns_topic.name]
+  sns_topics                = [aws_sns_topic.sechub_findings_sns_topic[0].name]
   pagerduty_integration_key = var.pagerduty_integration_key
 }
