@@ -12,74 +12,28 @@ updates:
   # a dependabot configuration, so we need to add all directories individually
   # See: github.com/dependabot/dependabot-core/issues/2178
   - package-ecosystem: "terraform"
-    directory: "/."
-    schedule:
-      interval: "daily"
-  - package-ecosystem: "terraform"
-    directory: "/modules/access-analyzer"
-    schedule:
-      interval: "daily"
-  - package-ecosystem: "terraform"
-    directory: "/modules/backup"
-    schedule:
-      interval: "daily"
-  - package-ecosystem: "terraform"
-    directory: "/modules/cloudtrail"
-    schedule:
-      interval: "daily"
-  - package-ecosystem: "terraform"
-    directory: "/modules/config"
-    schedule:
-      interval: "daily"
-  - package-ecosystem: "terraform"
-    directory: "/modules/ebs"
-    schedule:
-      interval: "daily"
-  - package-ecosystem: "terraform"
-    directory: "/modules/guardduty"
-    schedule:
-      interval: "daily"
-  - package-ecosystem: "terraform"
-    directory: "/modules/iam"
-    schedule:
-      interval: "daily"
-  - package-ecosystem: "terraform"
-    directory: "/modules/imdsv2"
-    schedule:
-      interval: "daily"
-  - package-ecosystem: "terraform"
-    directory: "/modules/securityhub"
-    schedule:
-      interval: "daily"
-  - package-ecosystem: "terraform"
-    directory: "/modules/securityhub-alarms"
-    schedule:
-      interval: "daily"
-  - package-ecosystem: "terraform"
-    directory: "/modules/support"
-    schedule:
-      interval: "daily"
-  - package-ecosystem: "terraform"
-    directory: "/test/backup-test"
-    schedule:
-      interval: "daily"
-  - package-ecosystem: "terraform"
-    directory: "/test/cloudtrail-test"
-    schedule:
-      interval: "daily"
-  - package-ecosystem: "terraform"
-    directory: "/test/securityhub-alarms-test"
-    schedule:
-      interval: "daily"
-  - package-ecosystem: "terraform"
-    directory: "/test/securityhub-test"
-    schedule:
-      interval: "daily"
-  - package-ecosystem: "terraform"
-    directory: "/test/support-test"
+    directories:
+      - "/."
+      - "/modules/access-analyzer"
+      - "/modules/backup"
+      - "/modules/cloudtrail"
+      - "/modules/config"
+      - "/modules/ebs"
+      - "/modules/guardduty"
+      - "/modules/iam"
+      - "/modules/imdsv2"
+      - "/modules/securityhub"
+      - "/modules/securityhub-alarms"
+      - "/modules/support"
+      - "/test/backup-test"
+      - "/test/cloudtrail-test"
+      - "/test/securityhub-alarms-test"
+      - "/test/securityhub-test"
+      - "/test/support-test"
     schedule:
       interval: "daily"
   - package-ecosystem: "gomod"
-    directory: "/test"
+    directories:
+      - "/test"
     schedule:
       interval: "daily"
