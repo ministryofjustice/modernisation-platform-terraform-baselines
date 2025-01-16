@@ -55,11 +55,7 @@ data "aws_iam_policy_document" "backup-alarms-kms" {
   }
 }
 
-
-# Define the SNS topic, conditionally created if the region is eu-west-2 and is production
 resource "aws_sns_topic" "backup_vault_topic" {
-  #checkov:skip=CKV_AWS_26:"topic is encrypted, but doesn't like the local reference"  
-  count             = (local.is_production && data.aws_region.current.name == "eu-west-2") ? 1 : 0
   kms_master_key_id = aws_kms_key.backup_alarms_multi_region.id
   name              = var.backup_vault_lock_sns_topic_name
   tags = merge(var.tags, {
@@ -189,20 +185,16 @@ resource "aws_backup_selection" "non_production" {
 # SNS topic
 # trivy:ignore:avd-aws-0136
 resource "aws_sns_topic" "backup_failure_topic" {
-  count = (local.is_production && data.aws_region.current.name == "eu-west-2") ? 1 : 0
-  #checkov:skip=CKV_AWS_26:"topic is encrypted, but doesn't like the local reference"
   kms_master_key_id = aws_kms_key.backup_alarms_multi_region.id
   name              = var.backup_aws_sns_topic_name
   tags = merge(var.tags, {
-    Description = "This backup topic is so the MP team can subscribe to backup notifications from selected accounts and teams using member-unrestricted accounts can create their own subscriptions"
+    Description = "Allows customers to subscribe to backup notifications for notification on failed jobs"
   })
 }
 
 # Attaches the SNS topic to the backup vault to subscribe for notifications
 resource "aws_backup_vault_notifications" "aws_backup_vault_notifications" {
-  count               = (local.is_production && data.aws_region.current.name == "eu-west-2") ? 1 : 0
   backup_vault_events = ["BACKUP_JOB_FAILED"]
   backup_vault_name   = aws_backup_vault.default.name
-  sns_topic_arn       = aws_sns_topic.backup_failure_topic[0].arn
+  sns_topic_arn       = aws_sns_topic.backup_failure_topic.arn
 }
-

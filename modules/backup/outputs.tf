@@ -18,14 +18,14 @@ output "aws_backup_selection_non_production" {
   value = aws_backup_selection.non_production.id
 }
 output "backup_aws_sns_topic_arn" {
-  value = length(aws_sns_topic.backup_failure_topic) > 0 ? aws_sns_topic.backup_failure_topic[0].arn : ""
+  value = aws_sns_topic.backup_failure_topic.arn
 }
 
 output "aws_backup_plan_non_production_rule" {
   value = aws_backup_plan.non_production.rule
 }
 
-output "backup_vault_lock_sns_topic_name" {
-  value = length(aws_sns_topic.backup_vault_topic) > 0 ? aws_sns_topic.backup_vault_topic[0].arn : ""
+output "backup_vault_lock_sns_topic_arn" {
+  value = aws_sns_topic.backup_vault_topic.arn
 }
 
