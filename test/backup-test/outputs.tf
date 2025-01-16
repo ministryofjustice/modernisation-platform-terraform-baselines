@@ -26,6 +26,6 @@ output "aws_backup_plan_non_production_rule" {
   value = module.backup-test.aws_backup_plan_non_production_rule
 }
 
-output "backup_vault_lock_sns_topic_name" {
-  value = module.backup-test.backup_vault_lock_sns_topic_name
+output "backup_vault_lock_sns_topic_arn" {
+  value = module.backup-test.backup_vault_lock_sns_topic_arn
 }
