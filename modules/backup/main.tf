@@ -55,8 +55,6 @@ data "aws_iam_policy_document" "backup-alarms-kms" {
   }
 }
 
-
-# Define the SNS topic, conditionally created if the region is eu-west-2 and is production
 resource "aws_sns_topic" "backup_vault_topic" {
   kms_master_key_id = aws_kms_key.backup_alarms_multi_region.id
   name              = var.backup_vault_lock_sns_topic_name
