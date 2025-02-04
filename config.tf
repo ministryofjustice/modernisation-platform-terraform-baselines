@@ -1,102 +1,6 @@
-# AWS Config: configure an IAM role
-resource "aws_iam_role" "config" {
-  name               = "AWSConfig"
-  assume_role_policy = data.aws_iam_policy_document.config-assume-role-policy.json
-  tags               = var.tags
-}
 
-# AWS Config: assume role policy
-data "aws_iam_policy_document" "config-assume-role-policy" {
-  version = "2012-10-17"
-  statement {
-    effect  = "Allow"
-    actions = ["sts:AssumeRole"]
-
-    principals {
-      type        = "Service"
-      identifiers = ["config.amazonaws.com"]
-    }
-  }
-}
-
-# AWS Config: service role policy
-# See: https://docs.aws.amazon.com/config/latest/developerguide/iamrole-permissions.html
-resource "aws_iam_role_policy_attachment" "config-service-role-policy" {
-  role       = aws_iam_role.config.id
-  policy_arn = "arn:aws:iam::aws:policy/service-role/AWS_ConfigRole"
-}
-
-# AWS Config: publish to S3 and SNS policy
-resource "aws_iam_policy" "config-publish-policy" {
-  name   = "AWSConfigPublishPolicy"
-  policy = data.aws_iam_policy_document.config-publish-policy.json
-}
-
-# Extrapolated from:
-# https://docs.aws.amazon.com/config/latest/developerguide/iamrole-permissions.html and
-# https://docs.aws.amazon.com/config/latest/developerguide/sns-topic-policy.html
-#tfsec ignore appropriate as wildcard scoped to logs for single account
-#tfsec:ignore:aws-iam-no-policy-wildcards
-data "aws_iam_policy_document" "config-publish-policy" {
-  version = "2012-10-17"
-
-  statement {
-    effect = "Allow"
-    actions = [
-      "s3:PutObject",
-      "s3:PutObjectAcl"
-    ]
-    resources = ["${module.config-bucket.bucket.arn}/AWSLogs/${data.aws_caller_identity.current.account_id}/*"]
-
-    condition {
-      test     = "StringLike"
-      variable = "s3:x-amz-acl"
-      values   = ["bucket-owner-full-control"]
-    }
-  }
-
-  statement {
-    effect = "Allow"
-    actions = [
-      "s3:GetBucketAcl",
-      "s3:ListBucket"
-    ]
-    resources = [module.config-bucket.bucket.arn]
-  }
-
-  statement {
-    effect  = "Allow"
-    actions = ["sns:Publish"]
-    resources = flatten([
-      for enabled_region in [
-        module.config-ap-northeast-1,
-        module.config-ap-northeast-2,
-        module.config-ap-south-1,
-        module.config-ap-southeast-1,
-        module.config-ap-southeast-2,
-        module.config-ca-central-1,
-        module.config-eu-central-1,
-        module.config-eu-north-1,
-        module.config-eu-west-1,
-        module.config-eu-west-2,
-        module.config-eu-west-3,
-        module.config-sa-east-1,
-        module.config-us-east-1,
-        module.config-us-east-2,
-        module.config-us-west-1,
-        module.config-us-west-2
-        ] : [
-        for enabled_module in enabled_region : [
-          enabled_module.sns_topic_arn
-        ]
-      ]
-    ])
-  }
-}
-
-resource "aws_iam_role_policy_attachment" "config-publish-policy" {
-  role       = aws_iam_role.config.id
-  policy_arn = aws_iam_policy.config-publish-policy.arn
+resource "aws_iam_service_linked_role" "config" {
+  aws_service_name = "config.amazonaws.com"
 }
 
 # AWS Config: configure an S3 bucket
@@ -210,8 +114,8 @@ data "aws_iam_policy_document" "config-s3-policy" {
     resources = [module.config-bucket.bucket.arn]
 
     principals {
-      identifiers = [aws_iam_role.config.arn]
-      type        = "AWS"
+      identifiers = ["config.amazonaws.com"]
+      type        = "Service"
     }
   }
 }
@@ -224,7 +128,7 @@ module "config-ap-northeast-1" {
   providers = {
     aws = aws.ap-northeast-1
   }
-  iam_role_arn    = aws_iam_role.config.arn
+  iam_role_arn    = aws_iam_service_linked_role.config.arn
   s3_bucket_id    = module.config-bucket.bucket.id
   root_account_id = var.root_account_id
   home_region     = data.aws_region.current.name
@@ -243,7 +147,7 @@ module "config-ap-northeast-2" {
   providers = {
     aws = aws.ap-northeast-2
   }
-  iam_role_arn    = aws_iam_role.config.arn
+  iam_role_arn    = aws_iam_service_linked_role.config.arn
   s3_bucket_id    = module.config-bucket.bucket.id
   root_account_id = var.root_account_id
   home_region     = data.aws_region.current.name
@@ -262,7 +166,7 @@ module "config-ap-south-1" {
   providers = {
     aws = aws.ap-south-1
   }
-  iam_role_arn    = aws_iam_role.config.arn
+  iam_role_arn    = aws_iam_service_linked_role.config.arn
   s3_bucket_id    = module.config-bucket.bucket.id
   root_account_id = var.root_account_id
   home_region     = data.aws_region.current.name
@@ -281,7 +185,7 @@ module "config-ap-southeast-1" {
   providers = {
     aws = aws.ap-southeast-1
   }
-  iam_role_arn    = aws_iam_role.config.arn
+  iam_role_arn    = aws_iam_service_linked_role.config.arn
   s3_bucket_id    = module.config-bucket.bucket.id
   root_account_id = var.root_account_id
   home_region     = data.aws_region.current.name
@@ -300,7 +204,7 @@ module "config-ap-southeast-2" {
   providers = {
     aws = aws.ap-southeast-2
   }
-  iam_role_arn    = aws_iam_role.config.arn
+  iam_role_arn    = aws_iam_service_linked_role.config.arn
   s3_bucket_id    = module.config-bucket.bucket.id
   root_account_id = var.root_account_id
   home_region     = data.aws_region.current.name
@@ -319,7 +223,7 @@ module "config-ca-central-1" {
   providers = {
     aws = aws.ca-central-1
   }
-  iam_role_arn    = aws_iam_role.config.arn
+  iam_role_arn    = aws_iam_service_linked_role.config.arn
   s3_bucket_id    = module.config-bucket.bucket.id
   root_account_id = var.root_account_id
   home_region     = data.aws_region.current.name
@@ -338,7 +242,7 @@ module "config-eu-central-1" {
   providers = {
     aws = aws.eu-central-1
   }
-  iam_role_arn    = aws_iam_role.config.arn
+  iam_role_arn    = aws_iam_service_linked_role.config.arn
   s3_bucket_id    = module.config-bucket.bucket.id
   root_account_id = var.root_account_id
   home_region     = data.aws_region.current.name
@@ -357,7 +261,7 @@ module "config-eu-north-1" {
   providers = {
     aws = aws.eu-north-1
   }
-  iam_role_arn    = aws_iam_role.config.arn
+  iam_role_arn    = aws_iam_service_linked_role.config.arn
   s3_bucket_id    = module.config-bucket.bucket.id
   root_account_id = var.root_account_id
   home_region     = data.aws_region.current.name
@@ -376,7 +280,7 @@ module "config-eu-west-1" {
   providers = {
     aws = aws.eu-west-1
   }
-  iam_role_arn    = aws_iam_role.config.arn
+  iam_role_arn    = aws_iam_service_linked_role.config.arn
   s3_bucket_id    = module.config-bucket.bucket.id
   root_account_id = var.root_account_id
   home_region     = data.aws_region.current.name
@@ -395,7 +299,7 @@ module "config-eu-west-2" {
   providers = {
     aws = aws.eu-west-2
   }
-  iam_role_arn    = aws_iam_role.config.arn
+  iam_role_arn    = aws_iam_service_linked_role.config.arn
   s3_bucket_id    = module.config-bucket.bucket.id
   root_account_id = var.root_account_id
   home_region     = data.aws_region.current.name
@@ -414,7 +318,7 @@ module "config-eu-west-3" {
   providers = {
     aws = aws.eu-west-3
   }
-  iam_role_arn    = aws_iam_role.config.arn
+  iam_role_arn    = aws_iam_service_linked_role.config.arn
   s3_bucket_id    = module.config-bucket.bucket.id
   root_account_id = var.root_account_id
   home_region     = data.aws_region.current.name
@@ -433,7 +337,7 @@ module "config-sa-east-1" {
   providers = {
     aws = aws.sa-east-1
   }
-  iam_role_arn    = aws_iam_role.config.arn
+  iam_role_arn    = aws_iam_service_linked_role.config.arn
   s3_bucket_id    = module.config-bucket.bucket.id
   root_account_id = var.root_account_id
   home_region     = data.aws_region.current.name
@@ -452,7 +356,7 @@ module "config-us-east-1" {
   providers = {
     aws = aws.us-east-1
   }
-  iam_role_arn    = aws_iam_role.config.arn
+  iam_role_arn    = aws_iam_service_linked_role.config.arn
   s3_bucket_id    = module.config-bucket.bucket.id
   root_account_id = var.root_account_id
   home_region     = data.aws_region.current.name
@@ -471,7 +375,7 @@ module "config-us-east-2" {
   providers = {
     aws = aws.us-east-2
   }
-  iam_role_arn    = aws_iam_role.config.arn
+  iam_role_arn    = aws_iam_service_linked_role.config.arn
   s3_bucket_id    = module.config-bucket.bucket.id
   root_account_id = var.root_account_id
   home_region     = data.aws_region.current.name
@@ -490,7 +394,7 @@ module "config-us-west-1" {
   providers = {
     aws = aws.us-west-1
   }
-  iam_role_arn    = aws_iam_role.config.arn
+  iam_role_arn    = aws_iam_service_linked_role.config.arn
   s3_bucket_id    = module.config-bucket.bucket.id
   root_account_id = var.root_account_id
   home_region     = data.aws_region.current.name
@@ -509,7 +413,7 @@ module "config-us-west-2" {
   providers = {
     aws = aws.us-west-2
   }
-  iam_role_arn    = aws_iam_role.config.arn
+  iam_role_arn    = aws_iam_service_linked_role.config.arn
   s3_bucket_id    = module.config-bucket.bucket.id
   root_account_id = var.root_account_id
   home_region     = data.aws_region.current.name
