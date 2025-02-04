@@ -50,6 +50,11 @@ variable "root_account_id" {
   description = "The AWS Organisations root account ID that this account should be part of"
 }
 
+variable "current_account_id" {
+  description = "value of the current account ID"
+  type        = string
+}
+
 variable "tags" {
   default     = {}
   description = "Tags to apply to resources, where applicable"
