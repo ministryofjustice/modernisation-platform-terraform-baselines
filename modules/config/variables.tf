@@ -10,7 +10,7 @@ variable "root_account_id" {
 
 variable "current_account_id" {
   description = "value of the current account ID"
-  type = string
+  type        = string
 }
 
 variable "iam_role_arn" {
@@ -29,7 +29,7 @@ variable "home_region" {
 }
 
 variable "sns_topic_key" {
-  type = string
+  type        = string
   description = "value of the multi-region SNS topic key ARN"
 }
 
