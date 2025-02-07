@@ -37,8 +37,56 @@ resource "aws_config_configuration_recorder_status" "default" {
 # tfsec:ignore:aws-sns-topic-encryption-use-cmk
 resource "aws_sns_topic" "default" {
   name              = "config"
-  kms_master_key_id = "alias/aws/sns"
+  kms_master_key_id = var.sns_topic_key
   tags              = var.tags
+}
+
+## Add Policy for the SNS Topic.
+
+resource "aws_sns_topic_policy" "config-sns-policy" {
+  arn    = aws_sns_topic.default.arn
+  policy = data.aws_iam_policy_document.config-sns-policy.json
+}
+
+data "aws_iam_policy_document" "config-sns-policy" {
+  version = "2012-10-17"
+
+  statement {
+    sid       = "AllowConfigPublish"
+    effect    = "Allow"
+    actions   = ["sns:Publish"]
+    resources = [aws_sns_topic.default.arn]
+
+    principals {
+      type        = "Service"
+      identifiers = ["config.amazonaws.com"]
+    }
+
+    condition {
+      test     = "StringEquals"
+      variable = "aws:SourceAccount"
+      values   = [var.current_account_id]
+    }
+  }
+
+  statement {
+    sid       = "AllowEventsPublish"
+    effect    = "Allow"
+    actions   = ["sns:Publish"]
+    resources = [aws_sns_topic.default.arn]
+
+    principals {
+      type        = "Service"
+      identifiers = ["events.amazonaws.com"]
+    }
+
+    condition {
+      test     = "StringEquals"
+      variable = "aws:SourceAccount"
+      values   = [var.current_account_id]
+    }
+  }
+
 }
 
 # Configure AWS Config rules

@@ -17,6 +17,8 @@ module "config" {
 | root_account_id | The AWS Organisations root account ID that this account should be part of | string | | yes |
 | iam_role_arn | IAM role ARN for the AWS Config service role | string | | yes |
 | s3_bucket_id | S3 bucket ID for AWS Config to publish to | string | | yes |
+| current_account_id | The value of the account ID into which this module is deployed | | yes |
+| sns_topic_key | The arn of the KMS policy to be used by the SNS topic | | yes |
 | home_region | Region to enable AWS Config rules for global resources, such as IAM. Currently taken from the calling region | string | | yes |
 | tags | Tags to apply to resources | map | {} | no |
 

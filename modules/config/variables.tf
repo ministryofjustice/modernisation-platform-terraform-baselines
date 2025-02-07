@@ -8,6 +8,11 @@ variable "root_account_id" {
   type        = string
 }
 
+variable "current_account_id" {
+  description = "value of the current account ID"
+  type        = string
+}
+
 variable "iam_role_arn" {
   description = "IAM role ARN for the AWS Config service role"
   type        = string
@@ -21,6 +26,11 @@ variable "s3_bucket_id" {
 variable "home_region" {
   type        = string
   description = "Region to enable AWS Config rules for global resources, such as IAM. Currently taken from the calling region"
+}
+
+variable "sns_topic_key" {
+  type        = string
+  description = "value of the multi-region SNS topic key ARN"
 }
 
 variable "tags" {
