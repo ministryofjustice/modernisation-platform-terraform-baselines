@@ -81,6 +81,7 @@ module "ebs-encryption" {
 |              Name               |                                Description                                |  Type  | Default | Required |
 | :-----------------------------: | :-----------------------------------------------------------------------: | :----: | :-----: | -------- |
 |         root_account_id         | The AWS Organisations root account ID that this account should be part of | string |         | yes      |
+|         current_acount_id       | The ID for the account into which the module is being deployed            | string |         | yes
 |              tags               |               Tags to apply to resources, where applicable                |  map   |   {}    | no       |
 | enabled_access_analyzer_regions |                 Regions to enable IAM Access Analyzer in                  |  list  |   []    | no       |
 |     enabled_backup_regions      |                      Regions to enable AWS Backup in                      |  list  |   []    | no       |
