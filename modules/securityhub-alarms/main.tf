@@ -1,3 +1,18 @@
+locals {
+  mp_owned_workspaces = [
+    "cooker-development",
+    "example-development",
+    "long-term-storage-production",
+    "sprinkler-development",
+    "testing-test",
+    "^core-.*"
+  ]
+
+  is_workspace_matched = length(regexall(join("|", local.mp_owned_workspaces), terraform.workspace)) > 0
+
+  alarm_action = local.is_workspace_matched ? [aws_sns_topic.securityhub-alarms.arn] : []
+}
+
 data "aws_caller_identity" "current" {}
 
 # AWS CloudWatch doesn't support using the AWS-managed KMS key for publishing things from CloudWatch to SNS
@@ -79,7 +94,7 @@ resource "aws_cloudwatch_log_metric_filter" "unauthorised-api-calls" {
   log_group_name = "cloudtrail"
 
   metric_transformation {
-    name      = "unauthorised-api-calls"
+    name      = var.unauthorised_api_calls_log_metric_filter_name
     namespace = "LogMetrics"
     value     = 1
   }
@@ -88,7 +103,7 @@ resource "aws_cloudwatch_log_metric_filter" "unauthorised-api-calls" {
 resource "aws_cloudwatch_metric_alarm" "unauthorised-api-calls" {
   alarm_name        = var.unauthorised_api_calls_alarm_name
   alarm_description = "Monitors for unauthorised API calls."
-  alarm_actions     = [aws_sns_topic.securityhub-alarms.arn]
+  alarm_actions     = local.alarm_action
 
   comparison_operator = "GreaterThanOrEqualToThreshold"
   evaluation_periods  = "1"
@@ -109,7 +124,7 @@ resource "aws_cloudwatch_log_metric_filter" "sign-in-without-mfa" {
   log_group_name = "cloudtrail"
 
   metric_transformation {
-    name      = "sign-in-without-mfa"
+    name      = var.sign_in_without_mfa_metric_filter_name
     namespace = "LogMetrics"
     value     = 1
   }
@@ -140,7 +155,7 @@ resource "aws_cloudwatch_log_metric_filter" "root-account-usage" {
   log_group_name = "cloudtrail"
 
   metric_transformation {
-    name      = "root-account-usage"
+    name      = var.root_account_usage_metric_filter_name
     namespace = "LogMetrics"
     value     = 1
   }
@@ -170,7 +185,7 @@ resource "aws_cloudwatch_log_metric_filter" "iam-policy-changes" {
   log_group_name = "cloudtrail"
 
   metric_transformation {
-    name      = "iam-policy-changes"
+    name      = var.iam_policy_changes_metric_filter_name
     namespace = "LogMetrics"
     value     = 1
   }
@@ -200,7 +215,7 @@ resource "aws_cloudwatch_log_metric_filter" "cloudtrail-configuration-changes" {
   log_group_name = "cloudtrail"
 
   metric_transformation {
-    name      = "cloudtrail-configuration-changes"
+    name      = var.cloudtrail_configuration_changes_metric_filter_name
     namespace = "LogMetrics"
     value     = 1
   }
@@ -230,7 +245,7 @@ resource "aws_cloudwatch_log_metric_filter" "sign-in-failures" {
   log_group_name = "cloudtrail"
 
   metric_transformation {
-    name      = "sign-in-failures"
+    name      = var.sign_in_failures_metric_filter_name
     namespace = "LogMetrics"
     value     = 1
   }
@@ -260,7 +275,7 @@ resource "aws_cloudwatch_log_metric_filter" "cmk-removal" {
   log_group_name = "cloudtrail"
 
   metric_transformation {
-    name      = "cmk-removal"
+    name      = var.cmk_removal_metric_filter_name
     namespace = "LogMetrics"
     value     = 1
   }
@@ -290,7 +305,7 @@ resource "aws_cloudwatch_log_metric_filter" "s3-bucket-policy-changes" {
   log_group_name = "cloudtrail"
 
   metric_transformation {
-    name      = "s3-bucket-policy-changes"
+    name      = var.s3_bucket_policy_changes_metric_filter_name
     namespace = "LogMetrics"
     value     = 1
   }
@@ -320,7 +335,7 @@ resource "aws_cloudwatch_log_metric_filter" "config-configuration-changes" {
   log_group_name = "cloudtrail"
 
   metric_transformation {
-    name      = "config-configuration-changes"
+    name      = var.config_configuration_changes_metric_filter_name
     namespace = "LogMetrics"
     value     = 1
   }
@@ -350,7 +365,7 @@ resource "aws_cloudwatch_log_metric_filter" "security-group-changes" {
   log_group_name = "cloudtrail"
 
   metric_transformation {
-    name      = "security-group-changes"
+    name      = var.security_group_changes_metric_filter_name
     namespace = "LogMetrics"
     value     = 1
   }
@@ -380,7 +395,7 @@ resource "aws_cloudwatch_log_metric_filter" "nacl-changes" {
   log_group_name = "cloudtrail"
 
   metric_transformation {
-    name      = "nacl-changes"
+    name      = var.nacl_changes_metric_filter_name
     namespace = "LogMetrics"
     value     = 1
   }
@@ -410,7 +425,7 @@ resource "aws_cloudwatch_log_metric_filter" "network-gateway-changes" {
   log_group_name = "cloudtrail"
 
   metric_transformation {
-    name      = "network-gateway-changes"
+    name      = var.network_gateway_changes_metric_filter_name
     namespace = "LogMetrics"
     value     = 1
   }
@@ -440,7 +455,7 @@ resource "aws_cloudwatch_log_metric_filter" "route-table-changes" {
   log_group_name = "cloudtrail"
 
   metric_transformation {
-    name      = "route-table-changes"
+    name      = var.route_table_changes_metric_filter_name
     namespace = "LogMetrics"
     value     = 1
   }
@@ -470,7 +485,7 @@ resource "aws_cloudwatch_log_metric_filter" "vpc-changes" {
   log_group_name = "cloudtrail"
 
   metric_transformation {
-    name      = "vpc-changes"
+    name      = var.vpc_changes_metric_filter_name
     namespace = "LogMetrics"
     value     = 1
   }
@@ -615,7 +630,7 @@ resource "aws_cloudwatch_log_metric_filter" "admin_role_usage" {
   log_group_name = "cloudtrail"
 
   metric_transformation {
-    name      = "admin-role-usage"
+    name      = var.admin_role_usage_metric_filter_name
     namespace = "LogMetrics"
     value     = 1
   }
