@@ -90,25 +90,6 @@ data "aws_iam_policy_document" "config-sns-policy" {
 }
 
 # Configure AWS Config rules
-resource "aws_config_config_rule" "access-keys-rotated" {
-  count = (var.home_region == data.aws_region.current.name) ? 1 : 0
-
-  name                        = "access-keys-rotated"
-  maximum_execution_frequency = "TwentyFour_Hours"
-
-  input_parameters = jsonencode({
-    maxAccessKeyAge : "90"
-  })
-
-  source {
-    owner             = "AWS"
-    source_identifier = "ACCESS_KEYS_ROTATED"
-  }
-
-  depends_on = [aws_config_configuration_recorder.default]
-
-  tags = var.tags
-}
 
 resource "aws_config_config_rule" "account-part-of-organizations" {
   count = (var.home_region == data.aws_region.current.name) ? 1 : 0
@@ -130,53 +111,6 @@ resource "aws_config_config_rule" "account-part-of-organizations" {
   tags = var.tags
 }
 
-resource "aws_config_config_rule" "cloud-trail-cloud-watch-logs-enabled" {
-  count = (var.home_region == data.aws_region.current.name) ? 1 : 0
-
-  name                        = "cloud-trail-cloud-watch-logs-enabled"
-  maximum_execution_frequency = "TwentyFour_Hours"
-
-  source {
-    owner             = "AWS"
-    source_identifier = "CLOUD_TRAIL_CLOUD_WATCH_LOGS_ENABLED"
-  }
-
-  depends_on = [aws_config_configuration_recorder.default]
-
-  tags = var.tags
-}
-
-resource "aws_config_config_rule" "cloud-trail-encryption-enabled" {
-  count = (var.home_region == data.aws_region.current.name) ? 1 : 0
-
-  name                        = "cloud-trail-encryption-enabled"
-  maximum_execution_frequency = "TwentyFour_Hours"
-
-  source {
-    owner             = "AWS"
-    source_identifier = "CLOUD_TRAIL_ENCRYPTION_ENABLED"
-  }
-
-  depends_on = [aws_config_configuration_recorder.default]
-
-  tags = var.tags
-}
-
-resource "aws_config_config_rule" "cloud-trail-log-file-validation-enabled" {
-  count = (var.home_region == data.aws_region.current.name) ? 1 : 0
-
-  name                        = "cloud-trail-log-file-validation-enabled"
-  maximum_execution_frequency = "TwentyFour_Hours"
-
-  source {
-    owner             = "AWS"
-    source_identifier = "CLOUD_TRAIL_LOG_FILE_VALIDATION_ENABLED"
-  }
-
-  depends_on = [aws_config_configuration_recorder.default]
-
-  tags = var.tags
-}
 
 resource "aws_config_config_rule" "cloudtrail-enabled" {
   count = (var.home_region == data.aws_region.current.name) ? 1 : 0
@@ -262,99 +196,6 @@ resource "aws_config_config_rule" "iam-no-inline-policy-check" {
   tags = var.tags
 }
 
-resource "aws_config_config_rule" "iam-password-policy" {
-  count = (var.home_region == data.aws_region.current.name) ? 1 : 0
-
-  name                        = "iam-password-policy"
-  maximum_execution_frequency = "TwentyFour_Hours"
-
-  input_parameters = jsonencode({
-    RequireUppercaseCharacters : "true",
-    RequireLowercaseCharacters : "true",
-    RequireSymbols : "true",
-    RequireNumbers : "true",
-    MinimumPasswordLength : "8",
-    PasswordReusePrevention : "5"
-  })
-
-  source {
-    owner             = "AWS"
-    source_identifier = "IAM_PASSWORD_POLICY"
-  }
-
-  depends_on = [aws_config_configuration_recorder.default]
-
-  tags = var.tags
-}
-
-resource "aws_config_config_rule" "iam-root-access-key-check" {
-  count = (var.home_region == data.aws_region.current.name) ? 1 : 0
-
-  name                        = "iam-root-access-key-check"
-  maximum_execution_frequency = "TwentyFour_Hours"
-
-  source {
-    owner             = "AWS"
-    source_identifier = "IAM_ROOT_ACCESS_KEY_CHECK"
-  }
-
-  depends_on = [aws_config_configuration_recorder.default]
-
-  tags = var.tags
-}
-
-resource "aws_config_config_rule" "iam-user-mfa-enabled" {
-  count = (var.home_region == data.aws_region.current.name) ? 1 : 0
-
-  name                        = "iam-user-mfa-enabled"
-  maximum_execution_frequency = "TwentyFour_Hours"
-
-  source {
-    owner             = "AWS"
-    source_identifier = "IAM_USER_MFA_ENABLED"
-  }
-
-  depends_on = [aws_config_configuration_recorder.default]
-
-  tags = var.tags
-}
-
-resource "aws_config_config_rule" "iam-user-unused-credentials-check" {
-  count = (var.home_region == data.aws_region.current.name) ? 1 : 0
-
-  name                        = "iam-user-unused-credentials-check"
-  maximum_execution_frequency = "TwentyFour_Hours"
-
-  input_parameters = jsonencode({
-    maxCredentialUsageAge : "30"
-  })
-
-  source {
-    owner             = "AWS"
-    source_identifier = "IAM_USER_UNUSED_CREDENTIALS_CHECK"
-  }
-
-  depends_on = [aws_config_configuration_recorder.default]
-
-  tags = var.tags
-}
-
-resource "aws_config_config_rule" "mfa-enabled-for-iam-console-access" {
-  count = (var.home_region == data.aws_region.current.name) ? 1 : 0
-
-  name                        = "mfa-enabled-for-iam-console-access"
-  maximum_execution_frequency = "TwentyFour_Hours"
-
-  source {
-    owner             = "AWS"
-    source_identifier = "MFA_ENABLED_FOR_IAM_CONSOLE_ACCESS"
-  }
-
-  depends_on = [aws_config_configuration_recorder.default]
-
-  tags = var.tags
-}
-
 resource "aws_config_config_rule" "multi-region-cloudtrail-enabled" {
   count = (var.home_region == data.aws_region.current.name) ? 1 : 0
 
@@ -415,66 +256,12 @@ resource "aws_config_config_rule" "root-account-mfa-enabled" {
   tags = var.tags
 }
 
-resource "aws_config_config_rule" "s3-account-level-public-access-blocks" {
-  count = (var.home_region == data.aws_region.current.name) ? 1 : 0
-
-  name = "s3-account-level-public-access-blocks"
-
-  source {
-    owner             = "AWS"
-    source_identifier = "S3_ACCOUNT_LEVEL_PUBLIC_ACCESS_BLOCKS"
-  }
-
-  depends_on = [aws_config_configuration_recorder.default]
-
-  tags = var.tags
-}
-
-resource "aws_config_config_rule" "s3-bucket-public-read-prohibited" {
-  name = "s3-bucket-public-read-prohibited"
-
-  source {
-    owner             = "AWS"
-    source_identifier = "S3_BUCKET_PUBLIC_READ_PROHIBITED"
-  }
-
-  depends_on = [aws_config_configuration_recorder.default]
-
-  tags = var.tags
-}
-
-resource "aws_config_config_rule" "s3-bucket-public-write-prohibited" {
-  name = "s3-bucket-public-write-prohibited"
-
-  source {
-    owner             = "AWS"
-    source_identifier = "S3_BUCKET_PUBLIC_WRITE_PROHIBITED"
-  }
-
-  depends_on = [aws_config_configuration_recorder.default]
-
-  tags = var.tags
-}
-
 resource "aws_config_config_rule" "s3-bucket-server-side-encryption-enabled" {
   name = "s3-bucket-server-side-encryption-enabled"
 
   source {
     owner             = "AWS"
     source_identifier = "S3_BUCKET_SERVER_SIDE_ENCRYPTION_ENABLED"
-  }
-
-  depends_on = [aws_config_configuration_recorder.default]
-
-  tags = var.tags
-}
-
-resource "aws_config_config_rule" "s3-bucket-ssl-requests-only" {
-  name = "s3-bucket-ssl-requests-only"
-
-  source {
-    owner             = "AWS"
-    source_identifier = "S3_BUCKET_SSL_REQUESTS_ONLY"
   }
 
   depends_on = [aws_config_configuration_recorder.default]
