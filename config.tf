@@ -153,7 +153,7 @@ data "aws_iam_policy_document" "config-sns-key-policy" {
       "kms:*"
     ]
     resources = [
-      "${aws_kms_key.config-sns-key.arn}",
+      "*",
     ]
     principals {
       type = "AWS"
