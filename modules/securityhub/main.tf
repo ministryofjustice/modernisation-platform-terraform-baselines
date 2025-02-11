@@ -167,10 +167,11 @@ data "aws_iam_policy_document" "sechub_findings_sns_topic_policy" {
 
 # Create CMK to encrypt SNS topic
 resource "aws_kms_key" "sns_kms_key" {
-  count               = var.enable_securityhub_alerts ? 1 : 0
-  description         = "KMS key for SNS topic encryption"
-  enable_key_rotation = true
-  policy              = data.aws_iam_policy_document.sns_kms.json
+  bypass_policy_lockout_safety_check = false
+  count                              = var.enable_securityhub_alerts ? 1 : 0
+  description                        = "KMS key for SNS topic encryption"
+  enable_key_rotation                = true
+  policy                             = data.aws_iam_policy_document.sns_kms.json
 }
 
 resource "aws_kms_alias" "sns_kms_alias" {

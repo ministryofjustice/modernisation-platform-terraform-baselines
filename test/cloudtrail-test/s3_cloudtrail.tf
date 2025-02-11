@@ -1,7 +1,24 @@
+# trivy:ignore:AVD-AWS-0088
+# trivy:ignore:AVD-AWS-0132
 resource "aws_s3_bucket" "cloudtrail_s3_bucket" {
-  bucket        = var.cloudtrail_bucket
+  # checkov:skip=CKV_AWS_18: Ephemeral bucket used for tests
+  # checkov:skip=CKV_AWS_21
+  # checkov:skip=CKV_AWS_144
+  # checkov:skip=CKV_AWS_145
+  # checkov:skip=CKV2_AWS_61
+  # checkov:skip=CKV2_AWS_62
+  bucket_prefix = var.cloudtrail_bucket
   force_destroy = true
   tags          = local.tags
+}
+
+resource "aws_s3_bucket_public_access_block" "cloudtrail_s3_bucket" {
+  bucket = aws_s3_bucket.cloudtrail_s3_bucket.id
+
+  block_public_acls       = true
+  block_public_policy     = true
+  ignore_public_acls      = true
+  restrict_public_buckets = true
 }
 
 resource "aws_s3_bucket_policy" "s3_cloudtrail_policy" {
