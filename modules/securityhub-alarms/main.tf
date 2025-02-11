@@ -18,12 +18,13 @@ resource "aws_kms_alias" "securityhub-alarms" {
 
 # SecurityHub alarms KMS multi-Region
 resource "aws_kms_key" "securityhub_alarms_multi_region" {
-  deletion_window_in_days = 7
-  description             = "SecurityHub alarms encryption key"
-  enable_key_rotation     = true
-  policy                  = data.aws_iam_policy_document.securityhub-alarms-kms.json
-  tags                    = var.tags
-  multi_region            = true
+  bypass_policy_lockout_safety_check = false
+  deletion_window_in_days            = 7
+  description                        = "SecurityHub alarms encryption key"
+  enable_key_rotation                = true
+  policy                             = data.aws_iam_policy_document.securityhub-alarms-kms.json
+  tags                               = var.tags
+  multi_region                       = true
 }
 
 resource "aws_kms_alias" "securityhub_alarms_multi_region" {

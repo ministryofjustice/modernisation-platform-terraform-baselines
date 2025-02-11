@@ -12,10 +12,11 @@ module "cloudtrail-test" {
 
 # Cloudtrail KMS
 resource "aws_kms_key" "cloudtrail_kms_key" {
-  deletion_window_in_days = 7
-  description             = "Cloudtrail encryption key"
-  enable_key_rotation     = true
-  policy                  = data.aws_iam_policy_document.cloudtrail_kms.json
+  bypass_policy_lockout_safety_check = false
+  deletion_window_in_days            = 7
+  description                        = "Cloudtrail encryption key"
+  enable_key_rotation                = true
+  policy                             = data.aws_iam_policy_document.cloudtrail_kms.json
 }
 
 resource "aws_kms_alias" "cloudtrail_kms_alias" {

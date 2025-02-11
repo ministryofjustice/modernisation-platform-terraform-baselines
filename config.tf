@@ -131,9 +131,10 @@ data "aws_iam_policy_document" "config-s3-policy" {
 # KMS Key & Policy for the SNS Topic. This is required for the user of a service-linked role.
 
 resource "aws_kms_key" "config-sns-key" {
-  description  = "KMS key for AWS Config SNS topic"
-  multi_region = true
-  policy       = data.aws_iam_policy_document.config-sns-key-policy.json
+  bypass_policy_lockout_safety_check = false
+  description                        = "KMS key for AWS Config SNS topic"
+  multi_region                       = true
+  policy                             = data.aws_iam_policy_document.config-sns-key-policy.json
 }
 
 resource "aws_kms_alias" "config-sns-key-alias" {
