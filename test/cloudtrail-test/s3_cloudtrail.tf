@@ -1,4 +1,12 @@
+# trivy:ignore:AVD-AWS-0088
+# trivy:ignore:AVD-AWS-0132
 resource "aws_s3_bucket" "cloudtrail_s3_bucket" {
+# checkov:skip=CKV_AWS_18: Ephemeral bucket used for tests
+# checkov:skip=CKV_AWS_21
+# checkov:skip=CKV_AWS_144
+# checkov:skip=CKV_AWS_145
+# checkov:skip=CKV2_AWS_61
+# checkov:skip=CKV2_AWS_62
   bucket_prefix = var.cloudtrail_bucket
   force_destroy = true
   tags          = local.tags
