@@ -1,3 +1,18 @@
+locals {
+  mp_owned_workspaces = [
+    "cooker-development",
+    "example-development",
+    "long-term-storage-production",
+    "sprinkler-development",
+    "testing-test",
+    "^core-.*"
+  ]
+
+  is_workspace_matched = length(regexall(join("|", local.mp_owned_workspaces), terraform.workspace)) > 0
+
+  alarm_action = local.is_workspace_matched ? [aws_sns_topic.securityhub-alarms.arn] : []
+}
+
 data "aws_caller_identity" "current" {}
 
 # AWS CloudWatch doesn't support using the AWS-managed KMS key for publishing things from CloudWatch to SNS
@@ -88,7 +103,7 @@ resource "aws_cloudwatch_log_metric_filter" "unauthorised-api-calls" {
 resource "aws_cloudwatch_metric_alarm" "unauthorised-api-calls" {
   alarm_name        = var.unauthorised_api_calls_alarm_name
   alarm_description = "Monitors for unauthorised API calls."
-  alarm_actions     = [aws_sns_topic.securityhub-alarms.arn]
+  alarm_actions     = local.alarm_action
 
   comparison_operator = "GreaterThanOrEqualToThreshold"
   evaluation_periods  = "1"
