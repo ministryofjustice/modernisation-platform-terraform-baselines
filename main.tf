@@ -27,21 +27,21 @@ module "securityhub-alarms" {
   depends_on = [module.cloudtrail]
 
   # Add alias to alarm names
-  unauthorised_api_calls_log_metric_filter_name       = "unauthorised-api-calls-${terraform.workspace}"
-  sign_in_without_mfa_metric_filter_name              = "sign-in-without-mfa-${terraform.workspace}"
-  root_account_usage_metric_filter_name               = "root-account-usage-${terraform.workspace}"
-  iam_policy_changes_metric_filter_name               = "iam-policy-changes-${terraform.workspace}"
-  cloudtrail_configuration_changes_metric_filter_name = "cloudtrail-configuration-changes-${terraform.workspace}"
-  sign_in_failures_metric_filter_name                 = "sign-in-failures-${terraform.workspace}"
-  cmk_removal_metric_filter_name                      = "cmk-removal-${terraform.workspace}"
-  s3_bucket_policy_changes_metric_filter_name         = "s3-bucket-policy-changes-${terraform.workspace}"
-  config_configuration_changes_metric_filter_name     = "config-configuration-changes-${terraform.workspace}"
-  security_group_changes_metric_filter_name           = "security-group-changes-${terraform.workspace}"
-  nacl_changes_metric_filter_name                     = "nacl-changes-${terraform.workspace}"
-  network_gateway_changes_metric_filter_name          = "network-gateway-changes-${terraform.workspace}"
-  route_table_changes_metric_filter_name              = "route-table-changes-${terraform.workspace}"
-  vpc_changes_metric_filter_name                      = "vpc-changes-${terraform.workspace}"
-  admin_role_usage_metric_filter_name                 = "admin-role-usage-${terraform.workspace}"
+  unauthorised_api_calls_log_metric_filter_name       = "unauthorised-api-calls-${local.workspace_name}"
+  sign_in_without_mfa_metric_filter_name              = "sign-in-without-mfa-${local.workspace_name}"
+  root_account_usage_metric_filter_name               = "root-account-usage-${local.workspace_name}"
+  iam_policy_changes_metric_filter_name               = "iam-policy-changes-${local.workspace_name}"
+  cloudtrail_configuration_changes_metric_filter_name = "cloudtrail-configuration-changes-${local.workspace_name}"
+  sign_in_failures_metric_filter_name                 = "sign-in-failures-${local.workspace_name}"
+  cmk_removal_metric_filter_name                      = "cmk-removal-${local.workspace_name}"
+  s3_bucket_policy_changes_metric_filter_name         = "s3-bucket-policy-changes-${local.workspace_name}"
+  config_configuration_changes_metric_filter_name     = "config-configuration-changes-${local.workspace_name}"
+  security_group_changes_metric_filter_name           = "security-group-changes-${local.workspace_name}"
+  nacl_changes_metric_filter_name                     = "nacl-changes-${local.workspace_name}"
+  network_gateway_changes_metric_filter_name          = "network-gateway-changes-${local.workspace_name}"
+  route_table_changes_metric_filter_name              = "route-table-changes-${local.workspace_name}"
+  vpc_changes_metric_filter_name                      = "vpc-changes-${local.workspace_name}"
+  admin_role_usage_metric_filter_name                 = "admin-role-usage-${local.workspace_name}"
 
   tags = var.tags
 }
