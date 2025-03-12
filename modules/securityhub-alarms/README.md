@@ -1,6 +1,6 @@
-# SecurityHub Alarms
+# CloudWatch Alarms
 
-Terraform module for creating CloudWatch Alarms for SecurityHub that comply with the CIS AWS Foundations Benchmark v1.2.0 rules, which are:
+Terraform module for creating CloudWatch Alarms that comply with the CIS AWS Foundations Benchmark v1.2.0 rules, which are:
 
 - [x] [1.1 – Avoid the use of the "root" account](https://docs.aws.amazon.com/securityhub/latest/userguide/securityhub-cis-controls.html#cis-1.1-remediation) as a by-product of [CIS 3.3 remediation](https://docs.aws.amazon.com/securityhub/latest/userguide/securityhub-cis-controls.html/cis-3.3-remediation)
 - [x] [3.1 - Ensure a log metric filter and alarm exist for unauthorized API calls](https://docs.aws.amazon.com/securityhub/latest/userguide/securityhub-cis-controls.html/cis-3.1-remediation)
@@ -17,6 +17,10 @@ Terraform module for creating CloudWatch Alarms for SecurityHub that comply with
 - [x] [3.12  - Ensure a log metric filter and alarm exist for changes to network gateways](https://docs.aws.amazon.com/securityhub/latest/userguide/securityhub-cis-controls.html/cis-3.12-remediation)
 - [x] [3.13  - Ensure a log metric filter and alarm exist for route table changes](https://docs.aws.amazon.com/securityhub/latest/userguide/securityhub-cis-controls.html/cis-3.13-remediation)
 - [x] [3.14  - Ensure a log metric filter and alarm exist for VPC changes](https://docs.aws.amazon.com/securityhub/latest/userguide/securityhub-cis-controls.html/cis-3.14-remediation)
+
+Security Hub has dedicated controls which check that these alarms/metric filters exist to show our compliance with the benchmark. It should be noted that these controls have been [removed](https://docs.aws.amazon.com/securityhub/latest/userguide/cis-aws-foundations-benchmark.html) for later versions of the benchmark (e.g. v3.0.0) if we decide to upgrade the security standards in future.
+
+The module also generates some extra alarms that are of benefit to the Modernisation Platform team e.g. monitoring use of the Administrator role.
 
 ## Usage
 
