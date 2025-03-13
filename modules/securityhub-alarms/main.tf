@@ -194,7 +194,7 @@ resource "aws_cloudwatch_log_metric_filter" "iam-policy-changes" {
 resource "aws_cloudwatch_metric_alarm" "iam-policy-changes" {
   alarm_name        = var.iam_policy_changes_alarm_name
   alarm_description = "Monitors for IAM policy changes."
-  alarm_actions     = [aws_sns_topic.securityhub-alarms.arn]
+  alarm_actions     = []
 
   comparison_operator = "GreaterThanOrEqualToThreshold"
   evaluation_periods  = "1"
@@ -224,7 +224,7 @@ resource "aws_cloudwatch_log_metric_filter" "cloudtrail-configuration-changes" {
 resource "aws_cloudwatch_metric_alarm" "cloudtrail-configuration-changes" {
   alarm_name        = var.cloudtrail_configuration_changes_alarm_name
   alarm_description = "Monitors for CloudTrail configuration changes."
-  alarm_actions     = [aws_sns_topic.securityhub-alarms.arn]
+  alarm_actions     = []
 
   comparison_operator = "GreaterThanOrEqualToThreshold"
   evaluation_periods  = "1"
@@ -284,7 +284,7 @@ resource "aws_cloudwatch_log_metric_filter" "cmk-removal" {
 resource "aws_cloudwatch_metric_alarm" "cmk-removal" {
   alarm_name        = var.cmk_removal_alarm_name
   alarm_description = "Monitors for AWS KMS customer-created CMK removal (deletion or disabled)."
-  alarm_actions     = [aws_sns_topic.securityhub-alarms.arn]
+  alarm_actions     = local.alarm_action
 
   comparison_operator = "GreaterThanOrEqualToThreshold"
   evaluation_periods  = "1"
@@ -314,7 +314,7 @@ resource "aws_cloudwatch_log_metric_filter" "s3-bucket-policy-changes" {
 resource "aws_cloudwatch_metric_alarm" "s3-bucket-policy-changes" {
   alarm_name        = var.s3_bucket_policy_changes_alarm_name
   alarm_description = "Monitors for AWS S3 bucket policy changes."
-  alarm_actions     = [aws_sns_topic.securityhub-alarms.arn]
+  alarm_actions     = []
 
   comparison_operator = "GreaterThanOrEqualToThreshold"
   evaluation_periods  = "1"
@@ -344,7 +344,7 @@ resource "aws_cloudwatch_log_metric_filter" "config-configuration-changes" {
 resource "aws_cloudwatch_metric_alarm" "config-configuration-changes" {
   alarm_name        = var.config_configuration_changes_alarm_name
   alarm_description = "Monitors for AWS Config configuration changes."
-  alarm_actions     = [aws_sns_topic.securityhub-alarms.arn]
+  alarm_actions     = []
 
   comparison_operator = "GreaterThanOrEqualToThreshold"
   evaluation_periods  = "1"
@@ -374,7 +374,7 @@ resource "aws_cloudwatch_log_metric_filter" "security-group-changes" {
 resource "aws_cloudwatch_metric_alarm" "security-group-changes" {
   alarm_name        = var.security_group_changes_alarm_name
   alarm_description = "Monitors for AWS EC2 Security Group changes."
-  alarm_actions     = [aws_sns_topic.securityhub-alarms.arn]
+  alarm_actions     = []
 
   comparison_operator = "GreaterThanOrEqualToThreshold"
   evaluation_periods  = "1"
@@ -626,7 +626,7 @@ resource "aws_cloudwatch_metric_alarm" "privatelink_service_active_connection_co
 
 resource "aws_cloudwatch_log_metric_filter" "admin_role_usage" {
   name           = var.admin_role_usage_metric_filter_name
-  pattern        = "{ $.eventName = \"AssumeRoleWithSAML\" && $.requestParameters.roleArn = \"*AdministratorAccess*\" }"
+  pattern        = "{ $.eventName = \"AssumeRoleWithSAML\" && $.requestParameters.roleArn = \"*AdministratorAccess*\" && $.requestParameters.principalTags.github_team = \"*modernisation-platform-engineers*\" }"
   log_group_name = "cloudtrail"
 
   metric_transformation {
