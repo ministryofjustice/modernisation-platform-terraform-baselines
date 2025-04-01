@@ -203,3 +203,13 @@ variable "admin_role_usage_alarm_name" {
   default = "admin-role-usage"
   type    = string
 }
+
+variable "orgaccess_role_usage_metric_filter_name" {
+  default = "admin-role-usage"
+  type    = string
+}
+
+variable "orgaccess_role_usage_alarm_name" {
+  default = "orgaccess-role-usage"
+  type    = string
+}

@@ -652,3 +652,35 @@ resource "aws_cloudwatch_metric_alarm" "admin_role_usage" {
 
   tags = var.tags
 }
+
+# Alarm for use of the OrganizationAccountAccessRole
+# Note that for this role we're not just looking for use of it by modernisation-platform-engineers github team, however the source log group is the same.
+
+resource "aws_cloudwatch_log_metric_filter" "orgaccess_role_usage" {
+  name           = var.orgaccess_role_usage_metric_filter_name
+  pattern        = "{ $.eventName = \"AssumeRole*\" && $.requestParameters.roleArn = \"*OrganizationAccountAccessRole*\" }"
+  log_group_name = "cloudtrail"
+
+  metric_transformation {
+    name      = var.orgaccess_role_usage_metric_filter_name
+    namespace = "LogMetrics"
+    value     = 1
+  }
+}
+
+resource "aws_cloudwatch_metric_alarm" "orgaccess_role_usage" {
+  alarm_name        = var.orgaccess_role_usage_alarm_name
+  alarm_description = "Monitors for use of the OrganizationAccountAccessRole role."
+  alarm_actions     = [aws_sns_topic.securityhub-alarms.arn]
+
+  comparison_operator = "GreaterThanOrEqualToThreshold"
+  evaluation_periods  = "1"
+  metric_name         = aws_cloudwatch_log_metric_filter.orgaccess_role_usage.id
+  namespace           = "LogMetrics"
+  period              = "300"
+  statistic           = "Sum"
+  threshold           = "1"
+  treat_missing_data  = "notBreaching"
+
+  tags = var.tags
+}
