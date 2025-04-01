@@ -205,7 +205,7 @@ variable "admin_role_usage_alarm_name" {
 }
 
 variable "orgaccess_role_usage_metric_filter_name" {
-  default = "admin-role-usage"
+  default = "orgaccess-role-usage"
   type    = string
 }
 
