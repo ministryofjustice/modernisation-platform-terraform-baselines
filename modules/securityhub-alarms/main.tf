@@ -658,7 +658,7 @@ resource "aws_cloudwatch_metric_alarm" "admin_role_usage" {
 
 resource "aws_cloudwatch_log_metric_filter" "orgaccess_role_usage" {
   name           = var.orgaccess_role_usage_metric_filter_name
-  pattern        = "{ $.eventName = \"AssumeRole*\" && $.requestParameters.roleArn = \"*OrganizationAccountAccessRole*\" }"
+  pattern        = "{ $.eventName = \"AssumeRole*\" && $.requestParameters.roleArn = \"*OrganizationAccountAccessRole*\" && $.requestParameters.roleSessionName = \"*justice.gov.uk*\" }"
   log_group_name = "cloudtrail"
 
   metric_transformation {
