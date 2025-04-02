@@ -42,6 +42,7 @@ module "securityhub-alarms" {
   route_table_changes_metric_filter_name              = "route-table-changes-${local.workspace_name}"
   vpc_changes_metric_filter_name                      = "vpc-changes-${local.workspace_name}"
   admin_role_usage_metric_filter_name                 = "admin-role-usage-${local.workspace_name}"
+  orgaccess_role_usage_metric_filter_name             = "orgaccess-role-usage-${local.workspace_name}"
 
   tags = var.tags
 }
