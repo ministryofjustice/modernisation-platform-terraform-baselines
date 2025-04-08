@@ -1,5 +1,5 @@
-# This file is auto-generated here, do not manually amend. 
-# https://github.com/ministryofjustice/modernisation-platform/blob/main/scripts/generate-dependabot.sh
+# This file is auto-generated, do not manually amend.
+# https://github.com/ministryofjustice/modernisation-platform-terraform-baselines/blob/main/scripts/generate-dependabot-file.sh
 
 version: 2
 
@@ -8,78 +8,23 @@ updates:
     directory: "/"
     schedule:
       interval: "daily"
-  # Dependabot doesn't currently support wildcard or multiple directory declarations within
-  # a dependabot configuration, so we need to add all directories individually
-  # See: github.com/dependabot/dependabot-core/issues/2178
+    groups:
+      action-dependencies:
+        patterns:
+          - "*"
   - package-ecosystem: "terraform"
-    directory: "/."
-    schedule:
-      interval: "daily"
-  - package-ecosystem: "terraform"
-    directory: "/modules/access-analyzer"
-    schedule:
-      interval: "daily"
-  - package-ecosystem: "terraform"
-    directory: "/modules/backup"
-    schedule:
-      interval: "daily"
-  - package-ecosystem: "terraform"
-    directory: "/modules/cloudtrail"
-    schedule:
-      interval: "daily"
-  - package-ecosystem: "terraform"
-    directory: "/modules/config"
-    schedule:
-      interval: "daily"
-  - package-ecosystem: "terraform"
-    directory: "/modules/ebs"
-    schedule:
-      interval: "daily"
-  - package-ecosystem: "terraform"
-    directory: "/modules/guardduty"
-    schedule:
-      interval: "daily"
-  - package-ecosystem: "terraform"
-    directory: "/modules/iam"
-    schedule:
-      interval: "daily"
-  - package-ecosystem: "terraform"
-    directory: "/modules/imdsv2"
-    schedule:
-      interval: "daily"
-  - package-ecosystem: "terraform"
-    directory: "/modules/securityhub"
-    schedule:
-      interval: "daily"
-  - package-ecosystem: "terraform"
-    directory: "/modules/securityhub-alarms"
-    schedule:
-      interval: "daily"
-  - package-ecosystem: "terraform"
-    directory: "/modules/support"
-    schedule:
-      interval: "daily"
-  - package-ecosystem: "terraform"
-    directory: "/test/backup-test"
-    schedule:
-      interval: "daily"
-  - package-ecosystem: "terraform"
-    directory: "/test/cloudtrail-test"
-    schedule:
-      interval: "daily"
-  - package-ecosystem: "terraform"
-    directory: "/test/securityhub-alarms-test"
-    schedule:
-      interval: "daily"
-  - package-ecosystem: "terraform"
-    directory: "/test/securityhub-test"
-    schedule:
-      interval: "daily"
-  - package-ecosystem: "terraform"
-    directory: "/test/support-test"
+    directories:
+      - "./**/*"
+      - "modules/**/*"
+      - "test/**/*"
     schedule:
       interval: "daily"
   - package-ecosystem: "gomod"
-    directory: "/test"
+    directories:
+      - "test/**/*"
     schedule:
       interval: "daily"
+    groups:
+      gomod-dependencies:
+        patterns:
+          - "*"
