@@ -18,7 +18,7 @@ resource "aws_cloudtrail" "cloudtrail" {
   is_multi_region_trail         = true
   kms_key_id                    = var.cloudtrail_kms_key
   s3_bucket_name                = var.cloudtrail_bucket
-  sns_topic_name                = aws_sns_topic.cloudtrail.arn
+  sns_topic_name                = aws_sns_topic.cloudtrail.name
 
   dynamic "event_selector" {
     for_each = var.enable_cloudtrail_s3_mgmt_events ? [1] : []
