@@ -18,7 +18,7 @@ module "config-bucket" {
       id      = "main"
       enabled = "Enabled"
       prefix  = ""
-      tags    = {
+      tags = {
         rule      = "log"
         autoclean = "true"
       }
