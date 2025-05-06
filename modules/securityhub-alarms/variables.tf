@@ -19,6 +19,11 @@ variable "securityhub_alarms_sns_topic_name" {
   type    = string
 }
 
+variable "high_priority_sns_topic_name" {
+  default = "high-priority-alarms"
+  type    = string
+}
+
 variable "unauthorised_api_calls_log_metric_filter_name" {
   default = "unauthorised-api-calls"
   type    = string
