@@ -20,7 +20,7 @@ variable "securityhub_alarms_sns_topic_name" {
 }
 
 variable "high_priority_sns_topic_name" {
-  default = "high-priority-alarms"
+  default = "high-priority-alarms-topic"
   type    = string
 }
 
