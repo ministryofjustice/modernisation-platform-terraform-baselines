@@ -40,10 +40,7 @@ module "securityhub-alarms" {
   admin_role_usage_metric_filter_name                 = "admin-role-usage-${local.workspace_name}"
   orgaccess_role_usage_metric_filter_name             = "orgaccess-role-usage-${local.workspace_name}"
 
-  high_priority_pagerduty_key                         = var.high_priority_pagerduty_integration_key
+  high_priority_pagerduty_key = var.high_priority_pagerduty_integration_key
 
   tags = var.tags
 }
-
-
-
