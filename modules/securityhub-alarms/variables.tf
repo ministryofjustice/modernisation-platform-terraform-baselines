@@ -218,3 +218,8 @@ variable "orgaccess_role_usage_alarm_name" {
   default = "orgaccess-role-usage"
   type    = string
 }
+
+variable "high_priority_pagerduty_key" {
+  default = ""
+  type    = string
+}
