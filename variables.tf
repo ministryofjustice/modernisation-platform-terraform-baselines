@@ -83,3 +83,9 @@ variable "pagerduty_integration_key" {
   description = "A PagerDuty integration key to pass into a PagerDuty integration"
   type        = string
 }
+
+variable "high_priority_pagerduty_integration_key" {
+  default     = ""
+  description = "A PagerDuty integration key for high priority alerts"
+  type        = string
+}
