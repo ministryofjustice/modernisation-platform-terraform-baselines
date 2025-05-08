@@ -87,7 +87,7 @@ resource "aws_sns_topic" "securityhub-alarms" {
 }
 
 # SNS topic for high-priority rememdiation
-resource "aws_sns_topic" "high-priority-alarms" {
+resource "aws_sns_topic" "high_priority_alarms" {
   name              = var.high_priority_sns_topic_name
   kms_master_key_id = aws_kms_key.securityhub-alarms.arn
   tags              = var.tags
@@ -171,7 +171,7 @@ resource "aws_cloudwatch_log_metric_filter" "root-account-usage" {
 resource "aws_cloudwatch_metric_alarm" "root-account-usage" {
   alarm_name        = var.root_account_usage_alarm_name
   alarm_description = "Monitors for root account usage."
-  alarm_actions     = [aws_sns_topic.high-priority-alarms.arn]
+  alarm_actions     = [aws_sns_topic.high_priority_alarms.arn]
 
   comparison_operator = "GreaterThanOrEqualToThreshold"
   evaluation_periods  = "1"
@@ -697,6 +697,6 @@ resource "aws_cloudwatch_metric_alarm" "orgaccess_role_usage" {
 
 module "pagerduty_high_priority_alerts" {
   source                    = "github.com/ministryofjustice/modernisation-platform-terraform-pagerduty-integration?ref=0179859e6fafc567843cd55c0b05d325d5012dc4" # v2.0.0
-  sns_topics                = compact([aws_sns_topic.high_priority_topic.name])
+  sns_topics                = compact([aws_sns_topic.high_priority_alarms.name])
   pagerduty_integration_key = var.high_priority_pagerduty_key
 }
