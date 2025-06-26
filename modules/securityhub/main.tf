@@ -91,6 +91,7 @@ resource "aws_cloudwatch_event_rule" "sechub_high_and_critical_findings" {
       }
     }
   })
+  tags = var.tags
 }
 
 # When eventbridge rule is triggered send findings to SNS topic
@@ -106,6 +107,7 @@ resource "aws_sns_topic" "sechub_findings_sns_topic" {
   count             = var.enable_securityhub_alerts ? 1 : 0
   name              = var.sechub_sns_topic_name
   kms_master_key_id = length(aws_kms_key.sns_kms_key) > 0 ? aws_kms_key.sns_kms_key[0].id : null
+  tags              = var.tags
 }
 resource "aws_sns_topic_policy" "sechub_findings_sns_topic" {
   count  = var.enable_securityhub_alerts ? 1 : 0
@@ -172,6 +174,7 @@ resource "aws_kms_key" "sns_kms_key" {
   description                        = "KMS key for SNS topic encryption"
   enable_key_rotation                = true
   policy                             = data.aws_iam_policy_document.sns_kms.json
+  tags                               = var.tags
 }
 
 resource "aws_kms_alias" "sns_kms_alias" {

@@ -27,3 +27,8 @@ variable "pagerduty_integration_key" {
   description = "A PagerDuty integration key to pass into a PagerDuty integration"
   type        = string
 }
+variable "tags" {
+  default     = {}
+  description = "Tags to apply to resources, where applicable"
+  type        = map(any)
+}

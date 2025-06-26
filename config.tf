@@ -135,6 +135,7 @@ resource "aws_kms_key" "config-sns-key" {
   description                        = "KMS key for AWS Config SNS topic"
   multi_region                       = true
   policy                             = data.aws_iam_policy_document.config-sns-key-policy.json
+  tags                               = var.tags
 }
 
 resource "aws_kms_alias" "config-sns-key-alias" {
