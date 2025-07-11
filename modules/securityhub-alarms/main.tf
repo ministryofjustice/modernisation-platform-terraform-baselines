@@ -696,7 +696,7 @@ resource "aws_cloudwatch_metric_alarm" "orgaccess_role_usage" {
 # This adds pagerduty ingration for alarms alerting to the high-priority slack channel.
 
 module "pagerduty_high_priority_alerts" {
-  source = "github.com/ministryofjustice/modernisation-platform-terraform-pagerduty-integration?ref=0179859e6fafc567843cd55c0b05d325d5012dc4" # v2.0.0
+  source = "github.com/ministryofjustice/modernisation-platform-terraform-pagerduty-integration?ref=d88bd90d490268896670a898edfaba24bba2f8ab" # v3.0.0
   depends_on = [
     aws_sns_topic.high_priority_alarms_topic
   ]
