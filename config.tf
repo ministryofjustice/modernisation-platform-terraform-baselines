@@ -196,7 +196,7 @@ module "config-ap-northeast-1" {
   iam_role_arn       = aws_iam_service_linked_role.config.arn
   s3_bucket_id       = local.config_bucket
   root_account_id    = var.root_account_id
-  home_region        = data.aws_region.current.name
+  home_region        = data.aws_region.current.region
   current_account_id = var.current_account_id
   sns_topic_key      = aws_kms_key.config-sns-key.key_id
   cloudtrail = {
@@ -217,7 +217,7 @@ module "config-ap-northeast-2" {
   iam_role_arn       = aws_iam_service_linked_role.config.arn
   s3_bucket_id       = local.config_bucket
   root_account_id    = var.root_account_id
-  home_region        = data.aws_region.current.name
+  home_region        = data.aws_region.current.region
   current_account_id = var.current_account_id
   sns_topic_key      = aws_kms_key.config-sns-key.key_id
   cloudtrail = {
@@ -238,7 +238,7 @@ module "config-ap-south-1" {
   iam_role_arn       = aws_iam_service_linked_role.config.arn
   s3_bucket_id       = local.config_bucket
   root_account_id    = var.root_account_id
-  home_region        = data.aws_region.current.name
+  home_region        = data.aws_region.current.region
   current_account_id = var.current_account_id
   sns_topic_key      = aws_kms_key.config-sns-key.key_id
   cloudtrail = {
@@ -259,7 +259,7 @@ module "config-ap-southeast-1" {
   iam_role_arn       = aws_iam_service_linked_role.config.arn
   s3_bucket_id       = local.config_bucket
   root_account_id    = var.root_account_id
-  home_region        = data.aws_region.current.name
+  home_region        = data.aws_region.current.region
   current_account_id = var.current_account_id
   sns_topic_key      = aws_kms_key.config-sns-key.key_id
   cloudtrail = {
@@ -280,7 +280,7 @@ module "config-ap-southeast-2" {
   iam_role_arn       = aws_iam_service_linked_role.config.arn
   s3_bucket_id       = local.config_bucket
   root_account_id    = var.root_account_id
-  home_region        = data.aws_region.current.name
+  home_region        = data.aws_region.current.region
   current_account_id = var.current_account_id
   sns_topic_key      = aws_kms_key.config-sns-key.key_id
   cloudtrail = {
@@ -301,7 +301,7 @@ module "config-ca-central-1" {
   iam_role_arn       = aws_iam_service_linked_role.config.arn
   s3_bucket_id       = local.config_bucket
   root_account_id    = var.root_account_id
-  home_region        = data.aws_region.current.name
+  home_region        = data.aws_region.current.region
   current_account_id = var.current_account_id
   sns_topic_key      = aws_kms_key.config-sns-key.key_id
   cloudtrail = {
@@ -322,7 +322,7 @@ module "config-eu-central-1" {
   iam_role_arn       = aws_iam_service_linked_role.config.arn
   s3_bucket_id       = local.config_bucket
   root_account_id    = var.root_account_id
-  home_region        = data.aws_region.current.name
+  home_region        = data.aws_region.current.region
   current_account_id = var.current_account_id
   sns_topic_key      = aws_kms_key.config-sns-key.key_id
   cloudtrail = {
@@ -343,7 +343,7 @@ module "config-eu-north-1" {
   iam_role_arn       = aws_iam_service_linked_role.config.arn
   s3_bucket_id       = local.config_bucket
   root_account_id    = var.root_account_id
-  home_region        = data.aws_region.current.name
+  home_region        = data.aws_region.current.region
   current_account_id = var.current_account_id
   sns_topic_key      = aws_kms_key.config-sns-key.key_id
   cloudtrail = {
@@ -364,7 +364,7 @@ module "config-eu-west-1" {
   iam_role_arn       = aws_iam_service_linked_role.config.arn
   s3_bucket_id       = local.config_bucket
   root_account_id    = var.root_account_id
-  home_region        = data.aws_region.current.name
+  home_region        = data.aws_region.current.region
   current_account_id = var.current_account_id
   sns_topic_key      = aws_kms_key.config-sns-key.key_id
   cloudtrail = {
@@ -385,7 +385,7 @@ module "config-eu-west-2" {
   iam_role_arn       = aws_iam_service_linked_role.config.arn
   s3_bucket_id       = local.config_bucket
   root_account_id    = var.root_account_id
-  home_region        = data.aws_region.current.name
+  home_region        = data.aws_region.current.region
   current_account_id = var.current_account_id
   sns_topic_key      = aws_kms_key.config-sns-key.key_id
   cloudtrail = {
@@ -406,7 +406,7 @@ module "config-eu-west-3" {
   iam_role_arn       = aws_iam_service_linked_role.config.arn
   s3_bucket_id       = local.config_bucket
   root_account_id    = var.root_account_id
-  home_region        = data.aws_region.current.name
+  home_region        = data.aws_region.current.region
   current_account_id = var.current_account_id
   sns_topic_key      = aws_kms_key.config-sns-key.key_id
   cloudtrail = {
@@ -427,7 +427,7 @@ module "config-sa-east-1" {
   iam_role_arn       = aws_iam_service_linked_role.config.arn
   s3_bucket_id       = local.config_bucket
   root_account_id    = var.root_account_id
-  home_region        = data.aws_region.current.name
+  home_region        = data.aws_region.current.region
   current_account_id = var.current_account_id
   sns_topic_key      = aws_kms_key.config-sns-key.key_id
   cloudtrail = {
@@ -448,7 +448,7 @@ module "config-us-east-1" {
   iam_role_arn       = aws_iam_service_linked_role.config.arn
   s3_bucket_id       = local.config_bucket
   root_account_id    = var.root_account_id
-  home_region        = data.aws_region.current.name
+  home_region        = data.aws_region.current.region
   current_account_id = var.current_account_id
   sns_topic_key      = aws_kms_key.config-sns-key.key_id
   cloudtrail = {
@@ -469,7 +469,7 @@ module "config-us-east-2" {
   iam_role_arn       = aws_iam_service_linked_role.config.arn
   s3_bucket_id       = local.config_bucket
   root_account_id    = var.root_account_id
-  home_region        = data.aws_region.current.name
+  home_region        = data.aws_region.current.region
   current_account_id = var.current_account_id
   sns_topic_key      = aws_kms_key.config-sns-key.key_id
   cloudtrail = {
@@ -490,7 +490,7 @@ module "config-us-west-1" {
   iam_role_arn       = aws_iam_service_linked_role.config.arn
   s3_bucket_id       = local.config_bucket
   root_account_id    = var.root_account_id
-  home_region        = data.aws_region.current.name
+  home_region        = data.aws_region.current.region
   current_account_id = var.current_account_id
   sns_topic_key      = aws_kms_key.config-sns-key.key_id
   cloudtrail = {
@@ -511,7 +511,7 @@ module "config-us-west-2" {
   iam_role_arn       = aws_iam_service_linked_role.config.arn
   s3_bucket_id       = local.config_bucket
   root_account_id    = var.root_account_id
-  home_region        = data.aws_region.current.name
+  home_region        = data.aws_region.current.region
   current_account_id = var.current_account_id
   sns_topic_key      = aws_kms_key.config-sns-key.key_id
   cloudtrail = {
