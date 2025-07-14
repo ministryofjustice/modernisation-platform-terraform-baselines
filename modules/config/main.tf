@@ -91,7 +91,7 @@ data "aws_iam_policy_document" "config-sns-policy" {
 
 # Configure AWS Config rules
 resource "aws_config_config_rule" "access-keys-rotated" {
-  count = (var.home_region == data.aws_region.current.name) ? 1 : 0
+  count = (var.home_region == data.aws_region.current.region) ? 1 : 0
 
   name                        = "access-keys-rotated"
   maximum_execution_frequency = "TwentyFour_Hours"
@@ -111,7 +111,7 @@ resource "aws_config_config_rule" "access-keys-rotated" {
 }
 
 resource "aws_config_config_rule" "account-part-of-organizations" {
-  count = (var.home_region == data.aws_region.current.name) ? 1 : 0
+  count = (var.home_region == data.aws_region.current.region) ? 1 : 0
 
   name                        = "account-part-of-organizations"
   maximum_execution_frequency = "TwentyFour_Hours"
@@ -131,7 +131,7 @@ resource "aws_config_config_rule" "account-part-of-organizations" {
 }
 
 resource "aws_config_config_rule" "cloud-trail-cloud-watch-logs-enabled" {
-  count = (var.home_region == data.aws_region.current.name) ? 1 : 0
+  count = (var.home_region == data.aws_region.current.region) ? 1 : 0
 
   name                        = "cloud-trail-cloud-watch-logs-enabled"
   maximum_execution_frequency = "TwentyFour_Hours"
@@ -147,7 +147,7 @@ resource "aws_config_config_rule" "cloud-trail-cloud-watch-logs-enabled" {
 }
 
 resource "aws_config_config_rule" "cloud-trail-encryption-enabled" {
-  count = (var.home_region == data.aws_region.current.name) ? 1 : 0
+  count = (var.home_region == data.aws_region.current.region) ? 1 : 0
 
   name                        = "cloud-trail-encryption-enabled"
   maximum_execution_frequency = "TwentyFour_Hours"
@@ -163,7 +163,7 @@ resource "aws_config_config_rule" "cloud-trail-encryption-enabled" {
 }
 
 resource "aws_config_config_rule" "cloud-trail-log-file-validation-enabled" {
-  count = (var.home_region == data.aws_region.current.name) ? 1 : 0
+  count = (var.home_region == data.aws_region.current.region) ? 1 : 0
 
   name                        = "cloud-trail-log-file-validation-enabled"
   maximum_execution_frequency = "TwentyFour_Hours"
@@ -179,7 +179,7 @@ resource "aws_config_config_rule" "cloud-trail-log-file-validation-enabled" {
 }
 
 resource "aws_config_config_rule" "cloudtrail-enabled" {
-  count = (var.home_region == data.aws_region.current.name) ? 1 : 0
+  count = (var.home_region == data.aws_region.current.region) ? 1 : 0
 
   name                        = "cloudtrail-enabled"
   maximum_execution_frequency = "TwentyFour_Hours"
@@ -201,7 +201,7 @@ resource "aws_config_config_rule" "cloudtrail-enabled" {
 }
 
 resource "aws_config_config_rule" "cloudtrail-s3-dataevents-enabled" {
-  count = (var.home_region == data.aws_region.current.name) ? 1 : 0
+  count = (var.home_region == data.aws_region.current.region) ? 1 : 0
 
   name                        = "cloudtrail-s3-dataevents-enabled"
   maximum_execution_frequency = "TwentyFour_Hours"
@@ -217,7 +217,7 @@ resource "aws_config_config_rule" "cloudtrail-s3-dataevents-enabled" {
 }
 
 resource "aws_config_config_rule" "cloudtrail-security-trail-enabled" {
-  count = (var.home_region == data.aws_region.current.name) ? 1 : 0
+  count = (var.home_region == data.aws_region.current.region) ? 1 : 0
 
   name                        = "cloudtrail-security-trail-enabled"
   maximum_execution_frequency = "TwentyFour_Hours"
@@ -233,7 +233,7 @@ resource "aws_config_config_rule" "cloudtrail-security-trail-enabled" {
 }
 
 resource "aws_config_config_rule" "iam-group-has-users-check" {
-  count = (var.home_region == data.aws_region.current.name) ? 1 : 0
+  count = (var.home_region == data.aws_region.current.region) ? 1 : 0
 
   name = "iam-group-has-users-check"
 
@@ -248,7 +248,7 @@ resource "aws_config_config_rule" "iam-group-has-users-check" {
 }
 
 resource "aws_config_config_rule" "iam-no-inline-policy-check" {
-  count = (var.home_region == data.aws_region.current.name) ? 1 : 0
+  count = (var.home_region == data.aws_region.current.region) ? 1 : 0
 
   name = "iam-no-inline-policy-check"
 
@@ -263,7 +263,7 @@ resource "aws_config_config_rule" "iam-no-inline-policy-check" {
 }
 
 resource "aws_config_config_rule" "iam-password-policy" {
-  count = (var.home_region == data.aws_region.current.name) ? 1 : 0
+  count = (var.home_region == data.aws_region.current.region) ? 1 : 0
 
   name                        = "iam-password-policy"
   maximum_execution_frequency = "TwentyFour_Hours"
@@ -288,7 +288,7 @@ resource "aws_config_config_rule" "iam-password-policy" {
 }
 
 resource "aws_config_config_rule" "iam-root-access-key-check" {
-  count = (var.home_region == data.aws_region.current.name) ? 1 : 0
+  count = (var.home_region == data.aws_region.current.region) ? 1 : 0
 
   name                        = "iam-root-access-key-check"
   maximum_execution_frequency = "TwentyFour_Hours"
@@ -304,7 +304,7 @@ resource "aws_config_config_rule" "iam-root-access-key-check" {
 }
 
 resource "aws_config_config_rule" "iam-user-mfa-enabled" {
-  count = (var.home_region == data.aws_region.current.name) ? 1 : 0
+  count = (var.home_region == data.aws_region.current.region) ? 1 : 0
 
   name                        = "iam-user-mfa-enabled"
   maximum_execution_frequency = "TwentyFour_Hours"
@@ -320,7 +320,7 @@ resource "aws_config_config_rule" "iam-user-mfa-enabled" {
 }
 
 resource "aws_config_config_rule" "iam-user-unused-credentials-check" {
-  count = (var.home_region == data.aws_region.current.name) ? 1 : 0
+  count = (var.home_region == data.aws_region.current.region) ? 1 : 0
 
   name                        = "iam-user-unused-credentials-check"
   maximum_execution_frequency = "TwentyFour_Hours"
@@ -340,7 +340,7 @@ resource "aws_config_config_rule" "iam-user-unused-credentials-check" {
 }
 
 resource "aws_config_config_rule" "mfa-enabled-for-iam-console-access" {
-  count = (var.home_region == data.aws_region.current.name) ? 1 : 0
+  count = (var.home_region == data.aws_region.current.region) ? 1 : 0
 
   name                        = "mfa-enabled-for-iam-console-access"
   maximum_execution_frequency = "TwentyFour_Hours"
@@ -356,7 +356,7 @@ resource "aws_config_config_rule" "mfa-enabled-for-iam-console-access" {
 }
 
 resource "aws_config_config_rule" "multi-region-cloudtrail-enabled" {
-  count = (var.home_region == data.aws_region.current.name) ? 1 : 0
+  count = (var.home_region == data.aws_region.current.region) ? 1 : 0
 
   name                        = "multi-region-cloudtrail-enabled"
   maximum_execution_frequency = "TwentyFour_Hours"
@@ -400,7 +400,7 @@ resource "aws_config_config_rule" "required-tags" {
 }
 
 resource "aws_config_config_rule" "root-account-mfa-enabled" {
-  count = (var.home_region == data.aws_region.current.name) ? 1 : 0
+  count = (var.home_region == data.aws_region.current.region) ? 1 : 0
 
   name                        = "root-account-mfa-enabled"
   maximum_execution_frequency = "TwentyFour_Hours"
@@ -416,7 +416,7 @@ resource "aws_config_config_rule" "root-account-mfa-enabled" {
 }
 
 resource "aws_config_config_rule" "s3-account-level-public-access-blocks" {
-  count = (var.home_region == data.aws_region.current.name) ? 1 : 0
+  count = (var.home_region == data.aws_region.current.region) ? 1 : 0
 
   name = "s3-account-level-public-access-blocks"
 
