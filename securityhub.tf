@@ -5,7 +5,6 @@ module "securityhub-ap-northeast-1" {
   providers = {
     aws = aws.ap-northeast-1
   }
-  pagerduty_integration_key = var.pagerduty_integration_key
 }
 
 module "securityhub-ap-northeast-2" {
@@ -15,7 +14,6 @@ module "securityhub-ap-northeast-2" {
   providers = {
     aws = aws.ap-northeast-2
   }
-  pagerduty_integration_key = var.pagerduty_integration_key
 }
 
 module "securityhub-ap-south-1" {
@@ -25,7 +23,6 @@ module "securityhub-ap-south-1" {
   providers = {
     aws = aws.ap-south-1
   }
-  pagerduty_integration_key = var.pagerduty_integration_key
 }
 
 module "securityhub-ap-southeast-1" {
@@ -35,7 +32,6 @@ module "securityhub-ap-southeast-1" {
   providers = {
     aws = aws.ap-southeast-1
   }
-  pagerduty_integration_key = var.pagerduty_integration_key
 }
 
 module "securityhub-ap-southeast-2" {
@@ -45,7 +41,6 @@ module "securityhub-ap-southeast-2" {
   providers = {
     aws = aws.ap-southeast-2
   }
-  pagerduty_integration_key = var.pagerduty_integration_key
 }
 
 module "securityhub-ca-central-1" {
@@ -55,7 +50,6 @@ module "securityhub-ca-central-1" {
   providers = {
     aws = aws.ca-central-1
   }
-  pagerduty_integration_key = var.pagerduty_integration_key
 }
 
 module "securityhub-eu-central-1" {
@@ -65,7 +59,6 @@ module "securityhub-eu-central-1" {
   providers = {
     aws = aws.eu-central-1
   }
-  pagerduty_integration_key = var.pagerduty_integration_key
 }
 
 module "securityhub-eu-north-1" {
@@ -75,7 +68,6 @@ module "securityhub-eu-north-1" {
   providers = {
     aws = aws.eu-north-1
   }
-  pagerduty_integration_key = var.pagerduty_integration_key
 }
 
 module "securityhub-eu-west-1" {
@@ -85,7 +77,6 @@ module "securityhub-eu-west-1" {
   providers = {
     aws = aws.eu-west-1
   }
-  pagerduty_integration_key = var.pagerduty_integration_key
 }
 
 module "securityhub-eu-west-2" {
@@ -95,8 +86,6 @@ module "securityhub-eu-west-2" {
   providers = {
     aws = aws.eu-west-2
   }
-  enable_securityhub_alerts = var.enable_securityhub_alerts
-  pagerduty_integration_key = var.pagerduty_integration_key
 }
 
 module "securityhub-eu-west-3" {
@@ -106,7 +95,6 @@ module "securityhub-eu-west-3" {
   providers = {
     aws = aws.eu-west-3
   }
-  pagerduty_integration_key = var.pagerduty_integration_key
 }
 
 module "securityhub-sa-east-1" {
@@ -116,7 +104,6 @@ module "securityhub-sa-east-1" {
   providers = {
     aws = aws.sa-east-1
   }
-  pagerduty_integration_key = var.pagerduty_integration_key
 }
 
 module "securityhub-us-east-1" {
@@ -126,7 +113,6 @@ module "securityhub-us-east-1" {
   providers = {
     aws = aws.us-east-1
   }
-  pagerduty_integration_key = var.pagerduty_integration_key
 }
 
 module "securityhub-us-east-2" {
@@ -136,7 +122,6 @@ module "securityhub-us-east-2" {
   providers = {
     aws = aws.us-east-2
   }
-  pagerduty_integration_key = var.pagerduty_integration_key
 }
 
 module "securityhub-us-west-1" {
@@ -146,7 +131,6 @@ module "securityhub-us-west-1" {
   providers = {
     aws = aws.us-west-1
   }
-  pagerduty_integration_key = var.pagerduty_integration_key
 }
 
 module "securityhub-us-west-2" {
@@ -156,5 +140,4 @@ module "securityhub-us-west-2" {
   providers = {
     aws = aws.us-west-2
   }
-  pagerduty_integration_key = var.pagerduty_integration_key
 }
