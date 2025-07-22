@@ -351,13 +351,13 @@ func TestTerraformSecurityHub(t *testing.T) {
 	terraform.InitAndApply(t, terraformOptions)
 
 	// Retrieve Outputs
-	awsStandardArn := terraform.Output(t, terraformOptions, "aws_foundational_standard_subscription_arn")
-	cisStandardArn := terraform.Output(t, terraformOptions, "cis_standard_subscription_arn")
-	pciStandardArn := terraform.Output(t, terraformOptions, "pci_standard_subscription_arn")
+	awsStandardID := terraform.Output(t, terraformOptions, "aws_foundational_standard_subscription_id")
+	cisStandardID := terraform.Output(t, terraformOptions, "cis_standard_subscription_id")
+	pciStandardID := terraform.Output(t, terraformOptions, "pci_standard_subscription_id")
 
 	// Validate Security Hub standard ARNs
-	assert.Contains(t, awsStandardArn, "aws-foundational-security-best-practices", "Expected AWS Foundational standard ARN")
-	assert.Contains(t, cisStandardArn, "cis-aws-foundations-benchmark", "Expected CIS AWS Foundations standard ARN")
-	assert.Contains(t, pciStandardArn, "pci-dss", "Expected PCI DSS standard ARN")
+	assert.Contains(t, awsStandardID, "aws-foundational-security-best-practices")
+	assert.Contains(t, cisStandardID, "cis-aws-foundations-benchmark")
+	assert.Contains(t, pciStandardID, "pci-dss")
 
 }
