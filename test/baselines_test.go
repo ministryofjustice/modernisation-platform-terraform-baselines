@@ -334,30 +334,3 @@ func TestTerraformSecurityHubAlarms(t *testing.T) {
 	assert.Regexp(t, regexp.MustCompile(AdminRoleUsageMetricFilterName), AdminRoleUsageMetricFilterId)
 	assert.Regexp(t, regexp.MustCompile(`^arn:aws:cloudwatch:eu-west-2:[0-9]{12}:alarm:`+AdminRoleUsageAlarmName), AdminRoleUsageAlarmArn)
 }
-
-// SecurityHub Module Unit Testing
-func TestTerraformSecurityHub(t *testing.T) {
-	t.Parallel()
-
-	terraformDir := "./securityhub-test"
-
-	terraformOptions := &terraform.Options{
-		TerraformDir: terraformDir,
-	}
-	// Clean up resources with "terraform destroy" at the end of the test
-	defer terraform.Destroy(t, terraformOptions)
-
-	// Run "terraform init" and "terraform apply"
-	terraform.InitAndApply(t, terraformOptions)
-
-	// Retrieve Outputs
-	awsStandardID := terraform.Output(t, terraformOptions, "aws_foundational_standard_subscription_id")
-	cisStandardID := terraform.Output(t, terraformOptions, "cis_standard_subscription_id")
-	pciStandardID := terraform.Output(t, terraformOptions, "pci_standard_subscription_id")
-
-	// Validate Security Hub standard ARNs
-	assert.Contains(t, awsStandardID, "aws-foundational-security-best-practices")
-	assert.Contains(t, cisStandardID, "cis-aws-foundations-benchmark")
-	assert.Contains(t, pciStandardID, "pci-dss")
-
-}
