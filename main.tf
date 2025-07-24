@@ -2,7 +2,7 @@ data "aws_caller_identity" "current" {}
 data "aws_region" "current" {}
 module "cloudtrail" {
   source                           = "./modules/cloudtrail"
-  cloudtrail_kms_key               = var.cloudtrail_kms_key
+  cloudtrail_kms_key               = var.cloudtrail_kms_key.arn
   cloudtrail_bucket                = local.cloudtrail_bucket
   enable_cloudtrail_s3_mgmt_events = var.enable_cloudtrail_s3_mgmt_events
   tags                             = var.tags
