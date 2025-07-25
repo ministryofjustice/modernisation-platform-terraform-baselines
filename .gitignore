@@ -5,3 +5,4 @@
 .terraform.lock.hcl
 .tfsec
 *.tfstate*
+megalinter-reports
