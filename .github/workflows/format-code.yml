@@ -16,12 +16,12 @@ jobs:
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
 
       - name: Run Format Code Action
-        uses: ministryofjustice/modernisation-platform-github-actions/format-code@2d1bb8ef39861ede2999271b530cb9dd87f18004 # v3.3.1
+        uses: ministryofjustice/modernisation-platform-github-actions/format-code@c25ccb3c17e1ac869ceafc5430a4caf7e39be2ee # v3.4.0
         with:
           ignore_files: "README.md"
 
       - name: Run Signed Commit Action
-        uses: ministryofjustice/modernisation-platform-github-actions/signed-commit@2d1bb8ef39861ede2999271b530cb9dd87f18004 # v3.3.1
+        uses: ministryofjustice/modernisation-platform-github-actions/signed-commit@c25ccb3c17e1ac869ceafc5430a4caf7e39be2ee # v3.4.0
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           pr_title: "GitHub Actions Code Formatter workflow"
