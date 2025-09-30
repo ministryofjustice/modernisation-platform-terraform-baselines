@@ -3,25 +3,6 @@ locals {
   setting_value = "Disable"
 }
 
-# Explicit provider configs for each region we want to manage the setting in
-provider "aws" {
-  alias  = "eu-west-1"
-  region = "eu-west-1"
-}
-provider "aws" {
-  alias  = "eu-west-2"
-  region = "eu-west-2"
-}
-provider "aws" {
-  alias  = "eu-west-3"
-  region = "eu-west-3"
-}
-provider "aws" {
-  alias  = "eu-central-1"
-  region = "eu-central-1"
-}
-
-
 # One resource per alias 
 resource "aws_ssm_service_setting" "block_ssm_doc_public_sharing_eu_west_1" {
   provider      = aws.eu-west-1
