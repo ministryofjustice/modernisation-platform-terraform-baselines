@@ -83,3 +83,8 @@ variable "high_priority_pagerduty_integration_key" {
   description = "A PagerDuty integration key for high priority alerts"
   type        = string
 }
+variable "enabled_ssm_baseline_regions" {
+  description = "Regions where SSM baseline controls are enforced."
+  type        = list(string)
+  default     = ["eu-west-1", "eu-west-2", "eu-west-3", "eu-central-1", "us-east-1"]
+}
