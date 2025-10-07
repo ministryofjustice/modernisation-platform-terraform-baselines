@@ -4,6 +4,6 @@ resource "aws_ssm_service_setting" "disable_public_sharing" {
 
   lifecycle {
     prevent_destroy = true
-    ignore_changes = [setting_id]
+    ignore_changes  = [setting_id]
   }
 }
