@@ -1,37 +1,55 @@
 on:
-    pull_request:
-        types: [opened, edited, reopened, synchronize]
+  pull_request:
+    types: [opened, edited, reopened, synchronize]
+
+env:
+  TF_IN_AUTOMATION: true
+  MODERNISATION_PLATFORM_ACCOUNT_NUMBER: ${{ secrets.MODERNISATION_PLATFORM_ACCOUNT_NUMBER }}
+  PASSPHRASE: ${{ secrets.PASSPHRASE }}
 
 permissions: {}
 
-env:
-    AWS_ACCESS_KEY_ID:  ${{ secrets.AWS_ACCESS_KEY_ID }}
-    AWS_SECRET_ACCESS_KEY:  ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-    TF_IN_AUTOMATION: true
-
 jobs:
-    go-tests:
-        permissions:
-            contents: read
-            actions: write
-        name: Run Go Unit Tests
-        runs-on: ubuntu-latest
-        steps:
-          - uses: actions/checkout@1af3b93b6815bc44a9784bd300feb67ff0d1eeb3 # v6.0.0
-          - uses: actions/setup-go@4dc6199c7b1a012772edbd06daecab0f50c9053c # v6.1.0
-            with:
-              go-version: 1.24
-              cache-dependency-path: "test/go.sum"
-          - uses: hashicorp/setup-terraform@b9cd54a3c349d3f38e8881555d616ced269862dd # v3.1.2
-            with:
-              terraform_version: ~1.3
-              terraform_wrapper: false
-          - name: Download Go Modules
-            working-directory: test
-            run: go mod download
-          - name: Run Go Tests
-            working-directory: test
-            run: |
-              chmod 700 ../scripts/redact-output.sh
-              go test -v | ../scripts/redact-output.sh
-              exit ${PIPESTATUS[0]}
+  fetch-secrets:
+    uses: ministryofjustice/modernisation-platform-github-actions/.github/workflows/aws-secrets-management.yml@7b8dd97eb5b596a88206805943771ea7ffcde235 # v3.4.8
+    permissions:
+      id-token: write
+      contents: read
+    secrets:
+      MODERNISATION_PLATFORM_ACCOUNT_NUMBER: ${{ secrets.MODERNISATION_PLATFORM_ACCOUNT_NUMBER }}
+      PASSPHRASE: ${{ secrets.PASSPHRASE }}
+
+  go-tests:
+    permissions:
+      contents: read
+      actions: write
+    name: Run Go Unit Tests
+    runs-on: ubuntu-latest
+    needs: fetch-secrets
+    steps:
+      - uses: actions/checkout@1af3b93b6815bc44a9784bd300feb67ff0d1eeb3 # v6.0.0
+
+      - name: Decrypt Secrets
+        uses: ministryofjustice/modernisation-platform-github-actions/decrypt-secrets@7b8dd97eb5b596a88206805943771ea7ffcde235 # v3.4.8
+        with:
+          testing_ci_iam_user_access_key_id: ${{ needs.fetch-secrets.outputs.testing_ci_iam_user_access_key_id }}
+          testing_ci_iam_user_secret_access_key: ${{ needs.fetch-secrets.outputs.testing_ci_iam_user_secret_access_key }}
+          PASSPHRASE: ${{ secrets.PASSPHRASE }}
+
+      - uses: actions/setup-go@4dc6199c7b1a012772edbd06daecab0f50c9053c # v6.1.0
+        with:
+          go-version: 1.24
+          cache-dependency-path: "**/go.sum"
+      - uses: hashicorp/setup-terraform@b9cd54a3c349d3f38e8881555d616ced269862dd # v3.1.2
+        with:
+          terraform_version: ~1.3
+          terraform_wrapper: false
+      - name: Download Go Modules
+        working-directory: test
+        run: go mod download
+      - name: Run Go Tests
+        working-directory: test
+        run: |
+          chmod 700 ../scripts/redact-output.sh
+          go test -v | ../scripts/redact-output.sh
+          exit ${PIPESTATUS[0]}
