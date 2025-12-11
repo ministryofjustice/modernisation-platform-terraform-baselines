@@ -334,3 +334,54 @@ func TestTerraformSecurityHubAlarms(t *testing.T) {
 	assert.Regexp(t, regexp.MustCompile(AdminRoleUsageMetricFilterName), AdminRoleUsageMetricFilterId)
 	assert.Regexp(t, regexp.MustCompile(`^arn:aws:cloudwatch:eu-west-2:[0-9]{12}:alarm:`+AdminRoleUsageAlarmName), AdminRoleUsageAlarmArn)
 }
+
+func TestTerraformSecurityHub(t *testing.T) {
+	t.Parallel()
+
+	terraformDir := "./securityhub-test"
+	uniqueId := random.UniqueId()
+
+	// Unique names for SecurityHub resources
+	SecHubEventbridgeRuleName := fmt.Sprintf("sechub_critical_findings-%s", uniqueId)
+	SecHubSNSTopicName := fmt.Sprintf("sechub_findings_sns_topic-%s", uniqueId)
+	SecHubSNSTopicKMSKey := fmt.Sprintf("alias/sns-kms-key-%s", uniqueId)
+
+	terraformOptions := &terraform.Options{
+		TerraformDir: terraformDir,
+		Targets: []string{ // Targeting specific resources as not all are able to be duplicated in the same account
+			"module.securityhub-test.aws_cloudwatch_event_rule.sechub_findings[\"CRITICAL\"]",
+			"module.securityhub-test.aws_cloudwatch_event_rule.sechub_findings[\"HIGH\"]",
+			"module.securityhub-test.aws_cloudwatch_event_target.sechub_findings_sns_topic[\"CRITICAL\"]",
+			"module.securityhub-test.aws_cloudwatch_event_target.sechub_findings_sns_topic[\"HIGH\"]",
+			"module.securityhub-test.aws_sns_topic.sechub_findings_sns_topic",
+			"module.securityhub-test.aws_sns_topic_policy.sechub_findings_sns_topic",
+			"module.securityhub-test.aws_kms_key.sns_kms_key",
+			"module.securityhub-test.aws_kms_alias.sns_kms_alias",
+		},
+		Vars: map[string]interface{}{
+			"sechub_eventbridge_rule_name":    SecHubEventbridgeRuleName,
+			"sechub_sns_topic_name":           SecHubSNSTopicName,
+			"sechub_sns_kms_key_name":         SecHubSNSTopicKMSKey,
+			"enable_securityhub_slack_alerts": true,
+			"securityhub_slack_alerts_scope":  []string{"CRITICAL", "HIGH"},
+		},
+	}
+	// Clean up resources with "terraform destroy" at the end of the test
+	defer terraform.Destroy(t, terraformOptions)
+
+	// Run "terraform init" and "terraform apply"
+	terraform.InitAndApply(t, terraformOptions)
+
+	// SecurityHub module tests
+	SecHubEventbridgeRuleARNsJSON := terraform.Output(t, terraformOptions, "sechub_eventbridge_rule_arns")
+	SecHubSNSTopicARN := terraform.Output(t, terraformOptions, "sechub_sns_topic_arn")
+	SecHubSNSTopicKMSKeyARN := terraform.Output(t, terraformOptions, "sechub_sns_kms_key_arn")
+
+	// Verify the output contains ARNs for both CRITICAL and HIGH severity rules
+	assert.Contains(t, SecHubEventbridgeRuleARNsJSON, "CRITICAL")
+	assert.Contains(t, SecHubEventbridgeRuleARNsJSON, "HIGH")
+	assert.Regexp(t, regexp.MustCompile(`arn:aws:events:eu-west-2:[0-9]{12}:rule/`+SecHubEventbridgeRuleName+`_critical`), SecHubEventbridgeRuleARNsJSON)
+	assert.Regexp(t, regexp.MustCompile(`arn:aws:events:eu-west-2:[0-9]{12}:rule/`+SecHubEventbridgeRuleName+`_high`), SecHubEventbridgeRuleARNsJSON)
+	assert.Regexp(t, regexp.MustCompile(`^arn:aws:sns:eu-west-2:[0-9]{12}:sechub_findings_sns_topic-`+uniqueId), SecHubSNSTopicARN)
+	assert.Regexp(t, regexp.MustCompile(`^arn:aws:kms:eu-west-2:[0-9]{12}:key/*`), SecHubSNSTopicKMSKeyARN)
+}
