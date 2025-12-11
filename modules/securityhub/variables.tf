@@ -17,9 +17,9 @@ variable "sechub_sns_kms_key_name" {
 }
 
 variable "pagerduty_integration_key" {
-  default     = ""
   description = "A PagerDuty integration key to pass into a PagerDuty integration"
   type        = string
+  default     = ""
 }
 
 variable "enable_securityhub_slack_alerts" {
