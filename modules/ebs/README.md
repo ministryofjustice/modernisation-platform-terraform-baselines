@@ -3,7 +3,7 @@
 Terraform module for enabling secure default EBS settings at the AWS account level, including:
 
 - [EBS Encryption by default](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/EBSEncryption.html#encryption-by-default)
-- Blocking public sharing of EBS snapshots (block all sharing)
+- [Blocking public sharing of EBS snapshots (block all sharing)](https://docs.aws.amazon.com/ebs/latest/userguide/block-public-access-snapshots.html)
 
 ## Usage
 
