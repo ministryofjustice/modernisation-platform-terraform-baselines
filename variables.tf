@@ -80,11 +80,30 @@ variable "pagerduty_integration_key" {
 
 variable "high_priority_pagerduty_integration_key" {
   default     = ""
-  description = "A PagerDuty integration key for high priority alerts"
+  description = "A PagerDuty integration key for high priority alerts that do not trigger on-call"
   type        = string
 }
+
 variable "enabled_ssm_baseline_regions" {
   description = "Regions where SSM baseline controls are enforced."
   type        = list(string)
   default     = ["eu-west-1", "eu-west-2", "eu-west-3", "eu-central-1", "us-east-1"]
+}
+
+# The following deal with the provision of slack alerts for CRITICAL and other levels for the CORE accounts only.
+variable "securityhub_slack_alerts_pagerduty_integration_key" {
+  default     = ""
+  description = "A PagerDuty integration key for Security Hub High Priority Alerts"
+  type        = string
+}
+
+variable "enable_securityhub_slack_alerts" {
+  description = "Accounts that have Security Hub Alerts Enabled. Typically covers MP Core Accounts."
+  type        = bool
+}
+
+variable "securityhub_slack_alerts_scope" {
+  description = "List of the criticality levels covered by the security hub alerts. Minimum is CRITICAL"
+  type        = list(string)
+  default     = ["CRITICAL"]
 }
