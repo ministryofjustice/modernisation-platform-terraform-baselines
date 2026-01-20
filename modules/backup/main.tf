@@ -77,7 +77,7 @@ resource "aws_backup_vault_lock_configuration" "default" {
   min_retention_days = var.min_vault_retention_days
   max_retention_days = var.max_vault_retention_days
 
-  changeable_for_days = 3  # Required for compliance mode
+  changeable_for_days = 3 # Required for compliance mode
 }
 
 
