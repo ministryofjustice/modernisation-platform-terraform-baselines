@@ -115,6 +115,26 @@ resource "aws_cloudwatch_log_group" "sechub_findings" {
   tags              = var.tags
 }
 
+resource "aws_cloudwatch_log_resource_policy" "sechub_findings_eventbridge" {
+  count       = local.stream_findings ? 1 : 0
+  policy_name = "AllowEventBridgeToPutFindings"
+  policy_document = jsonencode({
+    "Version" : "2012-10-17",
+    "Statement" : [
+      {
+        "Sid" : "AllowEventBridgePutLogs",
+        "Effect" : "Allow",
+        "Principal" : { "Service" : "events.amazonaws.com" },
+        "Action" : [
+          "logs:PutLogEvents",
+          "logs:CreateLogStream"
+        ],
+        "Resource" : "arn:aws:logs:${data.aws_region.current.region}:${data.aws_caller_identity.current.account_id}:log-group:/aws/events/securityhub-findings:*"
+      }
+    ]
+  })
+}
+
 resource "aws_cloudwatch_event_target" "sechub_findings_log_group" {
   for_each  = local.stream_findings ? toset(local.findings_stream_scope) : []
   rule      = aws_cloudwatch_event_rule.sechub_findings[each.key].name
