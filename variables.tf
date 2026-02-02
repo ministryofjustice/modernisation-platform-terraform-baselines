@@ -107,3 +107,9 @@ variable "securityhub_slack_alerts_scope" {
   type        = list(string)
   default     = ["CRITICAL"]
 }
+
+variable "enable_securityhub_findings_streaming" {
+  description = "Enable streaming Security Hub findings to CloudWatch Logs"
+  type        = bool
+  default     = true
+}

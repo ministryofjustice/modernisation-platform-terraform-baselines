@@ -34,6 +34,12 @@ variable "securityhub_slack_alerts_scope" {
   default     = ["CRITICAL"]
 }
 
+variable "enable_securityhub_findings_streaming" {
+  description = "When true, copy Security Hub findings to CloudWatch Logs for dashboarding"
+  type        = bool
+  default     = true
+}
+
 variable "tags" {
   default     = {}
   description = "Tags to apply to resources, where applicable"
