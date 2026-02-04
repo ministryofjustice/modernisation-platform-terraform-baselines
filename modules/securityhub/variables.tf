@@ -40,6 +40,18 @@ variable "enable_securityhub_findings_streaming" {
   default     = true
 }
 
+variable "enable_securityhub_findings_metrics" {
+  description = "When true, publish CloudWatch metrics derived from streamed Security Hub findings"
+  type        = bool
+  default     = true
+}
+
+variable "securityhub_findings_metric_namespace" {
+  description = "CloudWatch metric namespace used for Security Hub findings counts"
+  type        = string
+  default     = "SecurityHub/Core"
+}
+
 variable "tags" {
   default     = {}
   description = "Tags to apply to resources, where applicable"

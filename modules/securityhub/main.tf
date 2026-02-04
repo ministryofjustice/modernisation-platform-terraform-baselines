@@ -9,6 +9,8 @@ locals {
   findings_rule_scope = var.enable_securityhub_slack_alerts ? toset(var.securityhub_slack_alerts_scope) : (
     local.stream_findings ? local.findings_stream_scope : toset([])
   )
+
+  publish_findings_metrics = local.stream_findings && var.enable_securityhub_findings_metrics
 }
 data "aws_region" "current" {}
 data "aws_caller_identity" "current" {}
@@ -133,6 +135,26 @@ resource "aws_cloudwatch_log_resource_policy" "sechub_findings_eventbridge" {
       }
     ]
   })
+}
+
+resource "aws_cloudwatch_log_metric_filter" "sechub_findings" {
+  for_each = local.publish_findings_metrics ? toset(local.findings_stream_scope) : []
+
+  name           = "securityhub_${lower(each.value)}_findings_count"
+  log_group_name = aws_cloudwatch_log_group.sechub_findings[0].name
+  pattern        = "{ $.detail.findings[*].Severity.Label = \"${each.value}\" }"
+
+  metric_transformation {
+    name      = "SecurityHub${each.value}Findings"
+    namespace = var.securityhub_findings_metric_namespace
+    value     = "1"
+    dimensions = {
+      Severity  = each.value
+      AccountId = data.aws_caller_identity.current.account_id
+      Region    = data.aws_region.current.region
+    }
+    unit = "Count"
+  }
 }
 
 resource "aws_cloudwatch_event_target" "sechub_findings_log_group" {
