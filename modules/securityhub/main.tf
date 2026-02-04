@@ -149,9 +149,9 @@ resource "aws_cloudwatch_log_metric_filter" "sechub_findings" {
     namespace = var.securityhub_findings_metric_namespace
     value     = "1"
     dimensions = {
-      Severity  = each.value
-      AccountId = data.aws_caller_identity.current.account_id
-      Region    = data.aws_region.current.region
+      Severity  = "$.detail.findings[0].Severity.Label"
+      AccountId = "$.account"
+      Region    = "$.region"
     }
     unit = "Count"
   }
