@@ -39,3 +39,14 @@ variable "tags" {
   description = "Tags to apply to resources, where applicable"
   type        = map(any)
 }
+variable "central_event_bus_arn" {
+  description = "ARN of the central EventBridge event bus (typically in observability-platform eu-west-2) to forward Security Hub finding events to."
+  type        = string
+  default     = ""
+}
+
+variable "enable_securityhub_event_forwarding" {
+  description = "When true, forwards matching Security Hub findings (NEW + severities in securityhub_slack_alerts_scope) to central_event_bus_arn."
+  type        = bool
+  default     = false
+}

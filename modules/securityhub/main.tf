@@ -1,3 +1,11 @@
+locals {
+  forward_securityhub_findings = (
+    var.enable_securityhub_slack_alerts &&
+    var.enable_securityhub_event_forwarding &&
+    length(trimspace(var.central_event_bus_arn)) > 0
+  )
+}
+
 data "aws_region" "current" {}
 data "aws_caller_identity" "current" {}
 
@@ -93,6 +101,15 @@ resource "aws_cloudwatch_event_target" "sechub_findings_sns_topic" {
   rule      = aws_cloudwatch_event_rule.sechub_findings[each.key].name
   target_id = "SendToSNS"
   arn       = aws_sns_topic.sechub_findings_sns_topic[0].arn
+}
+
+resource "aws_cloudwatch_event_target" "sechub_findings_central_bus" {
+  for_each = local.forward_securityhub_findings ? toset(var.securityhub_slack_alerts_scope) : []
+
+  rule      = aws_cloudwatch_event_rule.sechub_findings[each.key].name
+  target_id = "ForwardToCentral-${lower(each.value)}"
+  arn       = var.central_event_bus_arn
+  role_arn  = aws_iam_role.sechub_forwarding[0].arn
 }
 
 # Create SNS topic and access policy
