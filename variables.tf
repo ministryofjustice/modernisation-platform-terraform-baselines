@@ -119,9 +119,3 @@ variable "securityhub_central_event_bus_arn" {
   type        = string
   default     = ""
 }
-
-variable "enable_securityhub_event_forwarding_without_slack" {
-  description = "When true, allow Security Hub event forwarding for workspaces that keep Slack alerts disabled (use for approved core accounts only)."
-  type        = bool
-  default     = false
-}
