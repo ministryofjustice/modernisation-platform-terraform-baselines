@@ -1,9 +1,16 @@
 locals {
   forward_securityhub_findings = (
-    var.enable_securityhub_slack_alerts &&
     var.enable_securityhub_event_forwarding &&
-    length(trimspace(nonsensitive(var.central_event_bus_arn))) > 0
+    length(trimspace(nonsensitive(var.central_event_bus_arn))) > 0 &&
+    length(var.forwarding_event_scope) > 0
   )
+
+  enable_sechub_event_rules = var.enable_securityhub_slack_alerts || var.enable_securityhub_event_forwarding
+
+  event_rule_scope = distinct(concat(
+    var.securityhub_slack_alerts_scope,
+    var.forwarding_event_scope
+  ))
 }
 
 data "aws_region" "current" {}
@@ -75,9 +82,7 @@ resource "aws_securityhub_standards_control" "pci_disable_ensure_mfa_for_root" {
 
 # Filter for New SecHub findings by severity level (one rule per severity)
 resource "aws_cloudwatch_event_rule" "sechub_findings" {
-  for_each = (
-    var.enable_securityhub_slack_alerts || local.forward_securityhub_findings
-  ) ? toset(var.securityhub_slack_alerts_scope) : []
+  for_each    = local.enable_sechub_event_rules ? toset(local.event_rule_scope) : []
   name        = "${var.sechub_eventbridge_rule_name}_${lower(each.value)}"
   description = "Check for ${each.value} Severity Security Hub findings"
   event_pattern = jsonencode({
@@ -106,7 +111,7 @@ resource "aws_cloudwatch_event_target" "sechub_findings_sns_topic" {
 }
 
 resource "aws_cloudwatch_event_target" "sechub_findings_central_bus" {
-  for_each = local.forward_securityhub_findings ? toset(var.securityhub_slack_alerts_scope) : []
+  for_each = local.forward_securityhub_findings ? toset(var.forwarding_event_scope) : []
 
   rule      = aws_cloudwatch_event_rule.sechub_findings[each.key].name
   target_id = "ForwardToCentral-${lower(each.value)}"

@@ -50,3 +50,9 @@ variable "enable_securityhub_event_forwarding" {
   type        = bool
   default     = false
 }
+
+variable "forwarding_event_scope" {
+  description = "List of severity labels that should be forwarded to the central EventBridge bus. Defaults to CRITICAL and HIGH."
+  type        = list(string)
+  default     = ["CRITICAL"]
+}

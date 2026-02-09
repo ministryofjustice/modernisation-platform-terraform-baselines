@@ -77,6 +77,10 @@ module "ebs-encryption" {
 }
 ```
 
+### Security Hub forwarding
+
+Set `enable_securityhub_event_forwarding = true`, `securityhub_central_event_bus_arn` to your shared bus, and (optionally) tailor `securityhub_forwarding_scope` to control which severity labels are forwarded (defaults to `CRITICAL`). Because forwarding no longer depends on Slack alerts, you can keep Slack disabled while still sending findings to the central bus.
+
 ## Inputs
 
 |              Name               |                                Description                                |  Type  | Default | Required |
