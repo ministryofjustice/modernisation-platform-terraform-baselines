@@ -2,7 +2,7 @@ locals {
   forward_securityhub_findings = (
     var.enable_securityhub_slack_alerts &&
     var.enable_securityhub_event_forwarding &&
-    length(trimspace(var.central_event_bus_arn)) > 0
+    length(trimspace(nonsensitive(var.central_event_bus_arn))) > 0
   )
 }
 
