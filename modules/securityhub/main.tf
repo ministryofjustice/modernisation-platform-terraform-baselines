@@ -116,7 +116,6 @@ resource "aws_cloudwatch_event_target" "sechub_findings_central_bus" {
   rule      = aws_cloudwatch_event_rule.sechub_findings[each.key].name
   target_id = "ForwardToCentral-${lower(each.value)}"
   arn       = var.central_event_bus_arn
-  role_arn  = aws_iam_role.sechub_forwarding[0].arn
 }
 
 # Create SNS topic and access policy
