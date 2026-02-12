@@ -107,3 +107,20 @@ variable "securityhub_slack_alerts_scope" {
   type        = list(string)
   default     = ["CRITICAL"]
 }
+
+variable "enable_securityhub_event_forwarding" {
+  description = "When true, forward qualifying Security Hub findings to the central EventBridge bus"
+  type        = bool
+  default     = false
+}
+
+variable "securityhub_central_event_bus_arn" {
+  description = "ARN of the central EventBridge event bus that receives forwarded findings"
+  type        = string
+  default     = ""
+}
+
+variable "securityhub_forwarding_scope" {
+  description = "List of Security Hub severity labels that should be forwarded to the central EventBridge bus."
+  default     = ["CRITICAL", "HIGH"]
+}

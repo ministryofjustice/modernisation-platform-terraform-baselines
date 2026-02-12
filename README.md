@@ -77,6 +77,10 @@ module "ebs-encryption" {
 }
 ```
 
+### Security Hub forwarding
+
+Set `enable_securityhub_event_forwarding = true`, `securityhub_central_event_bus_arn` to your shared bus, and (optionally) tailor `securityhub_forwarding_scope` to control which severity labels are forwarded. 
+
 ## Inputs
 
 |              Name               |                                Description                                |  Type  | Default | Required |
