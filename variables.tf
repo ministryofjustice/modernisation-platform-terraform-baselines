@@ -121,7 +121,6 @@ variable "securityhub_central_event_bus_arn" {
 }
 
 variable "securityhub_forwarding_scope" {
-  description = "List of Security Hub severity labels that should be forwarded to the central EventBridge bus. Defaults to CRITICAL and HIGH."
-  type        = list(string)
+  description = "List of Security Hub severity labels that should be forwarded to the central EventBridge bus."
   default     = ["CRITICAL", "HIGH"]
 }
