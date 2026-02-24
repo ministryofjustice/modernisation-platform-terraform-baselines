@@ -203,61 +203,99 @@ resource "aws_backup_vault_notifications" "aws_backup_vault_notifications" {
 }
 
 ###############################################################################
-# AWS Backup Regional Service Opt-In (only eu-west-1 and eu-west-2)
+# AWS Backup Regional Service Opt-In 
 ###############################################################################
 
 locals {
 
+  backup_enabled_regions = [
+    "eu-central-1",
+    "eu-west-1",
+    "eu-west-2",
+    "eu-west-3",
+    "us-east-1"
+  ]
+
   backup_resource_types_by_region = {
 
-    # Region that DOES support Timestream
+    # Full-feature regions 
     "eu-west-1" = {
-      Aurora                   = true
-      CloudFormation           = true
-      DSQL                     = true
-      DocumentDB               = true
-      DynamoDB                 = true
-      EBS                      = true
-      EC2                      = true
-      EFS                      = true
-      EKS                      = true
-      FSx                      = true
-      Neptune                  = true
-      RDS                      = true
-      Redshift                 = true
-      "Redshift Serverless"    = true
-      S3                       = true
-      "SAP HANA on Amazon EC2" = true
-      "Storage Gateway"        = true
-      Timestream               = true
-      VirtualMachine           = true
+      Aurora                     = true
+      CloudFormation             = true
+      DSQL                       = true
+      DocumentDB                 = true
+      DynamoDB                   = true
+      EBS                        = true
+      EC2                        = true
+      EFS                        = true
+      EKS                        = true
+      FSx                        = true
+      Neptune                    = true
+      RDS                        = true
+      Redshift                   = true
+      "Redshift Serverless"      = true
+      S3                         = true
+      "SAP HANA on Amazon EC2"   = true
+      "Storage Gateway"          = true
+      Timestream                 = true
+      VirtualMachine             = true
     }
 
-    # Region that does NOT support Timestream
     "eu-west-2" = {
-      Aurora                   = true
-      CloudFormation           = true
-      DSQL                     = true
-      DocumentDB               = true
-      DynamoDB                 = true
-      EBS                      = true
-      EC2                      = true
-      EFS                      = true
-      EKS                      = true
-      FSx                      = true
-      Neptune                  = true
-      RDS                      = true
-      Redshift                 = true
-      "Redshift Serverless"    = true
-      S3                       = true
-      "SAP HANA on Amazon EC2" = true
-      "Storage Gateway"        = true
-      VirtualMachine           = true
+      Aurora                     = true
+      CloudFormation             = true
+      DSQL                       = true
+      DocumentDB                 = true
+      DynamoDB                   = true
+      EBS                        = true
+      EC2                        = true
+      EFS                        = true
+      EKS                        = true
+      FSx                        = true
+      Neptune                    = true
+      RDS                        = true
+      Redshift                   = true
+      "Redshift Serverless"      = true
+      S3                         = true
+      "SAP HANA on Amazon EC2"   = true
+      "Storage Gateway"          = true
+      VirtualMachine             = true
+    }
+
+    # Limited-feature regions
+    "us-east-1" = {
+      Aurora           = true
+      DynamoDB         = true
+      EBS              = true
+      EC2              = true
+      EFS              = true
+      RDS              = true
+      "Storage Gateway" = true
+    }
+
+    "eu-west-3" = {
+      Aurora           = true
+      DynamoDB         = true
+      EBS              = true
+      EC2              = true
+      EFS              = true
+      RDS              = true
+      "Storage Gateway" = true
+    }
+
+    "eu-central-1" = {
+      Aurora           = true
+      DynamoDB         = true
+      EBS              = true
+      EC2              = true
+      EFS              = true
+      RDS              = true
+      "Storage Gateway" = true
     }
   }
 
   enable_backup_region_settings = contains(
-    ["eu-west-1", "eu-west-2"],
+    local.backup_enabled_regions,
     data.aws_region.current.region
   )
 
