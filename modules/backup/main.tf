@@ -220,76 +220,76 @@ locals {
 
     # Full-feature regions 
     "eu-west-1" = {
-      Aurora                     = true
-      CloudFormation             = true
-      DSQL                       = true
-      DocumentDB                 = true
-      DynamoDB                   = true
-      EBS                        = true
-      EC2                        = true
-      EFS                        = true
-      EKS                        = true
-      FSx                        = true
-      Neptune                    = true
-      RDS                        = true
-      Redshift                   = true
-      "Redshift Serverless"      = true
-      S3                         = true
-      "SAP HANA on Amazon EC2"   = true
-      "Storage Gateway"          = true
-      Timestream                 = true
-      VirtualMachine             = true
+      Aurora                   = true
+      CloudFormation           = true
+      DSQL                     = true
+      DocumentDB               = true
+      DynamoDB                 = true
+      EBS                      = true
+      EC2                      = true
+      EFS                      = true
+      EKS                      = true
+      FSx                      = true
+      Neptune                  = true
+      RDS                      = true
+      Redshift                 = true
+      "Redshift Serverless"    = true
+      S3                       = true
+      "SAP HANA on Amazon EC2" = true
+      "Storage Gateway"        = true
+      Timestream               = true
+      VirtualMachine           = true
     }
 
     "eu-west-2" = {
-      Aurora                     = true
-      CloudFormation             = true
-      DSQL                       = true
-      DocumentDB                 = true
-      DynamoDB                   = true
-      EBS                        = true
-      EC2                        = true
-      EFS                        = true
-      EKS                        = true
-      FSx                        = true
-      Neptune                    = true
-      RDS                        = true
-      Redshift                   = true
-      "Redshift Serverless"      = true
-      S3                         = true
-      "SAP HANA on Amazon EC2"   = true
-      "Storage Gateway"          = true
-      VirtualMachine             = true
+      Aurora                   = true
+      CloudFormation           = true
+      DSQL                     = true
+      DocumentDB               = true
+      DynamoDB                 = true
+      EBS                      = true
+      EC2                      = true
+      EFS                      = true
+      EKS                      = true
+      FSx                      = true
+      Neptune                  = true
+      RDS                      = true
+      Redshift                 = true
+      "Redshift Serverless"    = true
+      S3                       = true
+      "SAP HANA on Amazon EC2" = true
+      "Storage Gateway"        = true
+      VirtualMachine           = true
     }
 
     # Limited-feature regions
     "us-east-1" = {
-      Aurora           = true
-      DynamoDB         = true
-      EBS              = true
-      EC2              = true
-      EFS              = true
-      RDS              = true
+      Aurora            = true
+      DynamoDB          = true
+      EBS               = true
+      EC2               = true
+      EFS               = true
+      RDS               = true
       "Storage Gateway" = true
     }
 
     "eu-west-3" = {
-      Aurora           = true
-      DynamoDB         = true
-      EBS              = true
-      EC2              = true
-      EFS              = true
-      RDS              = true
+      Aurora            = true
+      DynamoDB          = true
+      EBS               = true
+      EC2               = true
+      EFS               = true
+      RDS               = true
       "Storage Gateway" = true
     }
 
     "eu-central-1" = {
-      Aurora           = true
-      DynamoDB         = true
-      EBS              = true
-      EC2              = true
-      EFS              = true
-      RDS              = true
+      Aurora            = true
+      DynamoDB          = true
+      EBS               = true
+      EC2               = true
+      EFS               = true
+      RDS               = true
       "Storage Gateway" = true
     }
   }
