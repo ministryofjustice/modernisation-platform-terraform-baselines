@@ -205,18 +205,21 @@ resource "aws_backup_vault_notifications" "aws_backup_vault_notifications" {
 # Enables AWS Backup regional service opt-in for all accounts
 locals {
   backup_resource_types = {
-    EBS            = true
-    EC2            = true
-    RDS            = true
-    Aurora         = true
-    DynamoDB       = true
-    EFS            = true
-    FSx            = true
-    StorageGateway = true
-    S3             = true
-    Redshift       = true
-    Timestream     = true
-    VMware         = true
+    Aurora                     = true
+    CloudFormation             = true
+    DynamoDB                   = true
+    EBS                        = true
+    EC2                        = true
+    EFS                        = true
+    FSx                        = true
+    Neptune                    = true
+    RDS                        = true
+    Redshift                   = true
+    S3                         = true
+    "SAP HANA on Amazon EC2"   = true
+    StorageGateway             = true
+    Timestream                 = true
+    VMware                     = true
   }
 }
 
