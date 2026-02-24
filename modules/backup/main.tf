@@ -202,32 +202,74 @@ resource "aws_backup_vault_notifications" "aws_backup_vault_notifications" {
   sns_topic_arn       = aws_sns_topic.backup_failure_topic.arn
 }
 
-# Enables AWS Backup regional service opt-in for all accounts
+###############################################################################
+# AWS Backup Regional Service Opt-In (only eu-west-1 and eu-west-2)
+###############################################################################
+
 locals {
-  backup_resource_types = {
-    EBS            = true
-    EC2            = true
-    RDS            = true
-    Aurora         = true
-    DynamoDB       = true
-    EFS            = true
-    FSx            = true
-    StorageGateway = true
-    S3             = true
-    Redshift       = true
-    Timestream     = true
-    VMware         = true
+
+  backup_resource_types_by_region = {
+
+    # Region that DOES support Timestream
+    "eu-west-1" = {
+      Aurora                     = true
+      CloudFormation             = true
+      DSQL                       = true
+      DocumentDB                 = true
+      DynamoDB                   = true
+      EBS                        = true
+      EC2                        = true
+      EFS                        = true
+      EKS                        = true
+      FSx                        = true
+      Neptune                    = true
+      RDS                        = true
+      Redshift                   = true
+      "Redshift Serverless"      = true
+      S3                         = true
+      "SAP HANA on Amazon EC2"   = true
+      "Storage Gateway"          = true
+      Timestream                 = true
+      VirtualMachine             = true
+    }
+
+    # Region that does NOT support Timestream
+    "eu-west-2" = {
+      Aurora                     = true
+      CloudFormation             = true
+      DSQL                       = true
+      DocumentDB                 = true
+      DynamoDB                   = true
+      EBS                        = true
+      EC2                        = true
+      EFS                        = true
+      EKS                        = true
+      FSx                        = true
+      Neptune                    = true
+      RDS                        = true
+      Redshift                   = true
+      "Redshift Serverless"      = true
+      S3                         = true
+      "SAP HANA on Amazon EC2"   = true
+      "Storage Gateway"          = true
+      VirtualMachine             = true
+    }
   }
+
+  enable_backup_region_settings = contains(
+    ["eu-west-1", "eu-west-2"],
+    data.aws_region.current.region
+  )
+
+  backup_resource_types = lookup(
+    local.backup_resource_types_by_region,
+    data.aws_region.current.region,
+    {}
+  )
 }
 
-resource "aws_backup_region_settings" "workspace_eu_west_1" {
-  provider = aws.workspace-eu-west-1
-
-  resource_type_opt_in_preference = local.backup_resource_types
-}
-
-resource "aws_backup_region_settings" "workspace_eu_west_2" {
-  provider = aws.workspace-eu-west-2
+resource "aws_backup_region_settings" "this" {
+  count = local.enable_backup_region_settings ? 1 : 0
 
   resource_type_opt_in_preference = local.backup_resource_types
 }
