@@ -203,15 +203,31 @@ resource "aws_backup_vault_notifications" "aws_backup_vault_notifications" {
 }
 
 # Enables AWS Backup regional service opt-in for all accounts
-data "aws_backup_region_settings" "current" {}
-
 locals {
-  enabled_resource_types = {
-    for k, v in data.aws_backup_region_settings.current.resource_type_opt_in_preference :
-    k => true
+  backup_resource_types = {
+    EBS            = true
+    EC2            = true
+    RDS            = true
+    Aurora         = true
+    DynamoDB       = true
+    EFS            = true
+    FSx            = true
+    StorageGateway = true
+    S3             = true
+    Redshift       = true
+    Timestream     = true
+    VMware         = true
   }
 }
 
-resource "aws_backup_region_settings" "this" {
-  resource_type_opt_in_preference = local.enabled_resource_types
+resource "aws_backup_region_settings" "workspace_eu_west_1" {
+  provider = aws.workspace-eu-west-1
+
+  resource_type_opt_in_preference = local.backup_resource_types
+}
+
+resource "aws_backup_region_settings" "workspace_eu_west_2" {
+  provider = aws.workspace-eu-west-2
+
+  resource_type_opt_in_preference = local.backup_resource_types
 }
