@@ -201,3 +201,25 @@ resource "aws_backup_vault_notifications" "aws_backup_vault_notifications" {
   backup_vault_name   = aws_backup_vault.default.name
   sns_topic_arn       = aws_sns_topic.backup_failure_topic.arn
 }
+
+# Enables AWS Backup regional service opt-in for all accounts
+locals {
+  backup_resource_types = {
+    EBS            = true
+    EC2            = true
+    RDS            = true
+    Aurora         = true
+    DynamoDB       = true
+    EFS            = true
+    FSx            = true
+    StorageGateway = true
+    S3             = true
+    Redshift       = true
+    Timestream     = true
+    VMware         = true
+  }
+}
+
+resource "aws_backup_region_settings" "this" {
+  resource_type_opt_in_preference = local.backup_resource_types
+}
