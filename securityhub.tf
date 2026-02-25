@@ -11,6 +11,7 @@ module "securityhub-ap-northeast-1" {
   enable_securityhub_event_forwarding = local.securityhub_forwarding_enabled
   central_event_bus_arn               = local.securityhub_forwarding_event_bus_arn
   forwarding_event_scope              = local.securityhub_forwarding_scope
+  tags                                = var.tags
 }
 
 module "securityhub-ap-northeast-2" {
@@ -26,6 +27,7 @@ module "securityhub-ap-northeast-2" {
   enable_securityhub_event_forwarding = local.securityhub_forwarding_enabled
   central_event_bus_arn               = local.securityhub_forwarding_event_bus_arn
   forwarding_event_scope              = local.securityhub_forwarding_scope
+  tags                                = var.tags
 }
 
 module "securityhub-ap-south-1" {
@@ -41,6 +43,7 @@ module "securityhub-ap-south-1" {
   enable_securityhub_event_forwarding = local.securityhub_forwarding_enabled
   central_event_bus_arn               = local.securityhub_forwarding_event_bus_arn
   forwarding_event_scope              = local.securityhub_forwarding_scope
+  tags                                = var.tags
 }
 
 module "securityhub-ap-southeast-1" {
@@ -56,6 +59,7 @@ module "securityhub-ap-southeast-1" {
   enable_securityhub_event_forwarding = local.securityhub_forwarding_enabled
   central_event_bus_arn               = local.securityhub_forwarding_event_bus_arn
   forwarding_event_scope              = local.securityhub_forwarding_scope
+  tags                                = var.tags
 }
 
 module "securityhub-ap-southeast-2" {
@@ -71,6 +75,7 @@ module "securityhub-ap-southeast-2" {
   enable_securityhub_event_forwarding = local.securityhub_forwarding_enabled
   central_event_bus_arn               = local.securityhub_forwarding_event_bus_arn
   forwarding_event_scope              = local.securityhub_forwarding_scope
+  tags                                = var.tags
 }
 
 module "securityhub-ca-central-1" {
@@ -86,6 +91,7 @@ module "securityhub-ca-central-1" {
   enable_securityhub_event_forwarding = local.securityhub_forwarding_enabled
   central_event_bus_arn               = local.securityhub_forwarding_event_bus_arn
   forwarding_event_scope              = local.securityhub_forwarding_scope
+  tags                                = var.tags
 }
 
 module "securityhub-eu-central-1" {
@@ -101,6 +107,7 @@ module "securityhub-eu-central-1" {
   enable_securityhub_event_forwarding = local.securityhub_forwarding_enabled
   central_event_bus_arn               = local.securityhub_forwarding_event_bus_arn
   forwarding_event_scope              = local.securityhub_forwarding_scope
+  tags                                = var.tags
 }
 
 module "securityhub-eu-north-1" {
@@ -113,6 +120,7 @@ module "securityhub-eu-north-1" {
   pagerduty_integration_key       = var.securityhub_slack_alerts_pagerduty_integration_key
   enable_securityhub_slack_alerts = var.enable_securityhub_slack_alerts
   securityhub_slack_alerts_scope  = var.securityhub_slack_alerts_scope
+  tags                            = var.tags
 }
 
 module "securityhub-eu-west-1" {
@@ -128,6 +136,7 @@ module "securityhub-eu-west-1" {
   enable_securityhub_event_forwarding = local.securityhub_forwarding_enabled
   central_event_bus_arn               = local.securityhub_forwarding_event_bus_arn
   forwarding_event_scope              = local.securityhub_forwarding_scope
+  tags                                = var.tags
 }
 
 module "securityhub-eu-west-2" {
@@ -143,6 +152,7 @@ module "securityhub-eu-west-2" {
   enable_securityhub_event_forwarding = local.securityhub_forwarding_enabled
   central_event_bus_arn               = local.securityhub_forwarding_event_bus_arn
   forwarding_event_scope              = local.securityhub_forwarding_scope
+  tags                                = var.tags
 }
 
 module "securityhub-eu-west-3" {
@@ -158,7 +168,7 @@ module "securityhub-eu-west-3" {
   enable_securityhub_event_forwarding = local.securityhub_forwarding_enabled
   central_event_bus_arn               = local.securityhub_forwarding_event_bus_arn
   forwarding_event_scope              = local.securityhub_forwarding_scope
-
+  tags                                = var.tags
 }
 
 module "securityhub-sa-east-1" {
@@ -174,6 +184,7 @@ module "securityhub-sa-east-1" {
   enable_securityhub_event_forwarding = local.securityhub_forwarding_enabled
   central_event_bus_arn               = local.securityhub_forwarding_event_bus_arn
   forwarding_event_scope              = local.securityhub_forwarding_scope
+  tags                                = var.tags
 }
 
 module "securityhub-us-east-1" {
@@ -189,6 +200,7 @@ module "securityhub-us-east-1" {
   enable_securityhub_event_forwarding = local.securityhub_forwarding_enabled
   central_event_bus_arn               = local.securityhub_forwarding_event_bus_arn
   forwarding_event_scope              = local.securityhub_forwarding_scope
+  tags                                = var.tags
 }
 
 module "securityhub-us-east-2" {
@@ -204,6 +216,7 @@ module "securityhub-us-east-2" {
   enable_securityhub_event_forwarding = local.securityhub_forwarding_enabled
   central_event_bus_arn               = local.securityhub_forwarding_event_bus_arn
   forwarding_event_scope              = local.securityhub_forwarding_scope
+  tags                                = var.tags
 }
 
 module "securityhub-us-west-1" {
@@ -219,6 +232,7 @@ module "securityhub-us-west-1" {
   enable_securityhub_event_forwarding = local.securityhub_forwarding_enabled
   central_event_bus_arn               = local.securityhub_forwarding_event_bus_arn
   forwarding_event_scope              = local.securityhub_forwarding_scope
+  tags                                = var.tags
 }
 
 module "securityhub-us-west-2" {
@@ -234,4 +248,5 @@ module "securityhub-us-west-2" {
   enable_securityhub_event_forwarding = local.securityhub_forwarding_enabled
   central_event_bus_arn               = local.securityhub_forwarding_event_bus_arn
   forwarding_event_scope              = local.securityhub_forwarding_scope
+  tags                                = var.tags
 }
