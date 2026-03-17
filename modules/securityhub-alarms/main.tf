@@ -11,6 +11,15 @@ locals {
   is_workspace_matched = length(regexall(join("|", local.mp_owned_workspaces), terraform.workspace)) > 0
 
   alarm_action = local.is_workspace_matched ? [aws_sns_topic.securityhub-alarms.arn] : []
+
+  mp_network_workspaces = [
+    "^core-vpc-.*",
+    "^core-network-services-production"
+  ]
+
+  is_network_workspace_matched = length(regexall(join("|", local.mp_network_workspaces), terraform.workspace)) > 0
+
+  network_alarm_action = local.is_network_workspace_matched ? [aws_sns_topic.high_priority_alarms_topic.arn] : []
 }
 
 data "aws_caller_identity" "current" {}
@@ -471,9 +480,21 @@ resource "aws_cloudwatch_metric_alarm" "security-group-changes" {
 }
 
 # 3.11 - Ensure a log metric filter and alarm exist for changes to Network Access Control Lists (NACL)
+
+locals {
+  nacl_unauthorised_event_names = [
+    "CreateNetworkAcl",
+    "CreateNetworkAclEntry",
+    "DeleteNetworkAcl",
+    "DeleteNetworkAclEntry",
+    "ReplaceNetworkAclEntry",
+    "ReplaceNetworkAclAssociation"
+  ]
+}
 resource "aws_cloudwatch_log_metric_filter" "nacl-changes" {
+  for_each       = toset(local.nacl_unauthorised_event_names)
   name           = var.nacl_changes_metric_filter_name
-  pattern        = "{($.eventName=CreateNetworkAcl) || ($.eventName=CreateNetworkAclEntry) || ($.eventName=DeleteNetworkAcl) || ($.eventName=DeleteNetworkAclEntry) || ($.eventName=ReplaceNetworkAclEntry) || ($.eventName=ReplaceNetworkAclAssociation)}"
+  pattern        = "{($.eventName = \"${each.value}\") && (($.userIdentity.type != \"AssumedRole\") || ($.userIdentity.sessionContext.sessionIssuer.userName != \"ModernisationPlatformAccess\")) }"
   log_group_name = "cloudtrail"
 
   metric_transformation {
@@ -486,7 +507,7 @@ resource "aws_cloudwatch_log_metric_filter" "nacl-changes" {
 resource "aws_cloudwatch_metric_alarm" "nacl-changes" {
   alarm_name        = var.nacl_changes_alarm_name
   alarm_description = "Monitors for AWS EC2 Network Access Control Lists changes."
-  alarm_actions     = [aws_sns_topic.securityhub-alarms.arn]
+  alarm_actions     = local.network_alarm_action
 
   comparison_operator = "GreaterThanOrEqualToThreshold"
   evaluation_periods  = "1"
