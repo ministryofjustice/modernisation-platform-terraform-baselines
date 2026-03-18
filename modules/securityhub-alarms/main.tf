@@ -186,10 +186,34 @@ resource "aws_cloudwatch_metric_alarm" "root-account-usage" {
 }
 
 # 3.4 - Ensure a log metric filter and alarm exist for IAM policy changes
+locals {
+  iam_policy_change_event_names = [
+    "DeleteGroupPolicy",
+    "DeleteRolePolicy",
+    "DeleteUserPolicy",
+    "PutGroupPolicy",
+    "PutRolePolicy",
+    "PutUserPolicy",
+    "CreatePolicy",
+    "DeletePolicy",
+    "CreatePolicyVersion",
+    "DeletePolicyVersion",
+    "AttachRolePolicy",
+    "DetachRolePolicy",
+    "AttachUserPolicy",
+    "DetachUserPolicy",
+    "AttachGroupPolicy",
+    "DetachGroupPolicy",
+  ]
+}
+
 resource "aws_cloudwatch_log_metric_filter" "iam-policy-changes" {
-  name           = var.iam_policy_changes_metric_filter_name
-  pattern        = "{($.eventName=DeleteGroupPolicy) || ($.eventName=DeleteRolePolicy) || ($.eventName=DeleteUserPolicy) || ($.eventName=PutGroupPolicy) || ($.eventName=PutRolePolicy) || ($.eventName=PutUserPolicy) || ($.eventName=CreatePolicy) || ($.eventName=DeletePolicy) || ($.eventName=CreatePolicyVersion) || ($.eventName=DeletePolicyVersion) || ($.eventName=AttachRolePolicy) || ($.eventName=DetachRolePolicy) || ($.eventName=AttachUserPolicy) || ($.eventName=DetachUserPolicy) || ($.eventName=AttachGroupPolicy) || ($.eventName=DetachGroupPolicy)}"
+  for_each = toset(local.iam_policy_change_event_names)
+
+  name           = "iam_policy_changes_${lower(each.value)}_filter"
   log_group_name = "cloudtrail"
+
+  pattern = "{ ($.eventSource = \"iam.amazonaws.com\") && ($.eventName = \"${each.value}\") && ( ($.userIdentity.type != \"AssumedRole\") || ( ($.userIdentity.sessionContext.sessionIssuer.userName != \"ModernisationPlatformAccess\") && ($.userIdentity.sessionContext.sessionIssuer.userName != \"MemberInfrastructureAccess\") ) ) }"
 
   metric_transformation {
     name      = var.iam_policy_changes_metric_filter_name
@@ -200,12 +224,12 @@ resource "aws_cloudwatch_log_metric_filter" "iam-policy-changes" {
 
 resource "aws_cloudwatch_metric_alarm" "iam-policy-changes" {
   alarm_name        = var.iam_policy_changes_alarm_name
-  alarm_description = "Monitors for IAM policy changes."
-  alarm_actions     = []
+  alarm_description = "Monitors for IAM policy changes made outside of approved automation roles: ModernisationPlatformAccess, MemberInfrastructureAccess."
+  alarm_actions     = [aws_sns_topic.securityhub-alarms.arn]
 
   comparison_operator = "GreaterThanOrEqualToThreshold"
   evaluation_periods  = "1"
-  metric_name         = aws_cloudwatch_log_metric_filter.iam-policy-changes.id
+  metric_name         = var.iam_policy_changes_metric_filter_name
   namespace           = "LogMetrics"
   period              = "300"
   statistic           = "Sum"

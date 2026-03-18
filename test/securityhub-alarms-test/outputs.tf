@@ -52,9 +52,9 @@ output "root_account_usage_alarm_arn" {
   description = "The ARN of the CloudWatch alarm for root account usage"
 }
 
-output "iam_policy_changes_metric_filter_id" {
-  value       = module.securityhub-alarms-test.iam_policy_changes_metric_filter_id
-  description = "The ID of the CloudWatch metric filter for IAM policy changes"
+output "iam_policy_changes_metric_filter_ids" {
+  value       = module.securityhub-alarms-test.iam_policy_changes_metric_filter_ids
+  description = "Map of IAM policy change CloudWatch log metric filter IDs keyed by event name"
 }
 
 output "iam_policy_changes_alarm_arn" {
