@@ -187,14 +187,17 @@ resource "aws_cloudwatch_metric_alarm" "root-account-usage" {
 
 # 3.4 - Ensure a log metric filter and alarm exist for IAM policy changes
 locals {
-  iam_policy_unauthorized_role_name = "ModernisationPlatformAccess"
+  iam_policy_unauthorized_role_names = [
+    "ModernisationPlatformAccess",
+    "MemberInfrastructureAccess",
+  ]
 }
 
 resource "aws_cloudwatch_log_metric_filter" "iam-policy-changes" {
   name           = var.iam_policy_changes_metric_filter_name
   log_group_name = "cloudtrail"
 
-  pattern = "{ ($.eventSource = \"iam.amazonaws.com\") && ( ($.eventName = \"DeleteGroupPolicy\") || ($.eventName = \"DeleteRolePolicy\") || ($.eventName = \"DeleteUserPolicy\") || ($.eventName = \"PutGroupPolicy\") || ($.eventName = \"PutRolePolicy\") || ($.eventName = \"PutUserPolicy\") || ($.eventName = \"CreatePolicy\") || ($.eventName = \"DeletePolicy\") || ($.eventName = \"CreatePolicyVersion\") || ($.eventName = \"DeletePolicyVersion\") || ($.eventName = \"AttachRolePolicy\") || ($.eventName = \"DetachRolePolicy\") || ($.eventName = \"AttachUserPolicy\") || ($.eventName = \"DetachUserPolicy\") || ($.eventName = \"AttachGroupPolicy\") || ($.eventName = \"DetachGroupPolicy\") ) && ( ($.userIdentity.type != \"AssumedRole\") || ($.userIdentity.sessionContext.sessionIssuer.userName != \"${local.iam_policy_unauthorized_role_name}\") ) }"
+  pattern = "{ ($.eventSource = \"iam.amazonaws.com\") && ( ($.eventName = \"DeleteGroupPolicy\") || ($.eventName = \"DeleteRolePolicy\") || ($.eventName = \"DeleteUserPolicy\") || ($.eventName = \"PutGroupPolicy\") || ($.eventName = \"PutRolePolicy\") || ($.eventName = \"PutUserPolicy\") || ($.eventName = \"CreatePolicy\") || ($.eventName = \"DeletePolicy\") || ($.eventName = \"CreatePolicyVersion\") || ($.eventName = \"DeletePolicyVersion\") || ($.eventName = \"AttachRolePolicy\") || ($.eventName = \"DetachRolePolicy\") || ($.eventName = \"AttachUserPolicy\") || ($.eventName = \"DetachUserPolicy\") || ($.eventName = \"AttachGroupPolicy\") || ($.eventName = \"DetachGroupPolicy\") ) && ( ($.userIdentity.type != \"AssumedRole\") || ( ($.userIdentity.sessionContext.sessionIssuer.userName != \"${local.iam_policy_unauthorized_role_names[0]}\") && ($.userIdentity.sessionContext.sessionIssuer.userName != \"${local.iam_policy_unauthorized_role_names[1]}\") ) ) }"
 
   metric_transformation {
     name      = var.iam_policy_changes_metric_filter_name
@@ -205,7 +208,7 @@ resource "aws_cloudwatch_log_metric_filter" "iam-policy-changes" {
 
 resource "aws_cloudwatch_metric_alarm" "iam-policy-changes" {
   alarm_name        = var.iam_policy_changes_alarm_name
-  alarm_description = "Monitors for IAM policy changes made outside of ${local.iam_policy_unauthorized_role_name} automation role."
+  alarm_description = "Monitors for IAM policy changes made outside of approved automation roles: ${join(", ", local.iam_policy_unauthorized_role_names)}."
   alarm_actions     = []
 
   comparison_operator = "GreaterThanOrEqualToThreshold"
