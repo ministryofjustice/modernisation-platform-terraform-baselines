@@ -210,7 +210,7 @@ locals {
 resource "aws_cloudwatch_log_metric_filter" "iam-policy-changes" {
   for_each = toset(local.iam_policy_change_event_names)
 
-  name           = "iam_policy_changes_${lower(each.value)}"
+  name           = "iam_policy_changes_${lower(each.value)}_filter"
   log_group_name = "cloudtrail"
 
   pattern = "{ ($.eventSource = \"iam.amazonaws.com\") && ($.eventName = \"${each.value}\") && ( ($.userIdentity.type != \"AssumedRole\") || ( ($.userIdentity.sessionContext.sessionIssuer.userName != \"ModernisationPlatformAccess\") && ($.userIdentity.sessionContext.sessionIssuer.userName != \"MemberInfrastructureAccess\") ) ) }"
@@ -218,7 +218,7 @@ resource "aws_cloudwatch_log_metric_filter" "iam-policy-changes" {
   metric_transformation {
     name      = var.iam_policy_changes_metric_filter_name
     namespace = "LogMetrics"
-    value     = "1"
+    value     = 1
   }
 }
 
