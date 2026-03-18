@@ -239,15 +239,6 @@ resource "aws_cloudwatch_metric_alarm" "iam-policy-changes" {
   tags = var.tags
 }
 
-resource "aws_instance" "test" {
-  ami           = "ami-0c76bd4bd302b30ec" # Amazon Linux 2 (example, may need updating)
-  instance_type = "t2.micro"
-
-  tags = {
-    Name = "example-ec2-instance"
-  }
-}
-
 # 3.5 - Ensure a log metric filter and alarm exist for CloudTrail configuration changes
 resource "aws_cloudwatch_log_metric_filter" "cloudtrail-configuration-changes" {
   name           = var.cloudtrail_configuration_changes_metric_filter_name
