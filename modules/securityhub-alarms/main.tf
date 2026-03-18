@@ -194,12 +194,12 @@ resource "aws_cloudwatch_log_metric_filter" "iam-policy-changes" {
   name           = var.iam_policy_changes_metric_filter_name
   log_group_name = "cloudtrail"
 
-  pattern = "{ ( ($.eventName = DeleteGroupPolicy) || ($.eventName = DeleteRolePolicy) || ($.eventName = DeleteUserPolicy) || ($.eventName = PutGroupPolicy) || ($.eventName = PutRolePolicy) || ($.eventName = PutUserPolicy) || ($.eventName = CreatePolicy) || ($.eventName = DeletePolicy) || ($.eventName = CreatePolicyVersion) || ($.eventName = DeletePolicyVersion) || ($.eventName = AttachRolePolicy) || ($.eventName = DetachRolePolicy) || ($.eventName = AttachUserPolicy) || ($.eventName = DetachUserPolicy) || ($.eventName = AttachGroupPolicy) || ($.eventName = DetachGroupPolicy) ) && ( ($.userIdentity.type != \"AssumedRole\") || ($.userIdentity.sessionContext.sessionIssuer.userName != \"${local.iam_policy_unauthorized_role_name}\") ) }"
+  pattern = "{ ($.eventSource = \"iam.amazonaws.com\") && ( ($.eventName = \"DeleteGroupPolicy\") || ($.eventName = \"DeleteRolePolicy\") || ($.eventName = \"DeleteUserPolicy\") || ($.eventName = \"PutGroupPolicy\") || ($.eventName = \"PutRolePolicy\") || ($.eventName = \"PutUserPolicy\") || ($.eventName = \"CreatePolicy\") || ($.eventName = \"DeletePolicy\") || ($.eventName = \"CreatePolicyVersion\") || ($.eventName = \"DeletePolicyVersion\") || ($.eventName = \"AttachRolePolicy\") || ($.eventName = \"DetachRolePolicy\") || ($.eventName = \"AttachUserPolicy\") || ($.eventName = \"DetachUserPolicy\") || ($.eventName = \"AttachGroupPolicy\") || ($.eventName = \"DetachGroupPolicy\") ) && ( ($.userIdentity.type != \"AssumedRole\") || ($.userIdentity.sessionContext.sessionIssuer.userName != \"${local.iam_policy_unauthorized_role_name}\") ) }"
 
   metric_transformation {
     name      = var.iam_policy_changes_metric_filter_name
     namespace = "LogMetrics"
-    value     = 1
+    value     = "1"
   }
 }
 
@@ -210,7 +210,7 @@ resource "aws_cloudwatch_metric_alarm" "iam-policy-changes" {
 
   comparison_operator = "GreaterThanOrEqualToThreshold"
   evaluation_periods  = "1"
-  metric_name         = aws_cloudwatch_log_metric_filter.iam-policy-changes.id
+  metric_name         = var.iam_policy_changes_metric_filter_name
   namespace           = "LogMetrics"
   period              = "300"
   statistic           = "Sum"
