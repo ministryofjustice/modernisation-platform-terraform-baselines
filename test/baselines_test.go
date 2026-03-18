@@ -264,7 +264,7 @@ func TestTerraformSecurityHubAlarms(t *testing.T) {
 	SignInWithoutMfaAlarmArn := terraform.Output(t, terraformOptions, "sign_in_without_mfa_alarm_arn")
 	RootAccountUsageMetricFilterId := terraform.Output(t, terraformOptions, "root_account_usage_metric_filter_id")
 	RootAccountUsageAlarmArn := terraform.Output(t, terraformOptions, "root_account_usage_alarm_arn")
-	IamPolicyChangesMetricFilterId := terraform.Output(t, terraformOptions, "iam_policy_changes_metric_filter_id")
+	IamPolicyChangesMetricFilterId := terraform.Output(t, terraformOptions, "iam_policy_changes_metric_filter_ids")
 	IamPolicyChangesAlarmArn := terraform.Output(t, terraformOptions, "iam_policy_changes_alarm_arn")
 	CloudtrailConfigurationChangesMetricFilterId := terraform.Output(t, terraformOptions, "cloudtrail_configuration_changes_metric_filter_id")
 	CloudtrailConfigurationChangesAlarmArn := terraform.Output(t, terraformOptions, "cloudtrail_configuration_changes_alarm_arn")
