@@ -209,7 +209,7 @@ resource "aws_cloudwatch_log_metric_filter" "iam-policy-changes" {
 resource "aws_cloudwatch_metric_alarm" "iam-policy-changes" {
   alarm_name        = var.iam_policy_changes_alarm_name
   alarm_description = "Monitors for IAM policy changes made outside of approved automation roles: ${join(", ", local.iam_policy_unauthorized_role_names)}."
-  alarm_actions     = []
+  alarm_actions     = [aws_sns_topic.securityhub-alarms.arn]
 
   comparison_operator = "GreaterThanOrEqualToThreshold"
   evaluation_periods  = "1"
