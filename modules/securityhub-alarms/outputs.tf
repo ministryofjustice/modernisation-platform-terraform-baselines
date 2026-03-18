@@ -57,6 +57,15 @@ output "iam_policy_changes_metric_filter_id" {
   description = "The ID of the CloudWatch metric filter for IAM policy changes"
 }
 
+output "iam_policy_changes_metric_filter_ids" {
+  description = "Map of IAM policy change CloudWatch log metric filter IDs keyed by event name. Required when metric filters are created using for_each (one per event) instead of a single resource."
+  
+  value = {
+    for event_name, metric_filter in aws_cloudwatch_log_metric_filter.iam-policy-changes :
+    event_name => metric_filter.id
+  }
+}
+
 output "iam_policy_changes_alarm_arn" {
   value       = aws_cloudwatch_metric_alarm.iam-policy-changes.arn
   description = "The ARN of the CloudWatch alarm for IAM policy changes"
