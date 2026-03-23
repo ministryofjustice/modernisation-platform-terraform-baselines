@@ -480,7 +480,6 @@ resource "aws_cloudwatch_metric_alarm" "security-group-changes" {
 }
 
 # 3.11 - Ensure a log metric filter and alarm exist for changes to Network Access Control Lists (NACL)
-
 locals {
   nacl_unauthorised_event_names = [
     "CreateNetworkAcl",
@@ -522,9 +521,20 @@ resource "aws_cloudwatch_metric_alarm" "nacl-changes" {
 }
 
 # 3.12 - Ensure a log metric filter and alarm exist for changes to network gateways
+locals {
+  ngw_unauthorised_event_names = [
+    "CreateCustomerGateway",
+    "DeleteCustomerGateway",
+    "AttachInternetGateway",
+    "CreateInternetGateway",
+    "DeleteInternetGateway",
+    "DetachInternetGateway"
+  ]
+}
 resource "aws_cloudwatch_log_metric_filter" "network-gateway-changes" {
+  for_each       = toset(local.ngw_unauthorised_event_names)
   name           = var.network_gateway_changes_metric_filter_name
-  pattern        = "{($.eventName=CreateCustomerGateway) || ($.eventName=DeleteCustomerGateway) || ($.eventName=AttachInternetGateway) || ($.eventName=CreateInternetGateway) || ($.eventName=DeleteInternetGateway) || ($.eventName=DetachInternetGateway)}"
+  pattern        = "{($.eventName = \"${each.value}\") && (($.userIdentity.type != \"AssumedRole\") || ($.userIdentity.sessionContext.sessionIssuer.userName != \"ModernisationPlatformAccess\")) }"
   log_group_name = "cloudtrail"
 
   metric_transformation {
@@ -552,9 +562,21 @@ resource "aws_cloudwatch_metric_alarm" "network-gateway-changes" {
 }
 
 # 3.13 - Ensure a log metric filter and alarm exist for route table changes
+locals {
+  rtb_unauthorised_actions = [
+    "CreateRoute",
+    "CreateRouteTable",
+    "ReplaceRoute",
+    "ReplaceRouteTableAssociation",
+    "DeleteRouteTable",
+    "DeleteRoute",
+    "DisassociateRouteTable"
+  ]
+}
 resource "aws_cloudwatch_log_metric_filter" "route-table-changes" {
+  for_each       = toset(local.rtb_unauthorised_actions)
   name           = var.route_table_changes_metric_filter_name
-  pattern        = "{($.eventName=CreateRoute) || ($.eventName=CreateRouteTable) || ($.eventName=ReplaceRoute) || ($.eventName=ReplaceRouteTableAssociation) || ($.eventName=DeleteRouteTable) || ($.eventName=DeleteRoute) || ($.eventName=DisassociateRouteTable)}"
+  pattern        = "{($.eventName = \"${each.value}\") && (($.userIdentity.type != \"AssumedRole\") || ($.userIdentity.sessionContext.sessionIssuer.userName != \"ModernisationPlatformAccess\")) }"
   log_group_name = "cloudtrail"
 
   metric_transformation {
@@ -582,9 +604,25 @@ resource "aws_cloudwatch_metric_alarm" "route-table-changes" {
 }
 
 # 3.14 - Ensure a log metric filter and alarm exist for VPC changes
+locals {
+  vpc_unauthorised_actions = [
+    "CreateVpc",
+    "DeleteVpc",
+    "ModifyVpcAttribute",
+    "AcceptVpcPeeringConnection",
+    "CreateVpcPeeringConnection",
+    "DeleteVpcPeeringConnection",
+    "RejectVpcPeeringConnection",
+    "AttachClassicLinkVpc",
+    "DetachClassicLinkVpc",
+    "DisableVpcClassicLink",
+    "EnableVpcClassicLink"
+  ]
+}
 resource "aws_cloudwatch_log_metric_filter" "vpc-changes" {
+  for_each       = toset(local.vpc_unauthorised_actions)
   name           = var.vpc_changes_metric_filter_name
-  pattern        = "{($.eventName=CreateVpc) || ($.eventName=DeleteVpc) || ($.eventName=ModifyVpcAttribute) || ($.eventName=AcceptVpcPeeringConnection) || ($.eventName=CreateVpcPeeringConnection) || ($.eventName=DeleteVpcPeeringConnection) || ($.eventName=RejectVpcPeeringConnection) || ($.eventName=AttachClassicLinkVpc) || ($.eventName=DetachClassicLinkVpc) || ($.eventName=DisableVpcClassicLink) || ($.eventName=EnableVpcClassicLink)}"
+  pattern        = "{($.eventName = \"${each.value}\") && (($.userIdentity.type != \"AssumedRole\") || ($.userIdentity.sessionContext.sessionIssuer.userName != \"ModernisationPlatformAccess\")) }"
   log_group_name = "cloudtrail"
 
   metric_transformation {
