@@ -492,7 +492,7 @@ locals {
 }
 resource "aws_cloudwatch_log_metric_filter" "nacl-changes" {
   for_each       = toset(local.nacl_unauthorised_event_names)
-  name           = var.nacl_changes_metric_filter_name
+  name           = "${var.nacl_changes_metric_filter_name}-${each.key}"
   pattern        = "{($.eventName = \"${each.value}\") && (($.userIdentity.type != \"AssumedRole\") || ($.userIdentity.sessionContext.sessionIssuer.userName != \"ModernisationPlatformAccess\")) }"
   log_group_name = "cloudtrail"
 
@@ -533,7 +533,7 @@ locals {
 }
 resource "aws_cloudwatch_log_metric_filter" "network-gateway-changes" {
   for_each       = toset(local.ngw_unauthorised_event_names)
-  name           = var.network_gateway_changes_metric_filter_name
+  name           = "${var.network_gateway_changes_metric_filter_name}-${each.key}"
   pattern        = "{($.eventName = \"${each.value}\") && (($.userIdentity.type != \"AssumedRole\") || ($.userIdentity.sessionContext.sessionIssuer.userName != \"ModernisationPlatformAccess\")) }"
   log_group_name = "cloudtrail"
 
@@ -575,7 +575,7 @@ locals {
 }
 resource "aws_cloudwatch_log_metric_filter" "route-table-changes" {
   for_each       = toset(local.rtb_unauthorised_actions)
-  name           = var.route_table_changes_metric_filter_name
+  name           = "${var.route_table_changes_metric_filter_name}-${each.key}"
   pattern        = "{($.eventName = \"${each.value}\") && (($.userIdentity.type != \"AssumedRole\") || ($.userIdentity.sessionContext.sessionIssuer.userName != \"ModernisationPlatformAccess\")) }"
   log_group_name = "cloudtrail"
 
@@ -621,7 +621,7 @@ locals {
 }
 resource "aws_cloudwatch_log_metric_filter" "vpc-changes" {
   for_each       = toset(local.vpc_unauthorised_actions)
-  name           = var.vpc_changes_metric_filter_name
+  name           = "${var.vpc_changes_metric_filter_name}-${each.key}"
   pattern        = "{($.eventName = \"${each.value}\") && (($.userIdentity.type != \"AssumedRole\") || ($.userIdentity.sessionContext.sessionIssuer.userName != \"ModernisationPlatformAccess\")) }"
   log_group_name = "cloudtrail"
 
