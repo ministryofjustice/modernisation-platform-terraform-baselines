@@ -510,7 +510,7 @@ resource "aws_cloudwatch_metric_alarm" "nacl-changes" {
 
   comparison_operator = "GreaterThanOrEqualToThreshold"
   evaluation_periods  = "1"
-  metric_name         = aws_cloudwatch_log_metric_filter.nacl-changes.id
+  metric_name         = var.nacl_changes_metric_filter_name
   namespace           = "LogMetrics"
   period              = "300"
   statistic           = "Sum"
@@ -551,7 +551,7 @@ resource "aws_cloudwatch_metric_alarm" "network-gateway-changes" {
 
   comparison_operator = "GreaterThanOrEqualToThreshold"
   evaluation_periods  = "1"
-  metric_name         = aws_cloudwatch_log_metric_filter.network-gateway-changes.id
+  metric_name         = var.network_gateway_changes_metric_filter_name
   namespace           = "LogMetrics"
   period              = "300"
   statistic           = "Sum"
@@ -593,7 +593,7 @@ resource "aws_cloudwatch_metric_alarm" "route-table-changes" {
 
   comparison_operator = "GreaterThanOrEqualToThreshold"
   evaluation_periods  = "1"
-  metric_name         = aws_cloudwatch_log_metric_filter.route-table-changes.id
+  metric_name         = var.route_table_changes_metric_filter_name
   namespace           = "LogMetrics"
   period              = "300"
   statistic           = "Sum"
@@ -639,7 +639,7 @@ resource "aws_cloudwatch_metric_alarm" "vpc-changes" {
 
   comparison_operator = "GreaterThanOrEqualToThreshold"
   evaluation_periods  = "1"
-  metric_name         = aws_cloudwatch_log_metric_filter.vpc-changes.id
+  metric_name         = var.vpc_changes_metric_filter_name
   namespace           = "LogMetrics"
   period              = "300"
   statistic           = "Sum"
