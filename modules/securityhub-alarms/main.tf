@@ -547,7 +547,7 @@ resource "aws_cloudwatch_log_metric_filter" "network-gateway-changes" {
 resource "aws_cloudwatch_metric_alarm" "network-gateway-changes" {
   alarm_name        = var.network_gateway_changes_alarm_name
   alarm_description = "Monitors for AWS EC2 network gateway changes."
-  alarm_actions     = [aws_sns_topic.securityhub-alarms.arn]
+  alarm_actions     = local.network_alarm_action
 
   comparison_operator = "GreaterThanOrEqualToThreshold"
   evaluation_periods  = "1"
@@ -589,7 +589,7 @@ resource "aws_cloudwatch_log_metric_filter" "route-table-changes" {
 resource "aws_cloudwatch_metric_alarm" "route-table-changes" {
   alarm_name        = var.route_table_changes_alarm_name
   alarm_description = "Monitors for AWS EC2 route table changes."
-  alarm_actions     = [aws_sns_topic.securityhub-alarms.arn]
+  alarm_actions     = local.network_alarm_action
 
   comparison_operator = "GreaterThanOrEqualToThreshold"
   evaluation_periods  = "1"
@@ -635,7 +635,7 @@ resource "aws_cloudwatch_log_metric_filter" "vpc-changes" {
 resource "aws_cloudwatch_metric_alarm" "vpc-changes" {
   alarm_name        = var.vpc_changes_alarm_name
   alarm_description = "Monitors for AWS VPC changes."
-  alarm_actions     = [aws_sns_topic.securityhub-alarms.arn]
+  alarm_actions     = local.network_alarm_action
 
   comparison_operator = "GreaterThanOrEqualToThreshold"
   evaluation_periods  = "1"
