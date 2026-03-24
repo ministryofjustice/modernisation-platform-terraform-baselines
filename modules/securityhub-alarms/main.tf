@@ -208,7 +208,7 @@ locals {
 }
 
 resource "aws_cloudwatch_log_metric_filter" "iam-policy-changes" {
-  for_each = toset(local.iam_policy_change_event_names)
+  for_each       = toset(local.iam_policy_change_event_names)
   name           = "iam_policy_changes_${lower(each.value)}_filter"
   log_group_name = "cloudtrail"
 
@@ -250,7 +250,7 @@ locals {
 }
 
 resource "aws_cloudwatch_log_metric_filter" "cloudtrail-configuration-changes" {
-  for_each = toset(local.cloudtrail_configuration_change_event_names)
+  for_each       = toset(local.cloudtrail_configuration_change_event_names)
   name           = "cloudtrail_configuration_changes_${lower(each.value)}_filter"
   log_group_name = "cloudtrail"
 
@@ -356,7 +356,7 @@ locals {
 }
 
 resource "aws_cloudwatch_log_metric_filter" "s3-bucket-policy-changes" {
-  for_each = toset(local.s3_bucket_policy_change_event_names)
+  for_each       = toset(local.s3_bucket_policy_change_event_names)
   name           = "s3_bucket_policy_changes_${lower(each.value)}_filter"
   log_group_name = "cloudtrail"
 
@@ -397,7 +397,7 @@ locals {
 }
 
 resource "aws_cloudwatch_log_metric_filter" "config-configuration-changes" {
-  for_each = toset(local.config_configuration_change_event_names)
+  for_each       = toset(local.config_configuration_change_event_names)
   name           = "config_configuration_changes_${lower(each.value)}_filter"
   log_group_name = "cloudtrail"
 
@@ -440,7 +440,7 @@ locals {
 }
 
 resource "aws_cloudwatch_log_metric_filter" "security-group-changes" {
-  for_each = toset(local.security_group_change_event_names)
+  for_each       = toset(local.security_group_change_event_names)
   name           = "security_group_changes_${lower(each.value)}_filter"
   log_group_name = "cloudtrail"
 
