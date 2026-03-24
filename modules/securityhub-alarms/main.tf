@@ -209,7 +209,6 @@ locals {
 
 resource "aws_cloudwatch_log_metric_filter" "iam-policy-changes" {
   for_each = toset(local.iam_policy_change_event_names)
-
   name           = "iam_policy_changes_${lower(each.value)}_filter"
   log_group_name = "cloudtrail"
 
@@ -252,11 +251,10 @@ locals {
 
 resource "aws_cloudwatch_log_metric_filter" "cloudtrail-configuration-changes" {
   for_each = toset(local.cloudtrail_configuration_change_event_names)
-
   name           = "cloudtrail_configuration_changes_${lower(each.value)}_filter"
   log_group_name = "cloudtrail"
 
-  pattern = "{ ($.eventName = \"${each.value}\") && ( ($.userIdentity.type != \"AssumedRole\") || ( ($.userIdentity.sessionContext.sessionIssuer.userName != \"ModernisationPlatformAccess\") && ($.userIdentity.sessionContext.sessionIssuer.userName != \"MemberInfrastructureAccess\") ) ) }"
+  pattern = "{ ($.eventSource = \"cloudtrail.amazonaws.com\") && ($.eventName = \"${each.value}\") && ( ($.userIdentity.type != \"AssumedRole\") || ( ($.userIdentity.sessionContext.sessionIssuer.userName != \"ModernisationPlatformAccess\") && ($.userIdentity.sessionContext.sessionIssuer.userName != \"MemberInfrastructureAccess\") ) ) }"
 
   metric_transformation {
     name      = var.cloudtrail_configuration_changes_metric_filter_name
@@ -354,13 +352,11 @@ locals {
     "DeleteBucketCors",
     "DeleteBucketLifecycle",
     "DeleteBucketReplication",
-    # "PutBucketTagging",
   ]
 }
 
 resource "aws_cloudwatch_log_metric_filter" "s3-bucket-policy-changes" {
   for_each = toset(local.s3_bucket_policy_change_event_names)
-
   name           = "s3_bucket_policy_changes_${lower(each.value)}_filter"
   log_group_name = "cloudtrail"
 
@@ -402,7 +398,6 @@ locals {
 
 resource "aws_cloudwatch_log_metric_filter" "config-configuration-changes" {
   for_each = toset(local.config_configuration_change_event_names)
-
   name           = "config_configuration_changes_${lower(each.value)}_filter"
   log_group_name = "cloudtrail"
 
@@ -446,11 +441,10 @@ locals {
 
 resource "aws_cloudwatch_log_metric_filter" "security-group-changes" {
   for_each = toset(local.security_group_change_event_names)
-
   name           = "security_group_changes_${lower(each.value)}_filter"
   log_group_name = "cloudtrail"
 
-  pattern = "{ ($.eventName = \"${each.value}\") && ( ($.userIdentity.type != \"AssumedRole\") || ( ($.userIdentity.sessionContext.sessionIssuer.userName != \"ModernisationPlatformAccess\") && ($.userIdentity.sessionContext.sessionIssuer.userName != \"MemberInfrastructureAccess\") ) ) }"
+  pattern = "{ ($.eventSource = \"ec2.amazonaws.com\") && ($.eventName = \"${each.value}\") && ( ($.userIdentity.type != \"AssumedRole\") || ( ($.userIdentity.sessionContext.sessionIssuer.userName != \"ModernisationPlatformAccess\") && ($.userIdentity.sessionContext.sessionIssuer.userName != \"MemberInfrastructureAccess\") ) ) }"
 
   metric_transformation {
     name      = var.security_group_changes_metric_filter_name
@@ -468,7 +462,7 @@ resource "aws_cloudwatch_metric_alarm" "security-group-changes" {
   evaluation_periods  = "1"
   metric_name         = var.security_group_changes_metric_filter_name
   namespace           = "LogMetrics"
-  period              = "60"
+  period              = "300"
   statistic           = "Sum"
   threshold           = "1"
   treat_missing_data  = "notBreaching"
