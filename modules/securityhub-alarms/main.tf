@@ -209,7 +209,7 @@ locals {
 
 resource "aws_cloudwatch_log_metric_filter" "iam-policy-changes" {
   for_each       = toset(local.iam_policy_change_event_names)
-  name           = "iam_policy_changes_${lower(each.value)}_filter"
+  name           = "${var.iam_policy_changes_metric_filter_name}-${each.key}"
   log_group_name = "cloudtrail"
 
   pattern = "{ ($.eventSource = \"iam.amazonaws.com\") && ($.eventName = \"${each.value}\") && ( ($.userIdentity.type != \"AssumedRole\") || ( ($.userIdentity.sessionContext.sessionIssuer.userName != \"ModernisationPlatformAccess\") && ($.userIdentity.sessionContext.sessionIssuer.userName != \"MemberInfrastructureAccess\") ) ) }"
@@ -251,7 +251,7 @@ locals {
 
 resource "aws_cloudwatch_log_metric_filter" "cloudtrail-configuration-changes" {
   for_each       = toset(local.cloudtrail_configuration_change_event_names)
-  name           = "cloudtrail_configuration_changes_${lower(each.value)}_filter"
+  name           = "${var.cloudtrail_configuration_changes_metric_filter_name}-${each.key}"
   log_group_name = "cloudtrail"
 
   pattern = "{ ($.eventSource = \"cloudtrail.amazonaws.com\") && ($.eventName = \"${each.value}\") && ( ($.userIdentity.type != \"AssumedRole\") || ( ($.userIdentity.sessionContext.sessionIssuer.userName != \"ModernisationPlatformAccess\") && ($.userIdentity.sessionContext.sessionIssuer.userName != \"MemberInfrastructureAccess\") ) ) }"
@@ -357,7 +357,7 @@ locals {
 
 resource "aws_cloudwatch_log_metric_filter" "s3-bucket-policy-changes" {
   for_each       = toset(local.s3_bucket_policy_change_event_names)
-  name           = "s3_bucket_policy_changes_${lower(each.value)}_filter"
+  name           = "${var.s3_bucket_policy_changes_metric_filter_name}-${each.key}"
   log_group_name = "cloudtrail"
 
   pattern = "{ ($.eventSource = \"s3.amazonaws.com\") && ($.eventName = \"${each.value}\") && ( ($.userIdentity.type != \"AssumedRole\") || ( $.userIdentity.sessionContext.sessionIssuer.userName != \"ModernisationPlatformAccess\" ) ) }"
@@ -398,7 +398,7 @@ locals {
 
 resource "aws_cloudwatch_log_metric_filter" "config-configuration-changes" {
   for_each       = toset(local.config_configuration_change_event_names)
-  name           = "config_configuration_changes_${lower(each.value)}_filter"
+  name           = "${var.config_configuration_changes_metric_filter_name}-${each.key}"
   log_group_name = "cloudtrail"
 
   pattern = "{ ($.eventSource = \"config.amazonaws.com\") && ($.eventName = \"${each.value}\") && ( ($.userIdentity.type != \"AssumedRole\") || ( ($.userIdentity.sessionContext.sessionIssuer.userName != \"ModernisationPlatformAccess\") && ($.userIdentity.sessionContext.sessionIssuer.userName != \"MemberInfrastructureAccess\") ) ) }"
@@ -441,7 +441,7 @@ locals {
 
 resource "aws_cloudwatch_log_metric_filter" "security-group-changes" {
   for_each       = toset(local.security_group_change_event_names)
-  name           = "security_group_changes_${lower(each.value)}_filter"
+  name           = "${var.security_group_changes_metric_filter_name}-${each.key}"
   log_group_name = "cloudtrail"
 
   pattern = "{ ($.eventSource = \"ec2.amazonaws.com\") && ($.eventName = \"${each.value}\") && ( ($.userIdentity.type != \"AssumedRole\") || ( ($.userIdentity.sessionContext.sessionIssuer.userName != \"ModernisationPlatformAccess\") && ($.userIdentity.sessionContext.sessionIssuer.userName != \"MemberInfrastructureAccess\") ) ) }"
