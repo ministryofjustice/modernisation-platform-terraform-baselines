@@ -12,14 +12,22 @@ locals {
 
   alarm_action = local.is_workspace_matched ? [aws_sns_topic.securityhub-alarms.arn] : []
 
-  mp_network_workspaces = [
-    "^core-vpc-.*",
-    "^core-network-services-production"
-  ]
+  # Excludes known automation roles from triggering alarms, varying by account type:
+  #   MP account (default workspace): uses github-actions OIDC role directly (no assume_role in provider)
+  #   Core accounts (core-*):         uses ModernisationPlatformAccess only
+  #   Member accounts (all others):   uses ModernisationPlatformAccess or MemberInfrastructureAccess
+  is_mp_account   = terraform.workspace == "default"
+  is_core_account = length(regexall("^core-", terraform.workspace)) > 0
 
-  is_network_workspace_matched = length(regexall(join("|", local.mp_network_workspaces), terraform.workspace)) > 0
-
-  network_alarm_action = local.is_network_workspace_matched ? [aws_sns_topic.high_priority_alarms_topic.arn] : []
+  automation_role_filter = (
+    local.is_mp_account ? (
+      "(($.userIdentity.type != \"AssumedRole\") || (($.userIdentity.sessionContext.sessionIssuer.userName != \"github-actions\") && ($.userIdentity.sessionContext.sessionIssuer.userName != \"github-actions-apply\")))"
+      ) : local.is_core_account ? (
+      "(($.userIdentity.type != \"AssumedRole\") || ($.userIdentity.sessionContext.sessionIssuer.userName != \"ModernisationPlatformAccess\"))"
+      ) : (
+      "(($.userIdentity.type != \"AssumedRole\") || (($.userIdentity.sessionContext.sessionIssuer.userName != \"ModernisationPlatformAccess\") && ($.userIdentity.sessionContext.sessionIssuer.userName != \"MemberInfrastructureAccess\")))"
+    )
+  )
 }
 
 data "aws_caller_identity" "current" {}
@@ -493,7 +501,7 @@ locals {
 resource "aws_cloudwatch_log_metric_filter" "nacl-changes" {
   for_each       = toset(local.nacl_unauthorised_event_names)
   name           = "${var.nacl_changes_metric_filter_name}-${each.key}"
-  pattern        = "{($.eventName = \"${each.value}\") && (($.userIdentity.type != \"AssumedRole\") || ($.userIdentity.sessionContext.sessionIssuer.userName != \"ModernisationPlatformAccess\")) }"
+  pattern        = "{($.eventName = \"${each.value}\") && ${local.automation_role_filter}}"
   log_group_name = "cloudtrail"
 
   metric_transformation {
@@ -506,7 +514,7 @@ resource "aws_cloudwatch_log_metric_filter" "nacl-changes" {
 resource "aws_cloudwatch_metric_alarm" "nacl-changes" {
   alarm_name        = var.nacl_changes_alarm_name
   alarm_description = "Monitors for AWS EC2 Network Access Control Lists changes."
-  alarm_actions     = local.network_alarm_action
+  alarm_actions     = [aws_sns_topic.high_priority_alarms_topic.arn]
 
   comparison_operator = "GreaterThanOrEqualToThreshold"
   evaluation_periods  = "1"
@@ -534,7 +542,7 @@ locals {
 resource "aws_cloudwatch_log_metric_filter" "network-gateway-changes" {
   for_each       = toset(local.ngw_unauthorised_event_names)
   name           = "${var.network_gateway_changes_metric_filter_name}-${each.key}"
-  pattern        = "{($.eventName = \"${each.value}\") && (($.userIdentity.type != \"AssumedRole\") || ($.userIdentity.sessionContext.sessionIssuer.userName != \"ModernisationPlatformAccess\")) }"
+  pattern        = "{($.eventName = \"${each.value}\") && ${local.automation_role_filter}}"
   log_group_name = "cloudtrail"
 
   metric_transformation {
@@ -547,7 +555,7 @@ resource "aws_cloudwatch_log_metric_filter" "network-gateway-changes" {
 resource "aws_cloudwatch_metric_alarm" "network-gateway-changes" {
   alarm_name        = var.network_gateway_changes_alarm_name
   alarm_description = "Monitors for AWS EC2 network gateway changes."
-  alarm_actions     = local.network_alarm_action
+  alarm_actions     = [aws_sns_topic.high_priority_alarms_topic.arn]
 
   comparison_operator = "GreaterThanOrEqualToThreshold"
   evaluation_periods  = "1"
@@ -576,7 +584,7 @@ locals {
 resource "aws_cloudwatch_log_metric_filter" "route-table-changes" {
   for_each       = toset(local.rtb_unauthorised_actions)
   name           = "${var.route_table_changes_metric_filter_name}-${each.key}"
-  pattern        = "{($.eventName = \"${each.value}\") && (($.userIdentity.type != \"AssumedRole\") || ($.userIdentity.sessionContext.sessionIssuer.userName != \"ModernisationPlatformAccess\")) }"
+  pattern        = "{($.eventName = \"${each.value}\") && ${local.automation_role_filter}}"
   log_group_name = "cloudtrail"
 
   metric_transformation {
@@ -589,7 +597,7 @@ resource "aws_cloudwatch_log_metric_filter" "route-table-changes" {
 resource "aws_cloudwatch_metric_alarm" "route-table-changes" {
   alarm_name        = var.route_table_changes_alarm_name
   alarm_description = "Monitors for AWS EC2 route table changes."
-  alarm_actions     = local.network_alarm_action
+  alarm_actions     = [aws_sns_topic.high_priority_alarms_topic.arn]
 
   comparison_operator = "GreaterThanOrEqualToThreshold"
   evaluation_periods  = "1"
@@ -622,7 +630,7 @@ locals {
 resource "aws_cloudwatch_log_metric_filter" "vpc-changes" {
   for_each       = toset(local.vpc_unauthorised_actions)
   name           = "${var.vpc_changes_metric_filter_name}-${each.key}"
-  pattern        = "{($.eventName = \"${each.value}\") && (($.userIdentity.type != \"AssumedRole\") || ($.userIdentity.sessionContext.sessionIssuer.userName != \"ModernisationPlatformAccess\")) }"
+  pattern        = "{($.eventName = \"${each.value}\") && ${local.automation_role_filter}}"
   log_group_name = "cloudtrail"
 
   metric_transformation {
@@ -635,7 +643,7 @@ resource "aws_cloudwatch_log_metric_filter" "vpc-changes" {
 resource "aws_cloudwatch_metric_alarm" "vpc-changes" {
   alarm_name        = var.vpc_changes_alarm_name
   alarm_description = "Monitors for AWS VPC changes."
-  alarm_actions     = local.network_alarm_action
+  alarm_actions     = [aws_sns_topic.high_priority_alarms_topic.arn]
 
   comparison_operator = "GreaterThanOrEqualToThreshold"
   evaluation_periods  = "1"
