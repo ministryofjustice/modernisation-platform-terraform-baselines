@@ -114,7 +114,7 @@ resource "aws_sns_topic" "high_priority_alarms_topic" {
 # 3.1 - Ensure a log metric filter and alarm exist for unauthorized API calls
 resource "aws_cloudwatch_log_metric_filter" "unauthorised-api-calls" {
   name           = var.unauthorised_api_calls_log_metric_filter_name
-  pattern        = "{($.errorCode = \"*UnauthorizedOperation\") || ($.errorCode = \"AccessDenied*\" && ($.eventName != \"ListDelegatedAdministrators\") && ($.eventName != \"GetMacieSession\"))}"
+  pattern        = "{((($.errorCode = \"*UnauthorizedOperation\") || (($.errorCode = \"AccessDenied*\") && ($.eventName != \"ListDelegatedAdministrators\") && ($.eventName != \"GetMacieSession\"))) && (($.userIdentity.type != \"AssumedRole\") || ($.userIdentity.sessionContext.sessionIssuer.userName != \"CortexXDRCloudApp\")))}"
   log_group_name = "cloudtrail"
 
   metric_transformation {
