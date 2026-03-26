@@ -52,9 +52,13 @@ output "root_account_usage_alarm_arn" {
   description = "The ARN of the CloudWatch alarm for root account usage"
 }
 
-output "iam_policy_changes_metric_filter_id" {
-  value       = aws_cloudwatch_log_metric_filter.iam-policy-changes.id
-  description = "The ID of the CloudWatch metric filter for IAM policy changes"
+output "iam_policy_changes_metric_filter_ids" {
+  description = "Map of IAM policy change CloudWatch log metric filter IDs keyed by event name. Required because metric filters are created using for_each (one per event) instead of a single resource."
+
+  value = {
+    for event_name, metric_filter in aws_cloudwatch_log_metric_filter.iam-policy-changes :
+    event_name => metric_filter.id
+  }
 }
 
 output "iam_policy_changes_alarm_arn" {
@@ -62,9 +66,12 @@ output "iam_policy_changes_alarm_arn" {
   description = "The ARN of the CloudWatch alarm for IAM policy changes"
 }
 
-output "cloudtrail_configuration_changes_metric_filter_id" {
-  value       = aws_cloudwatch_log_metric_filter.cloudtrail-configuration-changes.id
-  description = "The ID of the CloudWatch metric filter for CloudTrail configuration changes"
+output "cloudtrail_configuration_changes_metric_filter_ids" {
+  description = "Map of CloudTrail configuration change CloudWatch log metric filter IDs keyed by event name"
+  value = {
+    for event_name, filter in aws_cloudwatch_log_metric_filter.cloudtrail-configuration-changes :
+    event_name => filter.id
+  }
 }
 
 output "cloudtrail_configuration_changes_alarm_arn" {
@@ -92,9 +99,9 @@ output "cmk_removal_alarm_arn" {
   description = "The ARN of the CloudWatch alarm for CMK removal"
 }
 
-output "s3_bucket_policy_changes_metric_filter_id" {
-  value       = aws_cloudwatch_log_metric_filter.s3-bucket-policy-changes.id
-  description = "The ID of the CloudWatch metric filter for S3 bucket policy changes"
+output "s3_bucket_policy_changes_metric_filter_ids" {
+  description = "Map of S3 bucket policy change CloudWatch log metric filter IDs keyed by event name"
+  value       = { for event_name, filter in aws_cloudwatch_log_metric_filter.s3-bucket-policy-changes : event_name => filter.id }
 }
 
 output "s3_bucket_policy_changes_alarm_arn" {
@@ -102,9 +109,12 @@ output "s3_bucket_policy_changes_alarm_arn" {
   description = "The ARN of the CloudWatch alarm for S3 bucket policy changes"
 }
 
-output "config_configuration_changes_metric_filter_id" {
-  value       = aws_cloudwatch_log_metric_filter.config-configuration-changes.id
-  description = "The ID of the CloudWatch metric filter for Config configuration changes"
+output "config_configuration_changes_metric_filter_ids" {
+  description = "Map of AWS Config configuration change CloudWatch log metric filter IDs keyed by event name"
+  value = {
+    for event_name, filter in aws_cloudwatch_log_metric_filter.config-configuration-changes :
+    event_name => filter.id
+  }
 }
 
 output "config_configuration_changes_alarm_arn" {
@@ -112,9 +122,12 @@ output "config_configuration_changes_alarm_arn" {
   description = "The ARN of the CloudWatch alarm for Config configuration changes"
 }
 
-output "security_group_changes_metric_filter_id" {
-  value       = aws_cloudwatch_log_metric_filter.security-group-changes.id
-  description = "The ID of the CloudWatch metric filter for security group changes"
+output "security_group_changes_metric_filter_ids" {
+  description = "Map of security group change CloudWatch log metric filter IDs keyed by event name"
+  value = {
+    for event_name, filter in aws_cloudwatch_log_metric_filter.security-group-changes :
+    event_name => filter.id
+  }
 }
 
 output "security_group_changes_alarm_arn" {

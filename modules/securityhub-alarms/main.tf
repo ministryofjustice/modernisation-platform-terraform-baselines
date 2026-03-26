@@ -186,10 +186,33 @@ resource "aws_cloudwatch_metric_alarm" "root-account-usage" {
 }
 
 # 3.4 - Ensure a log metric filter and alarm exist for IAM policy changes
+locals {
+  iam_policy_change_event_names = [
+    "DeleteGroupPolicy",
+    "DeleteRolePolicy",
+    "DeleteUserPolicy",
+    "PutGroupPolicy",
+    "PutRolePolicy",
+    "PutUserPolicy",
+    "CreatePolicy",
+    "DeletePolicy",
+    "CreatePolicyVersion",
+    "DeletePolicyVersion",
+    "AttachRolePolicy",
+    "DetachRolePolicy",
+    "AttachUserPolicy",
+    "DetachUserPolicy",
+    "AttachGroupPolicy",
+    "DetachGroupPolicy",
+  ]
+}
+
 resource "aws_cloudwatch_log_metric_filter" "iam-policy-changes" {
-  name           = var.iam_policy_changes_metric_filter_name
-  pattern        = "{($.eventName=DeleteGroupPolicy) || ($.eventName=DeleteRolePolicy) || ($.eventName=DeleteUserPolicy) || ($.eventName=PutGroupPolicy) || ($.eventName=PutRolePolicy) || ($.eventName=PutUserPolicy) || ($.eventName=CreatePolicy) || ($.eventName=DeletePolicy) || ($.eventName=CreatePolicyVersion) || ($.eventName=DeletePolicyVersion) || ($.eventName=AttachRolePolicy) || ($.eventName=DetachRolePolicy) || ($.eventName=AttachUserPolicy) || ($.eventName=DetachUserPolicy) || ($.eventName=AttachGroupPolicy) || ($.eventName=DetachGroupPolicy)}"
+  for_each       = toset(local.iam_policy_change_event_names)
+  name           = "${var.iam_policy_changes_metric_filter_name}-${each.key}"
   log_group_name = "cloudtrail"
+
+  pattern = "{ ($.eventSource = \"iam.amazonaws.com\") && ($.eventName = \"${each.value}\") && ( ($.userIdentity.type != \"AssumedRole\") || ( ($.userIdentity.sessionContext.sessionIssuer.userName != \"ModernisationPlatformAccess\") && ($.userIdentity.sessionContext.sessionIssuer.userName != \"MemberInfrastructureAccess\") ) ) }"
 
   metric_transformation {
     name      = var.iam_policy_changes_metric_filter_name
@@ -200,12 +223,12 @@ resource "aws_cloudwatch_log_metric_filter" "iam-policy-changes" {
 
 resource "aws_cloudwatch_metric_alarm" "iam-policy-changes" {
   alarm_name        = var.iam_policy_changes_alarm_name
-  alarm_description = "Monitors for IAM policy changes."
-  alarm_actions     = []
+  alarm_description = "Monitors for IAM policy changes made outside of approved automation roles: ModernisationPlatformAccess, MemberInfrastructureAccess."
+  alarm_actions     = [aws_sns_topic.securityhub-alarms.arn]
 
   comparison_operator = "GreaterThanOrEqualToThreshold"
   evaluation_periods  = "1"
-  metric_name         = aws_cloudwatch_log_metric_filter.iam-policy-changes.id
+  metric_name         = var.iam_policy_changes_metric_filter_name
   namespace           = "LogMetrics"
   period              = "300"
   statistic           = "Sum"
@@ -216,10 +239,22 @@ resource "aws_cloudwatch_metric_alarm" "iam-policy-changes" {
 }
 
 # 3.5 - Ensure a log metric filter and alarm exist for CloudTrail configuration changes
+locals {
+  cloudtrail_configuration_change_event_names = [
+    "CreateTrail",
+    "UpdateTrail",
+    "DeleteTrail",
+    "StartLogging",
+    "StopLogging",
+  ]
+}
+
 resource "aws_cloudwatch_log_metric_filter" "cloudtrail-configuration-changes" {
-  name           = var.cloudtrail_configuration_changes_metric_filter_name
-  pattern        = "{($.eventName=CreateTrail) || ($.eventName=UpdateTrail) || ($.eventName=DeleteTrail) || ($.eventName=StartLogging) || ($.eventName=StopLogging)}"
+  for_each       = toset(local.cloudtrail_configuration_change_event_names)
+  name           = "${var.cloudtrail_configuration_changes_metric_filter_name}-${each.key}"
   log_group_name = "cloudtrail"
+
+  pattern = "{ ($.eventSource = \"cloudtrail.amazonaws.com\") && ($.eventName = \"${each.value}\") && ( ($.userIdentity.type != \"AssumedRole\") || ( ($.userIdentity.sessionContext.sessionIssuer.userName != \"ModernisationPlatformAccess\") && ($.userIdentity.sessionContext.sessionIssuer.userName != \"MemberInfrastructureAccess\") ) ) }"
 
   metric_transformation {
     name      = var.cloudtrail_configuration_changes_metric_filter_name
@@ -231,11 +266,11 @@ resource "aws_cloudwatch_log_metric_filter" "cloudtrail-configuration-changes" {
 resource "aws_cloudwatch_metric_alarm" "cloudtrail-configuration-changes" {
   alarm_name        = var.cloudtrail_configuration_changes_alarm_name
   alarm_description = "Monitors for CloudTrail configuration changes."
-  alarm_actions     = []
+  alarm_actions     = [aws_sns_topic.high_priority_alarms_topic.arn]
 
   comparison_operator = "GreaterThanOrEqualToThreshold"
   evaluation_periods  = "1"
-  metric_name         = aws_cloudwatch_log_metric_filter.cloudtrail-configuration-changes.id
+  metric_name         = var.cloudtrail_configuration_changes_metric_filter_name
   namespace           = "LogMetrics"
   period              = "300"
   statistic           = "Sum"
@@ -306,10 +341,26 @@ resource "aws_cloudwatch_metric_alarm" "cmk-removal" {
 }
 
 # 3.8 - Ensure a log metric filter and alarm exist for S3 bucket policy changes
+locals {
+  s3_bucket_policy_change_event_names = [
+    "PutBucketAcl",
+    "PutBucketPolicy",
+    "PutBucketCors",
+    "PutBucketLifecycle",
+    "PutBucketReplication",
+    "DeleteBucketPolicy",
+    "DeleteBucketCors",
+    "DeleteBucketLifecycle",
+    "DeleteBucketReplication",
+  ]
+}
+
 resource "aws_cloudwatch_log_metric_filter" "s3-bucket-policy-changes" {
-  name           = var.s3_bucket_policy_changes_metric_filter_name
-  pattern        = "{($.eventSource=s3.amazonaws.com) && (($.eventName=PutBucketAcl) || ($.eventName=PutBucketPolicy) || ($.eventName=PutBucketCors) || ($.eventName=PutBucketLifecycle) || ($.eventName=PutBucketReplication) || ($.eventName=DeleteBucketPolicy) || ($.eventName=DeleteBucketCors) || ($.eventName=DeleteBucketLifecycle) || ($.eventName=DeleteBucketReplication))}"
+  for_each       = toset(local.s3_bucket_policy_change_event_names)
+  name           = "${var.s3_bucket_policy_changes_metric_filter_name}-${each.key}"
   log_group_name = "cloudtrail"
+
+  pattern = "{ ($.eventSource = \"s3.amazonaws.com\") && ($.eventName = \"${each.value}\") && ( ($.userIdentity.type != \"AssumedRole\") || ( $.userIdentity.sessionContext.sessionIssuer.userName != \"ModernisationPlatformAccess\" ) ) }"
 
   metric_transformation {
     name      = var.s3_bucket_policy_changes_metric_filter_name
@@ -321,11 +372,11 @@ resource "aws_cloudwatch_log_metric_filter" "s3-bucket-policy-changes" {
 resource "aws_cloudwatch_metric_alarm" "s3-bucket-policy-changes" {
   alarm_name        = var.s3_bucket_policy_changes_alarm_name
   alarm_description = "Monitors for AWS S3 bucket policy changes."
-  alarm_actions     = []
+  alarm_actions     = local.alarm_action
 
   comparison_operator = "GreaterThanOrEqualToThreshold"
   evaluation_periods  = "1"
-  metric_name         = aws_cloudwatch_log_metric_filter.s3-bucket-policy-changes.id
+  metric_name         = var.s3_bucket_policy_changes_metric_filter_name
   namespace           = "LogMetrics"
   period              = "300"
   statistic           = "Sum"
@@ -336,10 +387,21 @@ resource "aws_cloudwatch_metric_alarm" "s3-bucket-policy-changes" {
 }
 
 # 3.9 - Ensure a log metric filter and alarm exist for AWS Config configuration changes
+locals {
+  config_configuration_change_event_names = [
+    "StopConfigurationRecorder",
+    "DeleteDeliveryChannel",
+    "PutDeliveryChannel",
+    "PutConfigurationRecorder",
+  ]
+}
+
 resource "aws_cloudwatch_log_metric_filter" "config-configuration-changes" {
-  name           = var.config_configuration_changes_metric_filter_name
-  pattern        = "{($.eventSource=config.amazonaws.com) && (($.eventName=StopConfigurationRecorder) || ($.eventName=DeleteDeliveryChannel) || ($.eventName=PutDeliveryChannel) || ($.eventName=PutConfigurationRecorder))}"
+  for_each       = toset(local.config_configuration_change_event_names)
+  name           = "${var.config_configuration_changes_metric_filter_name}-${each.key}"
   log_group_name = "cloudtrail"
+
+  pattern = "{ ($.eventSource = \"config.amazonaws.com\") && ($.eventName = \"${each.value}\") && ( ($.userIdentity.type != \"AssumedRole\") || ( ($.userIdentity.sessionContext.sessionIssuer.userName != \"ModernisationPlatformAccess\") && ($.userIdentity.sessionContext.sessionIssuer.userName != \"MemberInfrastructureAccess\") ) ) }"
 
   metric_transformation {
     name      = var.config_configuration_changes_metric_filter_name
@@ -351,11 +413,11 @@ resource "aws_cloudwatch_log_metric_filter" "config-configuration-changes" {
 resource "aws_cloudwatch_metric_alarm" "config-configuration-changes" {
   alarm_name        = var.config_configuration_changes_alarm_name
   alarm_description = "Monitors for AWS Config configuration changes."
-  alarm_actions     = []
+  alarm_actions     = [aws_sns_topic.high_priority_alarms_topic.arn]
 
   comparison_operator = "GreaterThanOrEqualToThreshold"
   evaluation_periods  = "1"
-  metric_name         = aws_cloudwatch_log_metric_filter.config-configuration-changes.id
+  metric_name         = var.config_configuration_changes_metric_filter_name
   namespace           = "LogMetrics"
   period              = "300"
   statistic           = "Sum"
@@ -366,10 +428,23 @@ resource "aws_cloudwatch_metric_alarm" "config-configuration-changes" {
 }
 
 # 3.10 - Ensure a log metric filter and alarm exist for security group changes
+locals {
+  security_group_change_event_names = [
+    "AuthorizeSecurityGroupIngress",
+    "AuthorizeSecurityGroupEgress",
+    "RevokeSecurityGroupIngress",
+    "RevokeSecurityGroupEgress",
+    "CreateSecurityGroup",
+    "DeleteSecurityGroup",
+  ]
+}
+
 resource "aws_cloudwatch_log_metric_filter" "security-group-changes" {
-  name           = var.security_group_changes_metric_filter_name
-  pattern        = "{($.eventName=AuthorizeSecurityGroupIngress) || ($.eventName=AuthorizeSecurityGroupEgress) || ($.eventName=RevokeSecurityGroupIngress) || ($.eventName=RevokeSecurityGroupEgress) || ($.eventName=CreateSecurityGroup) || ($.eventName=DeleteSecurityGroup)}"
+  for_each       = toset(local.security_group_change_event_names)
+  name           = "${var.security_group_changes_metric_filter_name}-${each.key}"
   log_group_name = "cloudtrail"
+
+  pattern = "{ ($.eventSource = \"ec2.amazonaws.com\") && ($.eventName = \"${each.value}\") && ( ($.userIdentity.type != \"AssumedRole\") || ( ($.userIdentity.sessionContext.sessionIssuer.userName != \"ModernisationPlatformAccess\") && ($.userIdentity.sessionContext.sessionIssuer.userName != \"MemberInfrastructureAccess\") ) ) }"
 
   metric_transformation {
     name      = var.security_group_changes_metric_filter_name
@@ -381,15 +456,15 @@ resource "aws_cloudwatch_log_metric_filter" "security-group-changes" {
 resource "aws_cloudwatch_metric_alarm" "security-group-changes" {
   alarm_name        = var.security_group_changes_alarm_name
   alarm_description = "Monitors for AWS EC2 Security Group changes."
-  alarm_actions     = []
+  alarm_actions     = [aws_sns_topic.securityhub-alarms.arn]
 
   comparison_operator = "GreaterThanOrEqualToThreshold"
   evaluation_periods  = "1"
-  metric_name         = aws_cloudwatch_log_metric_filter.security-group-changes.id
+  metric_name         = var.security_group_changes_metric_filter_name
   namespace           = "LogMetrics"
-  period              = "180"
+  period              = "300"
   statistic           = "Sum"
-  threshold           = "9"
+  threshold           = "1"
   treat_missing_data  = "notBreaching"
 
   tags = var.tags
