@@ -122,9 +122,9 @@ output "security_group_changes_alarm_arn" {
   description = "The ARN of the CloudWatch alarm for security group changes"
 }
 
-output "nacl_changes_metric_filter_id" {
-  value       = module.securityhub-alarms-test.nacl_changes_metric_filter_id
-  description = "The ID of the CloudWatch metric filter for NACL changes"
+output "nacl_changes_metric_filter_ids" {
+  value       = module.securityhub-alarms-test.nacl_changes_metric_filter_ids
+  description = "Map of NACL change CloudWatch log metric filter IDs keyed by event name"
 }
 
 output "nacl_changes_alarm_arn" {
@@ -132,9 +132,9 @@ output "nacl_changes_alarm_arn" {
   description = "The ARN of the CloudWatch alarm for NACL changes"
 }
 
-output "network_gateway_changes_metric_filter_id" {
-  value       = module.securityhub-alarms-test.network_gateway_changes_metric_filter_id
-  description = "The ID of the CloudWatch metric filter for network gateway changes"
+output "network_gateway_changes_metric_filter_ids" {
+  value       = module.securityhub-alarms-test.network_gateway_changes_metric_filter_ids
+  description = "Map of network gateway change CloudWatch log metric filter IDs keyed by event name"
 }
 
 output "network_gateway_changes_alarm_arn" {
@@ -142,9 +142,9 @@ output "network_gateway_changes_alarm_arn" {
   description = "The ARN of the CloudWatch alarm for network gateway changes"
 }
 
-output "route_table_changes_metric_filter_id" {
-  value       = module.securityhub-alarms-test.route_table_changes_metric_filter_id
-  description = "The ID of the CloudWatch metric filter for route table changes"
+output "route_table_changes_metric_filter_ids" {
+  value       = module.securityhub-alarms-test.route_table_changes_metric_filter_ids
+  description = "Map of route table change CloudWatch log metric filter IDs keyed by event name"
 }
 
 output "route_table_changes_alarm_arn" {
@@ -152,9 +152,9 @@ output "route_table_changes_alarm_arn" {
   description = "The ARN of the CloudWatch alarm for route table changes"
 }
 
-output "vpc_changes_metric_filter_id" {
-  value       = module.securityhub-alarms-test.vpc_changes_metric_filter_id
-  description = "The ID of the CloudWatch metric filter for VPC changes"
+output "vpc_changes_metric_filter_ids" {
+  value       = module.securityhub-alarms-test.vpc_changes_metric_filter_ids
+  description = "Map of VPC change CloudWatch log metric filter IDs keyed by event name"
 }
 
 output "vpc_changes_alarm_arn" {

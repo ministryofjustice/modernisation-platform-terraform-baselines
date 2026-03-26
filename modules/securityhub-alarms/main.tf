@@ -11,6 +11,23 @@ locals {
   is_workspace_matched = length(regexall(join("|", local.mp_owned_workspaces), terraform.workspace)) > 0
 
   alarm_action = local.is_workspace_matched ? [aws_sns_topic.securityhub-alarms.arn] : []
+
+  # Excludes known automation roles from triggering alarms, varying by account type:
+  #   MP account (default workspace): uses github-actions OIDC role directly (no assume_role in provider)
+  #   Core accounts (core-*):         uses ModernisationPlatformAccess only
+  #   Member accounts (all others):   uses ModernisationPlatformAccess or MemberInfrastructureAccess
+  is_mp_account   = terraform.workspace == "default"
+  is_core_account = length(regexall("^core-", terraform.workspace)) > 0
+
+  automation_role_filter = (
+    local.is_mp_account ? (
+      "(($.userIdentity.type != \"AssumedRole\") || (($.userIdentity.sessionContext.sessionIssuer.userName != \"github-actions\") && ($.userIdentity.sessionContext.sessionIssuer.userName != \"github-actions-apply\")))"
+      ) : local.is_core_account ? (
+      "(($.userIdentity.type != \"AssumedRole\") || ($.userIdentity.sessionContext.sessionIssuer.userName != \"ModernisationPlatformAccess\"))"
+      ) : (
+      "(($.userIdentity.type != \"AssumedRole\") || (($.userIdentity.sessionContext.sessionIssuer.userName != \"ModernisationPlatformAccess\") && ($.userIdentity.sessionContext.sessionIssuer.userName != \"MemberInfrastructureAccess\")))"
+    )
+  )
 }
 
 data "aws_caller_identity" "current" {}
@@ -97,7 +114,7 @@ resource "aws_sns_topic" "high_priority_alarms_topic" {
 # 3.1 - Ensure a log metric filter and alarm exist for unauthorized API calls
 resource "aws_cloudwatch_log_metric_filter" "unauthorised-api-calls" {
   name           = var.unauthorised_api_calls_log_metric_filter_name
-  pattern        = "{($.errorCode = \"*UnauthorizedOperation\") || ($.errorCode = \"AccessDenied*\" && ($.eventName != \"ListDelegatedAdministrators\") && ($.eventName != \"GetMacieSession\"))}"
+  pattern        = "{((($.errorCode = \"*UnauthorizedOperation\") || (($.errorCode = \"AccessDenied*\") && ($.eventName != \"ListDelegatedAdministrators\") && ($.eventName != \"GetMacieSession\"))) && (($.userIdentity.type != \"AssumedRole\") || ($.userIdentity.sessionContext.sessionIssuer.userName != \"CortexXDRCloudApp\")))}"
   log_group_name = "cloudtrail"
 
   metric_transformation {
@@ -212,7 +229,7 @@ resource "aws_cloudwatch_log_metric_filter" "iam-policy-changes" {
   name           = "${var.iam_policy_changes_metric_filter_name}-${each.key}"
   log_group_name = "cloudtrail"
 
-  pattern = "{ ($.eventSource = \"iam.amazonaws.com\") && ($.eventName = \"${each.value}\") && ( ($.userIdentity.type != \"AssumedRole\") || ( ($.userIdentity.sessionContext.sessionIssuer.userName != \"ModernisationPlatformAccess\") && ($.userIdentity.sessionContext.sessionIssuer.userName != \"MemberInfrastructureAccess\") ) ) }"
+  pattern = "{($.eventName = \"${each.value}\") && ${local.automation_role_filter}}"
 
   metric_transformation {
     name      = var.iam_policy_changes_metric_filter_name
@@ -254,7 +271,7 @@ resource "aws_cloudwatch_log_metric_filter" "cloudtrail-configuration-changes" {
   name           = "${var.cloudtrail_configuration_changes_metric_filter_name}-${each.key}"
   log_group_name = "cloudtrail"
 
-  pattern = "{ ($.eventSource = \"cloudtrail.amazonaws.com\") && ($.eventName = \"${each.value}\") && ( ($.userIdentity.type != \"AssumedRole\") || ( ($.userIdentity.sessionContext.sessionIssuer.userName != \"ModernisationPlatformAccess\") && ($.userIdentity.sessionContext.sessionIssuer.userName != \"MemberInfrastructureAccess\") ) ) }"
+  pattern = "{($.eventName = \"${each.value}\") && ${local.automation_role_filter}}"
 
   metric_transformation {
     name      = var.cloudtrail_configuration_changes_metric_filter_name
@@ -360,7 +377,7 @@ resource "aws_cloudwatch_log_metric_filter" "s3-bucket-policy-changes" {
   name           = "${var.s3_bucket_policy_changes_metric_filter_name}-${each.key}"
   log_group_name = "cloudtrail"
 
-  pattern = "{ ($.eventSource = \"s3.amazonaws.com\") && ($.eventName = \"${each.value}\") && ( ($.userIdentity.type != \"AssumedRole\") || ( $.userIdentity.sessionContext.sessionIssuer.userName != \"ModernisationPlatformAccess\" ) ) }"
+  pattern = "{($.eventName = \"${each.value}\") && ${local.automation_role_filter}}"
 
   metric_transformation {
     name      = var.s3_bucket_policy_changes_metric_filter_name
@@ -401,7 +418,7 @@ resource "aws_cloudwatch_log_metric_filter" "config-configuration-changes" {
   name           = "${var.config_configuration_changes_metric_filter_name}-${each.key}"
   log_group_name = "cloudtrail"
 
-  pattern = "{ ($.eventSource = \"config.amazonaws.com\") && ($.eventName = \"${each.value}\") && ( ($.userIdentity.type != \"AssumedRole\") || ( ($.userIdentity.sessionContext.sessionIssuer.userName != \"ModernisationPlatformAccess\") && ($.userIdentity.sessionContext.sessionIssuer.userName != \"MemberInfrastructureAccess\") ) ) }"
+  pattern = "{($.eventName = \"${each.value}\") && ${local.automation_role_filter}}"
 
   metric_transformation {
     name      = var.config_configuration_changes_metric_filter_name
@@ -444,8 +461,7 @@ resource "aws_cloudwatch_log_metric_filter" "security-group-changes" {
   name           = "${var.security_group_changes_metric_filter_name}-${each.key}"
   log_group_name = "cloudtrail"
 
-  pattern = "{ ($.eventSource = \"ec2.amazonaws.com\") && ($.eventName = \"${each.value}\") && ( ($.userIdentity.type != \"AssumedRole\") || ( ($.userIdentity.sessionContext.sessionIssuer.userName != \"ModernisationPlatformAccess\") && ($.userIdentity.sessionContext.sessionIssuer.userName != \"MemberInfrastructureAccess\") ) ) }"
-
+  pattern = "{($.eventName = \"${each.value}\") && ${local.automation_role_filter}}"
   metric_transformation {
     name      = var.security_group_changes_metric_filter_name
     namespace = "LogMetrics"
@@ -471,9 +487,20 @@ resource "aws_cloudwatch_metric_alarm" "security-group-changes" {
 }
 
 # 3.11 - Ensure a log metric filter and alarm exist for changes to Network Access Control Lists (NACL)
+locals {
+  nacl_unauthorised_event_names = [
+    "CreateNetworkAcl",
+    "CreateNetworkAclEntry",
+    "DeleteNetworkAcl",
+    "DeleteNetworkAclEntry",
+    "ReplaceNetworkAclEntry",
+    "ReplaceNetworkAclAssociation"
+  ]
+}
 resource "aws_cloudwatch_log_metric_filter" "nacl-changes" {
-  name           = var.nacl_changes_metric_filter_name
-  pattern        = "{($.eventName=CreateNetworkAcl) || ($.eventName=CreateNetworkAclEntry) || ($.eventName=DeleteNetworkAcl) || ($.eventName=DeleteNetworkAclEntry) || ($.eventName=ReplaceNetworkAclEntry) || ($.eventName=ReplaceNetworkAclAssociation)}"
+  for_each       = toset(local.nacl_unauthorised_event_names)
+  name           = "${var.nacl_changes_metric_filter_name}-${each.key}"
+  pattern        = "{($.eventName = \"${each.value}\") && ${local.automation_role_filter}}"
   log_group_name = "cloudtrail"
 
   metric_transformation {
@@ -486,11 +513,11 @@ resource "aws_cloudwatch_log_metric_filter" "nacl-changes" {
 resource "aws_cloudwatch_metric_alarm" "nacl-changes" {
   alarm_name        = var.nacl_changes_alarm_name
   alarm_description = "Monitors for AWS EC2 Network Access Control Lists changes."
-  alarm_actions     = [aws_sns_topic.securityhub-alarms.arn]
+  alarm_actions     = [aws_sns_topic.high_priority_alarms_topic.arn]
 
   comparison_operator = "GreaterThanOrEqualToThreshold"
   evaluation_periods  = "1"
-  metric_name         = aws_cloudwatch_log_metric_filter.nacl-changes.id
+  metric_name         = var.nacl_changes_metric_filter_name
   namespace           = "LogMetrics"
   period              = "300"
   statistic           = "Sum"
@@ -501,9 +528,20 @@ resource "aws_cloudwatch_metric_alarm" "nacl-changes" {
 }
 
 # 3.12 - Ensure a log metric filter and alarm exist for changes to network gateways
+locals {
+  ngw_unauthorised_event_names = [
+    "CreateCustomerGateway",
+    "DeleteCustomerGateway",
+    "AttachInternetGateway",
+    "CreateInternetGateway",
+    "DeleteInternetGateway",
+    "DetachInternetGateway"
+  ]
+}
 resource "aws_cloudwatch_log_metric_filter" "network-gateway-changes" {
-  name           = var.network_gateway_changes_metric_filter_name
-  pattern        = "{($.eventName=CreateCustomerGateway) || ($.eventName=DeleteCustomerGateway) || ($.eventName=AttachInternetGateway) || ($.eventName=CreateInternetGateway) || ($.eventName=DeleteInternetGateway) || ($.eventName=DetachInternetGateway)}"
+  for_each       = toset(local.ngw_unauthorised_event_names)
+  name           = "${var.network_gateway_changes_metric_filter_name}-${each.key}"
+  pattern        = "{($.eventName = \"${each.value}\") && ${local.automation_role_filter}}"
   log_group_name = "cloudtrail"
 
   metric_transformation {
@@ -516,11 +554,11 @@ resource "aws_cloudwatch_log_metric_filter" "network-gateway-changes" {
 resource "aws_cloudwatch_metric_alarm" "network-gateway-changes" {
   alarm_name        = var.network_gateway_changes_alarm_name
   alarm_description = "Monitors for AWS EC2 network gateway changes."
-  alarm_actions     = [aws_sns_topic.securityhub-alarms.arn]
+  alarm_actions     = [aws_sns_topic.high_priority_alarms_topic.arn]
 
   comparison_operator = "GreaterThanOrEqualToThreshold"
   evaluation_periods  = "1"
-  metric_name         = aws_cloudwatch_log_metric_filter.network-gateway-changes.id
+  metric_name         = var.network_gateway_changes_metric_filter_name
   namespace           = "LogMetrics"
   period              = "300"
   statistic           = "Sum"
@@ -531,9 +569,21 @@ resource "aws_cloudwatch_metric_alarm" "network-gateway-changes" {
 }
 
 # 3.13 - Ensure a log metric filter and alarm exist for route table changes
+locals {
+  rtb_unauthorised_actions = [
+    "CreateRoute",
+    "CreateRouteTable",
+    "ReplaceRoute",
+    "ReplaceRouteTableAssociation",
+    "DeleteRouteTable",
+    "DeleteRoute",
+    "DisassociateRouteTable"
+  ]
+}
 resource "aws_cloudwatch_log_metric_filter" "route-table-changes" {
-  name           = var.route_table_changes_metric_filter_name
-  pattern        = "{($.eventName=CreateRoute) || ($.eventName=CreateRouteTable) || ($.eventName=ReplaceRoute) || ($.eventName=ReplaceRouteTableAssociation) || ($.eventName=DeleteRouteTable) || ($.eventName=DeleteRoute) || ($.eventName=DisassociateRouteTable)}"
+  for_each       = toset(local.rtb_unauthorised_actions)
+  name           = "${var.route_table_changes_metric_filter_name}-${each.key}"
+  pattern        = "{($.eventName = \"${each.value}\") && ${local.automation_role_filter}}"
   log_group_name = "cloudtrail"
 
   metric_transformation {
@@ -546,11 +596,11 @@ resource "aws_cloudwatch_log_metric_filter" "route-table-changes" {
 resource "aws_cloudwatch_metric_alarm" "route-table-changes" {
   alarm_name        = var.route_table_changes_alarm_name
   alarm_description = "Monitors for AWS EC2 route table changes."
-  alarm_actions     = [aws_sns_topic.securityhub-alarms.arn]
+  alarm_actions     = [aws_sns_topic.high_priority_alarms_topic.arn]
 
   comparison_operator = "GreaterThanOrEqualToThreshold"
   evaluation_periods  = "1"
-  metric_name         = aws_cloudwatch_log_metric_filter.route-table-changes.id
+  metric_name         = var.route_table_changes_metric_filter_name
   namespace           = "LogMetrics"
   period              = "300"
   statistic           = "Sum"
@@ -561,9 +611,25 @@ resource "aws_cloudwatch_metric_alarm" "route-table-changes" {
 }
 
 # 3.14 - Ensure a log metric filter and alarm exist for VPC changes
+locals {
+  vpc_unauthorised_actions = [
+    "CreateVpc",
+    "DeleteVpc",
+    "ModifyVpcAttribute",
+    "AcceptVpcPeeringConnection",
+    "CreateVpcPeeringConnection",
+    "DeleteVpcPeeringConnection",
+    "RejectVpcPeeringConnection",
+    "AttachClassicLinkVpc",
+    "DetachClassicLinkVpc",
+    "DisableVpcClassicLink",
+    "EnableVpcClassicLink"
+  ]
+}
 resource "aws_cloudwatch_log_metric_filter" "vpc-changes" {
-  name           = var.vpc_changes_metric_filter_name
-  pattern        = "{($.eventName=CreateVpc) || ($.eventName=DeleteVpc) || ($.eventName=ModifyVpcAttribute) || ($.eventName=AcceptVpcPeeringConnection) || ($.eventName=CreateVpcPeeringConnection) || ($.eventName=DeleteVpcPeeringConnection) || ($.eventName=RejectVpcPeeringConnection) || ($.eventName=AttachClassicLinkVpc) || ($.eventName=DetachClassicLinkVpc) || ($.eventName=DisableVpcClassicLink) || ($.eventName=EnableVpcClassicLink)}"
+  for_each       = toset(local.vpc_unauthorised_actions)
+  name           = "${var.vpc_changes_metric_filter_name}-${each.key}"
+  pattern        = "{($.eventName = \"${each.value}\") && ${local.automation_role_filter}}"
   log_group_name = "cloudtrail"
 
   metric_transformation {
@@ -576,11 +642,11 @@ resource "aws_cloudwatch_log_metric_filter" "vpc-changes" {
 resource "aws_cloudwatch_metric_alarm" "vpc-changes" {
   alarm_name        = var.vpc_changes_alarm_name
   alarm_description = "Monitors for AWS VPC changes."
-  alarm_actions     = [aws_sns_topic.securityhub-alarms.arn]
+  alarm_actions     = [aws_sns_topic.high_priority_alarms_topic.arn]
 
   comparison_operator = "GreaterThanOrEqualToThreshold"
   evaluation_periods  = "1"
-  metric_name         = aws_cloudwatch_log_metric_filter.vpc-changes.id
+  metric_name         = var.vpc_changes_metric_filter_name
   namespace           = "LogMetrics"
   period              = "300"
   statistic           = "Sum"
