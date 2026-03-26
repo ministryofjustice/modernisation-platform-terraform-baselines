@@ -135,7 +135,7 @@ output "security_group_changes_alarm_arn" {
   description = "The ARN of the CloudWatch alarm for security group changes"
 }
 
-output "nacl_changes_metric_filter_id" {
+output "nacl_changes_metric_filter_ids" {
   value       = { for k, v in aws_cloudwatch_log_metric_filter.nacl-changes : k => v.id }
   description = "The IDs of the CloudWatch metric filters for NACL changes, keyed by event name"
 }
@@ -145,7 +145,7 @@ output "nacl_changes_alarm_arn" {
   description = "The ARN of the CloudWatch alarm for NACL changes"
 }
 
-output "network_gateway_changes_metric_filter_id" {
+output "network_gateway_changes_metric_filter_ids" {
   value       = { for k, v in aws_cloudwatch_log_metric_filter.network-gateway-changes : k => v.id }
   description = "The IDs of the CloudWatch metric filters for network gateway changes, keyed by event name"
 }
@@ -155,7 +155,7 @@ output "network_gateway_changes_alarm_arn" {
   description = "The ARN of the CloudWatch alarm for network gateway changes"
 }
 
-output "route_table_changes_metric_filter_id" {
+output "route_table_changes_metric_filter_ids" {
   value       = { for k, v in aws_cloudwatch_log_metric_filter.route-table-changes : k => v.id }
   description = "The IDs of the CloudWatch metric filters for route table changes, keyed by event name"
 }
@@ -165,7 +165,7 @@ output "route_table_changes_alarm_arn" {
   description = "The ARN of the CloudWatch alarm for route table changes"
 }
 
-output "vpc_changes_metric_filter_id" {
+output "vpc_changes_metric_filter_ids" {
   value       = { for k, v in aws_cloudwatch_log_metric_filter.vpc-changes : k => v.id }
   description = "The IDs of the CloudWatch metric filters for VPC changes, keyed by event name"
 }
