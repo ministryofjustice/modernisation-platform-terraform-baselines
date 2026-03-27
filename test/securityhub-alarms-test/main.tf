@@ -37,4 +37,10 @@ module "securityhub-alarms-test" {
   privatelink_service_active_connection_count_all_alarm_name = var.privatelink_service_active_connection_count_all_alarm_name
   admin_role_usage_alarm_name                                = var.admin_role_usage_alarm_name
   admin_role_usage_metric_filter_name                        = var.admin_role_usage_metric_filter_name
+  cloudtrail_log_group_name                                  = aws_cloudwatch_log_group.securityhub_alarms_test.name
+}
+
+resource "aws_cloudwatch_log_group" "securityhub_alarms_test" {
+  name              = var.cloudtrail_log_group_name
+  retention_in_days = 1
 }
