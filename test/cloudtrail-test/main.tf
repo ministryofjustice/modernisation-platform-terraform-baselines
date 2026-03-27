@@ -8,6 +8,8 @@ module "cloudtrail-test" {
   cloudtrail_kms_key               = aws_kms_key.cloudtrail_kms_key.arn
   cloudtrail_bucket                = aws_s3_bucket.cloudtrail_s3_bucket.id
   enable_cloudtrail_s3_mgmt_events = var.enable_cloudtrail_s3_mgmt_events
+  enable_cloudtrail_limit_readonly_bucket_events = var.enable_cloudtrail_limit_readonly_bucket_events
+  cloudtrail_limit_readonly_bucket_arns          = var.cloudtrail_limit_readonly_bucket_arns
 }
 
 # Cloudtrail KMS
