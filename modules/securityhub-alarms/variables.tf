@@ -223,3 +223,9 @@ variable "high_priority_pagerduty_key" {
   default = ""
   type    = string
 }
+
+variable "cloudtrail_log_group_name" {
+  description = "CloudWatch Logs log group name used by CloudTrail metric filters"
+  type        = string
+  default     = "cloudtrail"
+}

@@ -182,3 +182,8 @@ variable "admin_role_usage_alarm_name" {
   default = "admin-role-usage"
   type    = string
 }
+
+variable "cloudtrail_log_group_name" {
+  description = "CloudWatch Logs log group name used by CloudTrail metric filters"
+  type        = string
+}

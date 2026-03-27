@@ -115,7 +115,7 @@ resource "aws_sns_topic" "high_priority_alarms_topic" {
 resource "aws_cloudwatch_log_metric_filter" "unauthorised-api-calls" {
   name           = var.unauthorised_api_calls_log_metric_filter_name
   pattern        = "{((($.errorCode = \"*UnauthorizedOperation\") || (($.errorCode = \"AccessDenied*\") && ($.eventName != \"ListDelegatedAdministrators\") && ($.eventName != \"GetMacieSession\"))) && (($.userIdentity.type != \"AssumedRole\") || ($.userIdentity.sessionContext.sessionIssuer.userName != \"CortexXDRCloudApp\")))}"
-  log_group_name = "cloudtrail"
+  log_group_name = var.cloudtrail_log_group_name
 
   metric_transformation {
     name      = var.unauthorised_api_calls_log_metric_filter_name
@@ -145,7 +145,7 @@ resource "aws_cloudwatch_metric_alarm" "unauthorised-api-calls" {
 resource "aws_cloudwatch_log_metric_filter" "sign-in-without-mfa" {
   name           = var.sign_in_without_mfa_metric_filter_name
   pattern        = "{($.eventName=\"ConsoleLogin\") && ($.additionalEventData.MFAUsed !=\"Yes\") && ($.userIdentity.type =\"IAMUser\") && ($.responseElements.ConsoleLogin = \"Success\") }"
-  log_group_name = "cloudtrail"
+  log_group_name = var.cloudtrail_log_group_name
 
   metric_transformation {
     name      = var.sign_in_without_mfa_metric_filter_name
@@ -176,7 +176,7 @@ resource "aws_cloudwatch_metric_alarm" "sign-in-without-mfa" {
 resource "aws_cloudwatch_log_metric_filter" "root-account-usage" {
   name           = var.root_account_usage_metric_filter_name
   pattern        = "{$.userIdentity.type=\"Root\" && $.userIdentity.invokedBy NOT EXISTS && $.eventType !=\"AwsServiceEvent\"}"
-  log_group_name = "cloudtrail"
+  log_group_name = var.cloudtrail_log_group_name
 
   metric_transformation {
     name      = var.root_account_usage_metric_filter_name
@@ -227,7 +227,7 @@ locals {
 resource "aws_cloudwatch_log_metric_filter" "iam-policy-changes" {
   for_each       = toset(local.iam_policy_change_event_names)
   name           = "${var.iam_policy_changes_metric_filter_name}-${each.key}"
-  log_group_name = "cloudtrail"
+  log_group_name = var.cloudtrail_log_group_name
 
   pattern = "{($.eventName = \"${each.value}\") && ${local.automation_role_filter}}"
 
@@ -269,7 +269,7 @@ locals {
 resource "aws_cloudwatch_log_metric_filter" "cloudtrail-configuration-changes" {
   for_each       = toset(local.cloudtrail_configuration_change_event_names)
   name           = "${var.cloudtrail_configuration_changes_metric_filter_name}-${each.key}"
-  log_group_name = "cloudtrail"
+  log_group_name = var.cloudtrail_log_group_name
 
   pattern = "{($.eventName = \"${each.value}\") && ${local.automation_role_filter}}"
 
@@ -301,7 +301,7 @@ resource "aws_cloudwatch_metric_alarm" "cloudtrail-configuration-changes" {
 resource "aws_cloudwatch_log_metric_filter" "sign-in-failures" {
   name           = var.sign_in_failures_metric_filter_name
   pattern        = "{($.eventName=ConsoleLogin) && ($.errorMessage=\"Failed authentication\")}"
-  log_group_name = "cloudtrail"
+  log_group_name = var.cloudtrail_log_group_name
 
   metric_transformation {
     name      = var.sign_in_failures_metric_filter_name
@@ -331,7 +331,7 @@ resource "aws_cloudwatch_metric_alarm" "sign-in-failures" {
 resource "aws_cloudwatch_log_metric_filter" "cmk-removal" {
   name           = var.cmk_removal_metric_filter_name
   pattern        = "{($.eventSource=kms.amazonaws.com) && (($.eventName=DisableKey) || ($.eventName=ScheduleKeyDeletion))}"
-  log_group_name = "cloudtrail"
+  log_group_name = var.cloudtrail_log_group_name
 
   metric_transformation {
     name      = var.cmk_removal_metric_filter_name
@@ -375,7 +375,7 @@ locals {
 resource "aws_cloudwatch_log_metric_filter" "s3-bucket-policy-changes" {
   for_each       = toset(local.s3_bucket_policy_change_event_names)
   name           = "${var.s3_bucket_policy_changes_metric_filter_name}-${each.key}"
-  log_group_name = "cloudtrail"
+  log_group_name = var.cloudtrail_log_group_name
 
   pattern = "{($.eventName = \"${each.value}\") && ${local.automation_role_filter}}"
 
@@ -416,7 +416,7 @@ locals {
 resource "aws_cloudwatch_log_metric_filter" "config-configuration-changes" {
   for_each       = toset(local.config_configuration_change_event_names)
   name           = "${var.config_configuration_changes_metric_filter_name}-${each.key}"
-  log_group_name = "cloudtrail"
+  log_group_name = var.cloudtrail_log_group_name
 
   pattern = "{($.eventName = \"${each.value}\") && ${local.automation_role_filter}}"
 
@@ -459,7 +459,7 @@ locals {
 resource "aws_cloudwatch_log_metric_filter" "security-group-changes" {
   for_each       = toset(local.security_group_change_event_names)
   name           = "${var.security_group_changes_metric_filter_name}-${each.key}"
-  log_group_name = "cloudtrail"
+  log_group_name = var.cloudtrail_log_group_name
 
   pattern = "{($.eventName = \"${each.value}\") && ${local.automation_role_filter}}"
   metric_transformation {
@@ -501,7 +501,7 @@ resource "aws_cloudwatch_log_metric_filter" "nacl-changes" {
   for_each       = toset(local.nacl_unauthorised_event_names)
   name           = "${var.nacl_changes_metric_filter_name}-${each.key}"
   pattern        = "{($.eventName = \"${each.value}\") && ${local.automation_role_filter}}"
-  log_group_name = "cloudtrail"
+  log_group_name = var.cloudtrail_log_group_name
 
   metric_transformation {
     name      = var.nacl_changes_metric_filter_name
@@ -542,7 +542,7 @@ resource "aws_cloudwatch_log_metric_filter" "network-gateway-changes" {
   for_each       = toset(local.ngw_unauthorised_event_names)
   name           = "${var.network_gateway_changes_metric_filter_name}-${each.key}"
   pattern        = "{($.eventName = \"${each.value}\") && ${local.automation_role_filter}}"
-  log_group_name = "cloudtrail"
+  log_group_name = var.cloudtrail_log_group_name
 
   metric_transformation {
     name      = var.network_gateway_changes_metric_filter_name
@@ -584,7 +584,7 @@ resource "aws_cloudwatch_log_metric_filter" "route-table-changes" {
   for_each       = toset(local.rtb_unauthorised_actions)
   name           = "${var.route_table_changes_metric_filter_name}-${each.key}"
   pattern        = "{($.eventName = \"${each.value}\") && ${local.automation_role_filter}}"
-  log_group_name = "cloudtrail"
+  log_group_name = var.cloudtrail_log_group_name
 
   metric_transformation {
     name      = var.route_table_changes_metric_filter_name
@@ -630,7 +630,7 @@ resource "aws_cloudwatch_log_metric_filter" "vpc-changes" {
   for_each       = toset(local.vpc_unauthorised_actions)
   name           = "${var.vpc_changes_metric_filter_name}-${each.key}"
   pattern        = "{($.eventName = \"${each.value}\") && ${local.automation_role_filter}}"
-  log_group_name = "cloudtrail"
+  log_group_name = var.cloudtrail_log_group_name
 
   metric_transformation {
     name      = var.vpc_changes_metric_filter_name
@@ -775,7 +775,7 @@ resource "aws_cloudwatch_metric_alarm" "privatelink_service_active_connection_co
 resource "aws_cloudwatch_log_metric_filter" "admin_role_usage" {
   name           = var.admin_role_usage_metric_filter_name
   pattern        = "{ $.eventName = \"AssumeRoleWithSAML\" && $.requestParameters.roleArn = \"*AdministratorAccess*\" && $.requestParameters.principalTags.github_team = \"*modernisation-platform-engineers*\" }"
-  log_group_name = "cloudtrail"
+  log_group_name = var.cloudtrail_log_group_name
 
   metric_transformation {
     name      = var.admin_role_usage_metric_filter_name
@@ -807,7 +807,7 @@ resource "aws_cloudwatch_metric_alarm" "admin_role_usage" {
 resource "aws_cloudwatch_log_metric_filter" "orgaccess_role_usage" {
   name           = var.orgaccess_role_usage_metric_filter_name
   pattern        = "{ $.eventName = \"AssumeRole*\" && $.requestParameters.roleArn = \"*OrganizationAccountAccessRole*\" && $.requestParameters.roleSessionName = \"*justice.gov.uk*\" }"
-  log_group_name = "cloudtrail"
+  log_group_name = var.cloudtrail_log_group_name
 
   metric_transformation {
     name      = var.orgaccess_role_usage_metric_filter_name
