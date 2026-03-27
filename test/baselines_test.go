@@ -160,6 +160,7 @@ func TestTerraformSecurityHubAlarms(t *testing.T) {
 	uniqueId := random.UniqueId()
 
 	// Define unique names for SecurityHub Alarms resources
+	CloudtrailLogGroupName := fmt.Sprintf("cloudtrail-securityhub-alarms-%s", strings.ToLower(uniqueId))
 	SecurityhubAlarmsKmsName := fmt.Sprintf("alias/securityhub-alarms_key-%s", uniqueId)
 	SecurityhubAlarmsMultiRegionKmsName := fmt.Sprintf("alias/securityhub-alarms-key-multi-region-%s", uniqueId)
 	SecurityhubAlarmsSNSTopicName := fmt.Sprintf("securityhub-alarms-%s", uniqueId)
@@ -202,6 +203,7 @@ func TestTerraformSecurityHubAlarms(t *testing.T) {
 		TerraformDir: terraformDir,
 		Vars: map[string]interface{}{
 			// Pass in unique names as terraform command line options
+			"cloudtrail_log_group_name":                                  CloudtrailLogGroupName,
 			"securityhub_alarms_kms_name":                                SecurityhubAlarmsKmsName,
 			"securityhub_alarms_multi_region_kms_name":                   SecurityhubAlarmsMultiRegionKmsName,
 			"securityhub_alarms_sns_topic_name":                          SecurityhubAlarmsSNSTopicName,
