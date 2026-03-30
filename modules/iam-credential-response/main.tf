@@ -43,6 +43,7 @@ resource "aws_lambda_permission" "allow_eventbridge" {
 
 resource "aws_iam_role" "credential_responder" {
   name = "credential-responder-lambda"
+  tags = var.tags
 
   assume_role_policy = jsonencode({
     Version = "2012-10-17"
