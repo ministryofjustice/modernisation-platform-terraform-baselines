@@ -3,4 +3,5 @@ module "iam_credential_response" {
   source = "./modules/iam-credential-response"
 
   pagerduty_integration_key = var.high_priority_pagerduty_integration_key
+  tags                      = var.tags
 }
