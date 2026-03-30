@@ -274,7 +274,7 @@ func TestTerraformSecurityHubAlarms(t *testing.T) {
 	SignInFailuresAlarmArn := terraform.Output(t, terraformOptions, "sign_in_failures_alarm_arn")
 	CmkRemovalMetricFilterId := terraform.Output(t, terraformOptions, "cmk_removal_metric_filter_id")
 	CmkRemovalAlarmArn := terraform.Output(t, terraformOptions, "cmk_removal_alarm_arn")
-    S3BucketPolicyChangesMetricFilterIds := terraform.OutputMap(t, terraformOptions, "s3_bucket_policy_changes_metric_filter_ids")
+	S3BucketPolicyChangesMetricFilterIds := terraform.OutputMap(t, terraformOptions, "s3_bucket_policy_changes_metric_filter_ids")
 	S3BucketPolicyChangesAlarmArn := terraform.Output(t, terraformOptions, "s3_bucket_policy_changes_alarm_arn")
 	ConfigConfigurationChangesMetricFilterIds := terraform.OutputMap(t, terraformOptions, "config_configuration_changes_metric_filter_ids")
 	ConfigConfigurationChangesAlarmArn := terraform.Output(t, terraformOptions, "config_configuration_changes_alarm_arn")
@@ -422,4 +422,44 @@ func TestTerraformSecurityHub(t *testing.T) {
 	assert.Regexp(t, regexp.MustCompile(`arn:aws:events:eu-west-2:[0-9]{12}:rule/`+SecHubEventbridgeRuleName+`_high`), SecHubEventbridgeRuleARNsJSON)
 	assert.Regexp(t, regexp.MustCompile(`^arn:aws:sns:eu-west-2:[0-9]{12}:sechub_findings_sns_topic-`+uniqueId), SecHubSNSTopicARN)
 	assert.Regexp(t, regexp.MustCompile(`^arn:aws:kms:eu-west-2:[0-9]{12}:key/*`), SecHubSNSTopicKMSKeyARN)
+}
+
+// IAM Credential Response Module Unit Testing
+func TestTerraformIamCredentialResponse(t *testing.T) {
+	t.Parallel()
+
+	terraformDir := "./iam-credential-response-test"
+
+	terraformOptions := &terraform.Options{
+		TerraformDir: terraformDir,
+		// Targeting specific resources to skip the PagerDuty SNS subscription
+		// which requires a real integration key and endpoint auto-confirmation
+		Targets: []string{
+			"module.iam-credential-response-test.aws_sns_topic.iam_credential_alert",
+			"module.iam-credential-response-test.aws_cloudwatch_event_rule.iam_credential_exposed",
+			"module.iam-credential-response-test.aws_cloudwatch_event_target.iam_credential_exposed_lambda",
+			"module.iam-credential-response-test.aws_iam_role.credential_responder",
+			"module.iam-credential-response-test.aws_iam_role_policy.credential_responder",
+			"module.iam-credential-response-test.aws_lambda_function.credential_responder",
+			"module.iam-credential-response-test.aws_lambda_permission.allow_eventbridge",
+		},
+	}
+
+	// Clean up resources with "terraform destroy" at the end of the test
+	defer terraform.Destroy(t, terraformOptions)
+
+	// Run "terraform init" and "terraform apply"
+	terraform.InitAndApply(t, terraformOptions)
+
+	// Define Outputs
+	SnsTopicArn := terraform.Output(t, terraformOptions, "sns_topic_arn")
+	LambdaFunctionArn := terraform.Output(t, terraformOptions, "lambda_function_arn")
+	LambdaRoleArn := terraform.Output(t, terraformOptions, "lambda_role_arn")
+	EventbridgeRuleArn := terraform.Output(t, terraformOptions, "eventbridge_rule_arn")
+
+	// Tests (comparing outputs to regex)
+	assert.Regexp(t, regexp.MustCompile(`^arn:aws:sns:eu-west-2:[0-9]{12}:iam-credential-exposed-alert$`), SnsTopicArn)
+	assert.Regexp(t, regexp.MustCompile(`^arn:aws:lambda:eu-west-2:[0-9]{12}:function:iam-credential-responder$`), LambdaFunctionArn)
+	assert.Regexp(t, regexp.MustCompile(`^arn:aws:iam::[0-9]{12}:role/credential-responder-lambda$`), LambdaRoleArn)
+	assert.Regexp(t, regexp.MustCompile(`^arn:aws:events:eu-west-2:[0-9]{12}:rule/iam-credential-exposed$`), EventbridgeRuleArn)
 }
