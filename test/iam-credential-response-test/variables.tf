@@ -10,6 +10,12 @@ variable "credential_responder_role_name" {
   type        = string
 }
 
+variable "credential_responder_lambda_name" {
+  default     = "iam-credential-responder"
+  description = "Non-default value used by unit tests to avoid naming collisions"
+  type        = string
+}
+
 variable "tags" {
   default     = {}
   description = "Tags to apply to resources, where applicable"
