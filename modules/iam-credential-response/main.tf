@@ -2,6 +2,7 @@
 resource "aws_sns_topic" "iam_credential_alert" {
   #checkov:skip=CKV_AWS_26:"encrypted topics do not work with pagerduty subscription"
   name = "iam-credential-exposed-alert"
+  tags = var.tags
 }
 
 module "pagerduty_iam_credential_alert" {
@@ -16,6 +17,7 @@ module "pagerduty_iam_credential_alert" {
 resource "aws_cloudwatch_event_rule" "iam_credential_exposed" {
   name        = "iam-credential-exposed"
   description = "Triggers on AWS_RISK_CREDENTIALS_EXPOSED Health events"
+  tags        = var.tags
 
   event_pattern = jsonencode({
     source      = ["aws.health"]
@@ -42,7 +44,8 @@ resource "aws_lambda_permission" "allow_eventbridge" {
 }
 
 resource "aws_iam_role" "credential_responder" {
-  name = "credential-responder-lambda"
+  name = var.credential_responder_role_name
+  tags = var.tags
 
   assume_role_policy = jsonencode({
     Version = "2012-10-17"
@@ -98,7 +101,7 @@ resource "aws_iam_role_policy" "credential_responder" {
 }
 
 resource "aws_lambda_function" "credential_responder" {
-  function_name    = "iam-credential-responder"
+  function_name    = var.credential_responder_lambda_name
   description      = "Disables exposed IAM keys, quarantines users, and raises alerts via SNS"
   role             = aws_iam_role.credential_responder.arn
   handler          = "credential_responder.handler"
@@ -106,6 +109,7 @@ resource "aws_lambda_function" "credential_responder" {
   filename         = data.archive_file.credential_responder.output_path
   source_code_hash = data.archive_file.credential_responder.output_base64sha256
   timeout          = 60
+  tags             = var.tags
 
   environment {
     variables = {
