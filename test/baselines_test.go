@@ -429,6 +429,10 @@ func TestTerraformIamCredentialResponse(t *testing.T) {
 	t.Parallel()
 
 	terraformDir := "./iam-credential-response-test"
+	uniqueId := random.UniqueId()
+
+	// Unique name for IAM role to avoid collisions across parallel test runs
+	CredentialResponderRoleName := fmt.Sprintf("credential-responder-lambda-%s", uniqueId)
 
 	terraformOptions := &terraform.Options{
 		TerraformDir: terraformDir,
@@ -442,6 +446,9 @@ func TestTerraformIamCredentialResponse(t *testing.T) {
 			"module.iam-credential-response-test.aws_iam_role_policy.credential_responder",
 			"module.iam-credential-response-test.aws_lambda_function.credential_responder",
 			"module.iam-credential-response-test.aws_lambda_permission.allow_eventbridge",
+		},
+		Vars: map[string]interface{}{
+			"credential_responder_role_name": CredentialResponderRoleName,
 		},
 	}
 
@@ -460,6 +467,6 @@ func TestTerraformIamCredentialResponse(t *testing.T) {
 	// Tests (comparing outputs to regex)
 	assert.Regexp(t, regexp.MustCompile(`^arn:aws:sns:eu-west-2:[0-9]{12}:iam-credential-exposed-alert$`), SnsTopicArn)
 	assert.Regexp(t, regexp.MustCompile(`^arn:aws:lambda:eu-west-2:[0-9]{12}:function:iam-credential-responder$`), LambdaFunctionArn)
-	assert.Regexp(t, regexp.MustCompile(`^arn:aws:iam::[0-9]{12}:role/credential-responder-lambda$`), LambdaRoleArn)
+	assert.Regexp(t, regexp.MustCompile(`^arn:aws:iam::[0-9]{12}:role/credential-responder-lambda-`+uniqueId+`$`), LambdaRoleArn)
 	assert.Regexp(t, regexp.MustCompile(`^arn:aws:events:eu-west-2:[0-9]{12}:rule/iam-credential-exposed$`), EventbridgeRuleArn)
 }
