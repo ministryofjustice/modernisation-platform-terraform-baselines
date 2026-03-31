@@ -134,7 +134,7 @@ resource "aws_kms_key" "config-sns-key" {
   bypass_policy_lockout_safety_check = false
   description                        = "KMS key for AWS Config SNS topic"
   multi_region                       = true
-  enable_key_rotation                = false
+  enable_key_rotation                = true
   policy                             = data.aws_iam_policy_document.config-sns-key-policy.json
   tags                               = var.tags
 }
