@@ -107,6 +107,7 @@ resource "aws_lambda_function" "credential_responder" {
   filename         = data.archive_file.credential_responder.output_path
   source_code_hash = data.archive_file.credential_responder.output_base64sha256
   timeout          = 60
+  tags             = var.tags
 
   environment {
     variables = {
