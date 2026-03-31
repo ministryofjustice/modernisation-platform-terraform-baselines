@@ -15,15 +15,19 @@ locals {
   # Excludes known automation roles from triggering alarms, varying by account type:
   #   MP account (default workspace): uses github-actions OIDC role directly (no assume_role in provider)
   #   Core accounts (core-*):         uses ModernisationPlatformAccess only
+  #   CP accounts (cloud-platform-*): uses ModernisationPlatformAccess, MemberInfrastructureAccess, and github-actions-development-cluster
   #   Member accounts (all others):   uses ModernisationPlatformAccess or MemberInfrastructureAccess
   is_mp_account   = terraform.workspace == "default"
   is_core_account = length(regexall("^core-", terraform.workspace)) > 0
+  is_cp_account   = length(regexall("^cloud-platform-", terraform.workspace)) > 0
 
   automation_role_filter = (
     local.is_mp_account ? (
       "(($.userIdentity.type != \"AssumedRole\") || (($.userIdentity.sessionContext.sessionIssuer.userName != \"github-actions\") && ($.userIdentity.sessionContext.sessionIssuer.userName != \"github-actions-apply\")))"
       ) : local.is_core_account ? (
       "(($.userIdentity.type != \"AssumedRole\") || ($.userIdentity.sessionContext.sessionIssuer.userName != \"ModernisationPlatformAccess\"))"
+      ) : local.is_cp_account ? (
+      "(($.userIdentity.type != \"AssumedRole\") || (($.userIdentity.sessionContext.sessionIssuer.userName != \"ModernisationPlatformAccess\") && ($.userIdentity.sessionContext.sessionIssuer.userName != \"MemberInfrastructureAccess\") && ($.userIdentity.sessionContext.sessionIssuer.userName != \"github-actions-development-cluster\")))"
       ) : (
       "(($.userIdentity.type != \"AssumedRole\") || (($.userIdentity.sessionContext.sessionIssuer.userName != \"ModernisationPlatformAccess\") && ($.userIdentity.sessionContext.sessionIssuer.userName != \"MemberInfrastructureAccess\")))"
     )
