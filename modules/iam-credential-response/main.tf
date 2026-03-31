@@ -42,7 +42,8 @@ resource "aws_lambda_permission" "allow_eventbridge" {
 }
 
 resource "aws_iam_role" "credential_responder" {
-  name = "credential-responder-lambda"
+  name = var.credential_responder_role_name
+  tags = var.tags
 
   assume_role_policy = jsonencode({
     Version = "2012-10-17"
@@ -98,7 +99,7 @@ resource "aws_iam_role_policy" "credential_responder" {
 }
 
 resource "aws_lambda_function" "credential_responder" {
-  function_name    = "iam-credential-responder"
+  function_name    = var.credential_responder_lambda_name
   description      = "Disables exposed IAM keys, quarantines users, and raises alerts via SNS"
   role             = aws_iam_role.credential_responder.arn
   handler          = "credential_responder.handler"

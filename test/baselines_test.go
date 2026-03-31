@@ -27,19 +27,21 @@ func TestTerraformBackup(t *testing.T) {
 	NonProdBackupSelectionName := fmt.Sprintf("non-production-backup-%s", uniqueId)
 	BackupSNSTopicName := fmt.Sprintf("backup_failure_topic-%s", uniqueId)
 	BackupLockSNSTopicName := fmt.Sprintf("backup_vault_lock_sns_topic_name-%s", uniqueId)
-
+	BackupKmsAliasName := fmt.Sprintf("alias/backup-alarms-key-multi-region-%s", uniqueId)
+	
 	terraformOptions := &terraform.Options{
-		TerraformDir: terraformDir,
-		Vars: map[string]interface{}{
-			"aws_iam_role_backup_name":             BackupIamRoleName,
-			"aws_backup_vault_name":                BackupVaultName,
-			"production_backup_plan_name":          ProdBackupVaultName,
-			"production_backup_selection_name":     ProdBackupSelectionName,
-			"non_production_backup_plan_name":      NonProdBackupPlanName,
-			"non_production_backup_selection_name": NonProdBackupSelectionName,
-			"backup_aws_sns_topic_name":            BackupSNSTopicName,
-			"backup_vault_lock_sns_topic_name":     BackupLockSNSTopicName,
-		},
+	    TerraformDir: terraformDir,
+	    Vars: map[string]interface{}{
+	        "aws_iam_role_backup_name":             BackupIamRoleName,
+	        "aws_backup_vault_name":                BackupVaultName,
+	        "production_backup_plan_name":          ProdBackupVaultName,
+	        "production_backup_selection_name":     ProdBackupSelectionName,
+	        "non_production_backup_plan_name":      NonProdBackupPlanName,
+	        "non_production_backup_selection_name": NonProdBackupSelectionName,
+	        "backup_aws_sns_topic_name":            BackupSNSTopicName,
+	        "backup_vault_lock_sns_topic_name":     BackupLockSNSTopicName,
+	        "aws_kms_alias_name":                   BackupKmsAliasName,
+	    },
 	}
 	// Clean up resources with "terraform destroy" at the end of the test
 	defer terraform.Destroy(t, terraformOptions)
@@ -96,7 +98,7 @@ func TestTerraformSupport(t *testing.T) {
 	// Run "terraform init" and "terraform apply"
 	terraform.InitAndApply(t, terraformOptions)
 
-	// Test backup module
+	// Test support module
 	AwsSupportRoleARN := terraform.Output(t, terraformOptions, "aws_support_role_arn")
 
 	assert.Regexp(t, regexp.MustCompile(`^arn:aws:iam::[0-9]{12}:role/support-`+uniqueId), AwsSupportRoleARN)
@@ -132,7 +134,7 @@ func TestTerraformCloudtrail(t *testing.T) {
 	// Run "terraform init" and "terraform apply"
 	terraform.InitAndApply(t, terraformOptions)
 
-	// Test backup module
+	// Test cloudtrail module
 	CloudwatchLogGroupARN := terraform.Output(t, terraformOptions, "cloudwatch_log_group_arn")
 	CloudWatchLogStreamARN := terraform.Output(t, terraformOptions, "cloudwatch_log_stream_arn")
 	SNSTopicARN := terraform.Output(t, terraformOptions, "sns_topic_arn")
@@ -429,6 +431,11 @@ func TestTerraformIamCredentialResponse(t *testing.T) {
 	t.Parallel()
 
 	terraformDir := "./iam-credential-response-test"
+	uniqueId := random.UniqueId()
+
+	// Unique names for IAM role and Lambda to avoid collisions across parallel test runs
+	CredentialResponderRoleName := fmt.Sprintf("credential-responder-lambda-%s", uniqueId)
+	CredentialResponderLambdaName := fmt.Sprintf("iam-credential-responder-%s", strings.ToLower(uniqueId))
 
 	terraformOptions := &terraform.Options{
 		TerraformDir: terraformDir,
@@ -442,6 +449,10 @@ func TestTerraformIamCredentialResponse(t *testing.T) {
 			"module.iam-credential-response-test.aws_iam_role_policy.credential_responder",
 			"module.iam-credential-response-test.aws_lambda_function.credential_responder",
 			"module.iam-credential-response-test.aws_lambda_permission.allow_eventbridge",
+		},
+		Vars: map[string]interface{}{
+			"credential_responder_role_name":   CredentialResponderRoleName,
+			"credential_responder_lambda_name": CredentialResponderLambdaName,
 		},
 	}
 
@@ -459,7 +470,7 @@ func TestTerraformIamCredentialResponse(t *testing.T) {
 
 	// Tests (comparing outputs to regex)
 	assert.Regexp(t, regexp.MustCompile(`^arn:aws:sns:eu-west-2:[0-9]{12}:iam-credential-exposed-alert$`), SnsTopicArn)
-	assert.Regexp(t, regexp.MustCompile(`^arn:aws:lambda:eu-west-2:[0-9]{12}:function:iam-credential-responder$`), LambdaFunctionArn)
-	assert.Regexp(t, regexp.MustCompile(`^arn:aws:iam::[0-9]{12}:role/credential-responder-lambda$`), LambdaRoleArn)
+	assert.Regexp(t, regexp.MustCompile(`^arn:aws:lambda:eu-west-2:[0-9]{12}:function:iam-credential-responder-`+strings.ToLower(uniqueId)+`$`), LambdaFunctionArn)
+	assert.Regexp(t, regexp.MustCompile(`^arn:aws:iam::[0-9]{12}:role/credential-responder-lambda-`+uniqueId+`$`), LambdaRoleArn)
 	assert.Regexp(t, regexp.MustCompile(`^arn:aws:events:eu-west-2:[0-9]{12}:rule/iam-credential-exposed$`), EventbridgeRuleArn)
 }
