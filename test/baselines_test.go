@@ -27,19 +27,21 @@ func TestTerraformBackup(t *testing.T) {
 	NonProdBackupSelectionName := fmt.Sprintf("non-production-backup-%s", uniqueId)
 	BackupSNSTopicName := fmt.Sprintf("backup_failure_topic-%s", uniqueId)
 	BackupLockSNSTopicName := fmt.Sprintf("backup_vault_lock_sns_topic_name-%s", uniqueId)
-
+	BackupKmsAliasName := fmt.Sprintf("alias/backup-alarms-key-multi-region-%s", uniqueId)
+	
 	terraformOptions := &terraform.Options{
-		TerraformDir: terraformDir,
-		Vars: map[string]interface{}{
-			"aws_iam_role_backup_name":             BackupIamRoleName,
-			"aws_backup_vault_name":                BackupVaultName,
-			"production_backup_plan_name":          ProdBackupVaultName,
-			"production_backup_selection_name":     ProdBackupSelectionName,
-			"non_production_backup_plan_name":      NonProdBackupPlanName,
-			"non_production_backup_selection_name": NonProdBackupSelectionName,
-			"backup_aws_sns_topic_name":            BackupSNSTopicName,
-			"backup_vault_lock_sns_topic_name":     BackupLockSNSTopicName,
-		},
+	    TerraformDir: terraformDir,
+	    Vars: map[string]interface{}{
+	        "aws_iam_role_backup_name":             BackupIamRoleName,
+	        "aws_backup_vault_name":                BackupVaultName,
+	        "production_backup_plan_name":          ProdBackupVaultName,
+	        "production_backup_selection_name":     ProdBackupSelectionName,
+	        "non_production_backup_plan_name":      NonProdBackupPlanName,
+	        "non_production_backup_selection_name": NonProdBackupSelectionName,
+	        "backup_aws_sns_topic_name":            BackupSNSTopicName,
+	        "backup_vault_lock_sns_topic_name":     BackupLockSNSTopicName,
+	        "aws_kms_alias_name":                   BackupKmsAliasName,
+	    },
 	}
 	// Clean up resources with "terraform destroy" at the end of the test
 	defer terraform.Destroy(t, terraformOptions)
