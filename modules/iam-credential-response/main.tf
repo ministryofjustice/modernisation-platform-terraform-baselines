@@ -2,6 +2,7 @@
 resource "aws_sns_topic" "iam_credential_alert" {
   #checkov:skip=CKV_AWS_26:"encrypted topics do not work with pagerduty subscription"
   name = "iam-credential-exposed-alert"
+  tags = var.tags
 }
 
 module "pagerduty_iam_credential_alert" {
@@ -16,6 +17,7 @@ module "pagerduty_iam_credential_alert" {
 resource "aws_cloudwatch_event_rule" "iam_credential_exposed" {
   name        = "iam-credential-exposed"
   description = "Triggers on AWS_RISK_CREDENTIALS_EXPOSED Health events"
+  tags        = var.tags
 
   event_pattern = jsonencode({
     source      = ["aws.health"]
@@ -107,6 +109,7 @@ resource "aws_lambda_function" "credential_responder" {
   filename         = data.archive_file.credential_responder.output_path
   source_code_hash = data.archive_file.credential_responder.output_base64sha256
   timeout          = 60
+  tags             = var.tags
 
   environment {
     variables = {
