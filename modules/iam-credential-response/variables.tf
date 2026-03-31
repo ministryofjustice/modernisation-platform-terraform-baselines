@@ -1,10 +1,16 @@
+variable "tags" {
+  default     = {}
+  description = "Tags to apply to resources, where applicable"
+  type        = map(any)
+}
+
 variable "pagerduty_integration_key" {
   type        = string
   description = "PagerDuty integration key for IAM exposed credential alerts."
 }
 
-variable "tags" {
-  default     = {}
-  description = "Tags to apply to resources, where applicable"
-  type        = map(any)
+variable "credential_responder_role_name" {
+  default     = "credential-responder-lambda"
+  description = "Name for the IAM role used by the credential responder Lambda. Override in tests to avoid naming collisions."
+  type        = string
 }
