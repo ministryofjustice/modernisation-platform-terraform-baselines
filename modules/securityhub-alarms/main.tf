@@ -21,13 +21,17 @@ locals {
   account_name = terraform.workspace == "default" ? "" : replace(terraform.workspace, regex("-[^-]*$", terraform.workspace), "")
 
   # Decode the environments JSON. Falls back to empty map if unavailable.
-  environment_definition = terraform.workspace == "default" ? {} : try(
+  environment_definition = terraform.workspace == "default" ? null : try(
     jsondecode(data.http.environment_definition[0].response_body),
-    {}
+    null
   )
 
   # True when the account-type in the environments JSON is "member-unrestricted".
-  is_member_unrestricted = try(local.environment_definition["account-type"], "") == "member-unrestricted"
+  member_unrestricted_account_prefixes = ["bichard7"]
+  is_member_unrestricted = (
+    try(local.environment_definition["account-type"], "") == "member-unrestricted" ||
+    anytrue([for p in local.member_unrestricted_account_prefixes : startswith(terraform.workspace, "${p}-")])
+  )
 
   # Extract the environment suffix (last segment after the final dash, e.g. "development")
   environment_name = terraform.workspace == "default" ? "" : regex("[^-]+$", terraform.workspace)
@@ -875,7 +879,7 @@ resource "aws_cloudwatch_log_metric_filter" "orgaccess_role_usage" {
 resource "aws_cloudwatch_metric_alarm" "orgaccess_role_usage" {
   alarm_name        = var.orgaccess_role_usage_alarm_name
   alarm_description = "Monitors for use of the OrganizationAccountAccessRole role."
-  alarm_actions     = [aws_sns_topic.high_priority_alarms_topic.arn]
+  alarm_actions     = local.low_priority_alarm_action
 
   comparison_operator = "GreaterThanOrEqualToThreshold"
   evaluation_periods  = "1"
