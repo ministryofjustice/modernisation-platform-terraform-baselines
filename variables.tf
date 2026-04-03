@@ -9,6 +9,18 @@ variable "enable_cloudtrail_s3_mgmt_events" {
   description = "Enable CT Object-level logging, defaults to true"
 }
 
+variable "enable_cloudtrail_limit_readonly_bucket_events" {
+  type        = bool
+  default     = false
+  description = "Disables readonly events in cloudtrail for specific buckets"
+}
+
+variable "cloudtrail_limit_readonly_bucket_arns" {
+  type        = list(string)
+  default     = []
+  description = "List of S3 object ARNs (e.g. arn:aws:s3:::bucket-name/) for which only write data events should be logged when enable_cloudtrail_limit_readonly_bucket_events is true"
+}
+
 variable "enabled_access_analyzer_regions" {
   default     = []
   description = "Regions to enable IAM Access Analyzer in"

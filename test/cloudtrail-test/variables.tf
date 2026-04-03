@@ -31,3 +31,15 @@ variable "cloudtrail_bucket" {
   description = "Name of centralised Cloudtrail bucket"
   type        = string
 }
+
+variable "enable_cloudtrail_limit_readonly_bucket_events" {
+  type        = bool
+  default     = false
+  description = "Disables readonly events in cloudtrail for specific buckets in tests"
+}
+
+variable "cloudtrail_limit_readonly_bucket_arns" {
+  type        = list(string)
+  default     = []
+  description = "List of S3 object ARNs for which only write data events should be logged in tests; empty by default"
+}

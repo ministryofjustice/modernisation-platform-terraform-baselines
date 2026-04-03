@@ -1,11 +1,13 @@
 data "aws_caller_identity" "current" {}
 data "aws_region" "current" {}
 module "cloudtrail" {
-  source                           = "./modules/cloudtrail"
-  cloudtrail_kms_key               = var.cloudtrail_kms_key
-  cloudtrail_bucket                = local.cloudtrail_bucket
-  enable_cloudtrail_s3_mgmt_events = var.enable_cloudtrail_s3_mgmt_events
-  tags                             = var.tags
+  source                                         = "./modules/cloudtrail"
+  cloudtrail_kms_key                             = var.cloudtrail_kms_key
+  cloudtrail_bucket                              = local.cloudtrail_bucket
+  enable_cloudtrail_s3_mgmt_events               = var.enable_cloudtrail_s3_mgmt_events
+  enable_cloudtrail_limit_readonly_bucket_events = var.enable_cloudtrail_limit_readonly_bucket_events
+  cloudtrail_limit_readonly_bucket_arns          = var.cloudtrail_limit_readonly_bucket_arns
+  tags                                           = var.tags
 }
 
 module "iam" {
