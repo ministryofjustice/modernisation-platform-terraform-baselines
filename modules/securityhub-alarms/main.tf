@@ -343,7 +343,7 @@ resource "aws_cloudwatch_log_metric_filter" "cloudtrail-configuration-changes" {
 resource "aws_cloudwatch_metric_alarm" "cloudtrail-configuration-changes" {
   alarm_name        = var.cloudtrail_configuration_changes_alarm_name
   alarm_description = "Monitors for CloudTrail configuration changes."
-  alarm_actions     = [aws_sns_topic.high_priority_alarms_topic.arn]
+  alarm_actions     = local.high_priority_excluding_suppressed_alarm_action
 
   comparison_operator = "GreaterThanOrEqualToThreshold"
   evaluation_periods  = "1"
@@ -490,7 +490,7 @@ resource "aws_cloudwatch_log_metric_filter" "config-configuration-changes" {
 resource "aws_cloudwatch_metric_alarm" "config-configuration-changes" {
   alarm_name        = var.config_configuration_changes_alarm_name
   alarm_description = "Monitors for AWS Config configuration changes."
-  alarm_actions     = [aws_sns_topic.high_priority_alarms_topic.arn]
+  alarm_actions     = local.high_priority_excluding_suppressed_alarm_action
 
   comparison_operator = "GreaterThanOrEqualToThreshold"
   evaluation_periods  = "1"
