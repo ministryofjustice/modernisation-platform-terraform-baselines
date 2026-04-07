@@ -1,3 +1,10 @@
+# Fetch the environment definition from the modernisation-platform repo.
+# count = 0 for the default (MP) workspace, which has no environments JSON.
+data "http" "environment_definition" {
+  count = terraform.workspace == "default" ? 0 : 1
+  url   = "https://raw.githubusercontent.com/ministryofjustice/modernisation-platform/main/environments/${local.account_name}.json"
+}
+
 locals {
   mp_owned_workspaces = [
     "cooker-development",
@@ -8,9 +15,58 @@ locals {
     "^core-.*"
   ]
 
-  is_workspace_matched = length(regexall(join("|", local.mp_owned_workspaces), terraform.workspace)) > 0
+  is_mp_workspace = length(regexall(join("|", local.mp_owned_workspaces), terraform.workspace)) > 0
 
-  alarm_action = local.is_workspace_matched ? [aws_sns_topic.securityhub-alarms.arn] : []
+  # Derive the application name by stripping the trailing -<environment> suffix.
+  account_name = terraform.workspace == "default" ? "" : replace(terraform.workspace, regex("-[^-]*$", terraform.workspace), "")
+
+  # Decode the environments JSON. Falls back to empty map if unavailable.
+  environment_definition = terraform.workspace == "default" ? null : try(
+    jsondecode(data.http.environment_definition[0].response_body),
+    null
+  )
+
+  # True when the account-type in the environments JSON is "member-unrestricted".
+  member_unrestricted_account_prefixes = ["bichard7"]
+  is_member_unrestricted = (
+    try(local.environment_definition["account-type"], "") == "member-unrestricted" ||
+    anytrue([for p in local.member_unrestricted_account_prefixes : startswith(terraform.workspace, "${p}-")])
+  )
+
+  # Extract the environment suffix (last segment after the final dash, e.g. "development")
+  environment_name = terraform.workspace == "default" ? "" : regex("[^-]+$", terraform.workspace)
+
+  # Find the access list for the current environment in the JSON
+  current_environment_access = try(
+    [for env in local.environment_definition["environments"] : env["access"]
+      if env["name"] == local.environment_name
+    ][0],
+    []
+  )
+
+  # True when any access entry for this environment has level = "sandbox"
+  is_sandbox_environment = length([
+    for a in local.current_environment_access : a
+    if try(a["level"], "") == "sandbox"
+  ]) > 0
+
+  # Combined suppression flag
+  is_suppressed_account = local.is_member_unrestricted || local.is_sandbox_environment
+
+  # Alarm actions
+
+  # Low priority alarms action
+  low_priority_alarm_action = [aws_sns_topic.securityhub-alarms.arn]
+
+  # Low priority alarms enabled for MP-owned workspaces only
+  mp_accounts_low_priority_alarm_action = local.is_mp_workspace ? local.low_priority_alarm_action : []
+
+  # High-priority alarms disabled for suppressed accounts (member-unrestricted or sandbox), enabled everywhere else.
+  high_priority_excluding_suppressed_alarm_action = local.is_suppressed_account ? [] : [aws_sns_topic.high_priority_alarms_topic.arn]
+
+  # Low priority alarms disabled for suppressed accounts (member-unrestricted or sandbox), enabled everywhere else.
+  low_priority_excluding_suppressed_alarm_action = local.is_suppressed_account ? [] : local.low_priority_alarm_action
+
 
   # Excludes known automation roles from triggering alarms, varying by account type:
   #   MP account (default workspace): uses github-actions OIDC role directly (no assume_role in provider)
@@ -131,7 +187,7 @@ resource "aws_cloudwatch_log_metric_filter" "unauthorised-api-calls" {
 resource "aws_cloudwatch_metric_alarm" "unauthorised-api-calls" {
   alarm_name        = var.unauthorised_api_calls_alarm_name
   alarm_description = "Monitors for unauthorised API calls."
-  alarm_actions     = local.alarm_action
+  alarm_actions     = local.mp_accounts_low_priority_alarm_action
 
   comparison_operator = "GreaterThanOrEqualToThreshold"
   evaluation_periods  = "1"
@@ -161,7 +217,7 @@ resource "aws_cloudwatch_log_metric_filter" "sign-in-without-mfa" {
 resource "aws_cloudwatch_metric_alarm" "sign-in-without-mfa" {
   alarm_name        = var.sign_in_without_mfa_alarm_name
   alarm_description = "Monitors for AWS Console sign-in without MFA."
-  alarm_actions     = [aws_sns_topic.securityhub-alarms.arn]
+  alarm_actions     = local.low_priority_alarm_action
 
   comparison_operator = "GreaterThanOrEqualToThreshold"
   evaluation_periods  = "1"
@@ -245,7 +301,7 @@ resource "aws_cloudwatch_log_metric_filter" "iam-policy-changes" {
 resource "aws_cloudwatch_metric_alarm" "iam-policy-changes" {
   alarm_name        = var.iam_policy_changes_alarm_name
   alarm_description = "Monitors for IAM policy changes made outside of approved automation roles: ModernisationPlatformAccess, MemberInfrastructureAccess."
-  alarm_actions     = [aws_sns_topic.securityhub-alarms.arn]
+  alarm_actions     = local.low_priority_excluding_suppressed_alarm_action
 
   comparison_operator = "GreaterThanOrEqualToThreshold"
   evaluation_periods  = "1"
@@ -287,7 +343,7 @@ resource "aws_cloudwatch_log_metric_filter" "cloudtrail-configuration-changes" {
 resource "aws_cloudwatch_metric_alarm" "cloudtrail-configuration-changes" {
   alarm_name        = var.cloudtrail_configuration_changes_alarm_name
   alarm_description = "Monitors for CloudTrail configuration changes."
-  alarm_actions     = [aws_sns_topic.high_priority_alarms_topic.arn]
+  alarm_actions     = local.high_priority_excluding_suppressed_alarm_action
 
   comparison_operator = "GreaterThanOrEqualToThreshold"
   evaluation_periods  = "1"
@@ -317,7 +373,7 @@ resource "aws_cloudwatch_log_metric_filter" "sign-in-failures" {
 resource "aws_cloudwatch_metric_alarm" "sign-in-failures" {
   alarm_name        = var.sign_in_failures_alarm_name
   alarm_description = "Monitors for AWS Console sign-in failures."
-  alarm_actions     = [aws_sns_topic.securityhub-alarms.arn]
+  alarm_actions     = local.low_priority_alarm_action
 
   comparison_operator = "GreaterThanOrEqualToThreshold"
   evaluation_periods  = "1"
@@ -347,7 +403,7 @@ resource "aws_cloudwatch_log_metric_filter" "cmk-removal" {
 resource "aws_cloudwatch_metric_alarm" "cmk-removal" {
   alarm_name        = var.cmk_removal_alarm_name
   alarm_description = "Monitors for AWS KMS customer-created CMK removal (deletion or disabled)."
-  alarm_actions     = local.alarm_action
+  alarm_actions     = local.mp_accounts_low_priority_alarm_action
 
   comparison_operator = "GreaterThanOrEqualToThreshold"
   evaluation_periods  = "1"
@@ -393,7 +449,7 @@ resource "aws_cloudwatch_log_metric_filter" "s3-bucket-policy-changes" {
 resource "aws_cloudwatch_metric_alarm" "s3-bucket-policy-changes" {
   alarm_name        = var.s3_bucket_policy_changes_alarm_name
   alarm_description = "Monitors for AWS S3 bucket policy changes."
-  alarm_actions     = local.alarm_action
+  alarm_actions     = local.mp_accounts_low_priority_alarm_action
 
   comparison_operator = "GreaterThanOrEqualToThreshold"
   evaluation_periods  = "1"
@@ -434,7 +490,7 @@ resource "aws_cloudwatch_log_metric_filter" "config-configuration-changes" {
 resource "aws_cloudwatch_metric_alarm" "config-configuration-changes" {
   alarm_name        = var.config_configuration_changes_alarm_name
   alarm_description = "Monitors for AWS Config configuration changes."
-  alarm_actions     = [aws_sns_topic.high_priority_alarms_topic.arn]
+  alarm_actions     = local.high_priority_excluding_suppressed_alarm_action
 
   comparison_operator = "GreaterThanOrEqualToThreshold"
   evaluation_periods  = "1"
@@ -476,7 +532,7 @@ resource "aws_cloudwatch_log_metric_filter" "security-group-changes" {
 resource "aws_cloudwatch_metric_alarm" "security-group-changes" {
   alarm_name        = var.security_group_changes_alarm_name
   alarm_description = "Monitors for AWS EC2 Security Group changes."
-  alarm_actions     = [aws_sns_topic.securityhub-alarms.arn]
+  alarm_actions     = local.low_priority_excluding_suppressed_alarm_action
 
   comparison_operator = "GreaterThanOrEqualToThreshold"
   evaluation_periods  = "1"
@@ -517,7 +573,7 @@ resource "aws_cloudwatch_log_metric_filter" "nacl-changes" {
 resource "aws_cloudwatch_metric_alarm" "nacl-changes" {
   alarm_name        = var.nacl_changes_alarm_name
   alarm_description = "Monitors for AWS EC2 Network Access Control Lists changes."
-  alarm_actions     = [aws_sns_topic.high_priority_alarms_topic.arn]
+  alarm_actions     = local.high_priority_excluding_suppressed_alarm_action
 
   comparison_operator = "GreaterThanOrEqualToThreshold"
   evaluation_periods  = "1"
@@ -558,7 +614,7 @@ resource "aws_cloudwatch_log_metric_filter" "network-gateway-changes" {
 resource "aws_cloudwatch_metric_alarm" "network-gateway-changes" {
   alarm_name        = var.network_gateway_changes_alarm_name
   alarm_description = "Monitors for AWS EC2 network gateway changes."
-  alarm_actions     = [aws_sns_topic.high_priority_alarms_topic.arn]
+  alarm_actions     = local.high_priority_excluding_suppressed_alarm_action
 
   comparison_operator = "GreaterThanOrEqualToThreshold"
   evaluation_periods  = "1"
@@ -600,7 +656,7 @@ resource "aws_cloudwatch_log_metric_filter" "route-table-changes" {
 resource "aws_cloudwatch_metric_alarm" "route-table-changes" {
   alarm_name        = var.route_table_changes_alarm_name
   alarm_description = "Monitors for AWS EC2 route table changes."
-  alarm_actions     = [aws_sns_topic.high_priority_alarms_topic.arn]
+  alarm_actions     = local.high_priority_excluding_suppressed_alarm_action
 
   comparison_operator = "GreaterThanOrEqualToThreshold"
   evaluation_periods  = "1"
@@ -646,7 +702,7 @@ resource "aws_cloudwatch_log_metric_filter" "vpc-changes" {
 resource "aws_cloudwatch_metric_alarm" "vpc-changes" {
   alarm_name        = var.vpc_changes_alarm_name
   alarm_description = "Monitors for AWS VPC changes."
-  alarm_actions     = [aws_sns_topic.high_priority_alarms_topic.arn]
+  alarm_actions     = local.high_priority_excluding_suppressed_alarm_action
 
   comparison_operator = "GreaterThanOrEqualToThreshold"
   evaluation_periods  = "1"
@@ -685,7 +741,7 @@ resource "aws_cloudwatch_metric_alarm" "privatelink_new_flow_count_all" {
     }
   }
 
-  alarm_actions = [aws_sns_topic.securityhub-alarms.arn]
+  alarm_actions = local.low_priority_alarm_action
   tags          = var.tags
 }
 
@@ -713,7 +769,7 @@ resource "aws_cloudwatch_metric_alarm" "privatelink_active_flow_count_all" {
     }
   }
 
-  alarm_actions = [aws_sns_topic.securityhub-alarms.arn]
+  alarm_actions = local.low_priority_alarm_action
   tags          = var.tags
 }
 
@@ -742,7 +798,7 @@ resource "aws_cloudwatch_metric_alarm" "privatelink_service_new_connection_count
     }
   }
 
-  alarm_actions = [aws_sns_topic.securityhub-alarms.arn]
+  alarm_actions = local.low_priority_alarm_action
   tags          = var.tags
 }
 
@@ -770,7 +826,7 @@ resource "aws_cloudwatch_metric_alarm" "privatelink_service_active_connection_co
     }
   }
 
-  alarm_actions = [aws_sns_topic.securityhub-alarms.arn]
+  alarm_actions = local.low_priority_alarm_action
   tags          = var.tags
 }
 
@@ -791,7 +847,7 @@ resource "aws_cloudwatch_log_metric_filter" "admin_role_usage" {
 resource "aws_cloudwatch_metric_alarm" "admin_role_usage" {
   alarm_name        = var.admin_role_usage_alarm_name
   alarm_description = "Monitors for use of the AdministratorAccess role."
-  alarm_actions     = [aws_sns_topic.securityhub-alarms.arn]
+  alarm_actions     = local.low_priority_excluding_suppressed_alarm_action
 
   comparison_operator = "GreaterThanOrEqualToThreshold"
   evaluation_periods  = "1"
@@ -823,7 +879,7 @@ resource "aws_cloudwatch_log_metric_filter" "orgaccess_role_usage" {
 resource "aws_cloudwatch_metric_alarm" "orgaccess_role_usage" {
   alarm_name        = var.orgaccess_role_usage_alarm_name
   alarm_description = "Monitors for use of the OrganizationAccountAccessRole role."
-  alarm_actions     = [aws_sns_topic.securityhub-alarms.arn]
+  alarm_actions     = local.low_priority_alarm_action
 
   comparison_operator = "GreaterThanOrEqualToThreshold"
   evaluation_periods  = "1"
