@@ -830,33 +830,129 @@ resource "aws_cloudwatch_metric_alarm" "privatelink_service_active_connection_co
   tags          = var.tags
 }
 
-# Alarm for use of the AdministratorAccess Role
+# AdministratorAccess metric filters
+
+# 1. All use of the SSO AdministratorAccess role.
 
 resource "aws_cloudwatch_log_metric_filter" "admin_role_usage" {
-  name           = var.admin_role_usage_metric_filter_name
-  pattern        = "{ $.eventName = \"AssumeRoleWithSAML\" && $.requestParameters.roleArn = \"*AdministratorAccess*\" && $.requestParameters.principalTags.github_team = \"*modernisation-platform-engineers*\" }"
+  name           = "${var.admin_role_usage_metric_filter_name}-all-usage"
+  pattern        = "{ $.eventName = \"AssumeRoleWithSAML\" && $.requestParameters.roleArn = \"*AdministratorAccess*\" }"
   log_group_name = var.cloudtrail_log_group_name
 
   metric_transformation {
-    name      = var.admin_role_usage_metric_filter_name
+    name      = "${var.admin_role_usage_metric_filter_name}-all-usage"
     namespace = "LogMetrics"
     value     = 1
   }
 }
 
+# 2. All use of the SSO AdministratorAccess role by MP team members.
+
+resource "aws_cloudwatch_log_metric_filter" "admin_role_usage_by_mp_team" {
+  name           = "${var.admin_role_usage_metric_filter_name}-mp-team-usage"
+  pattern        = "{ $.eventName = \"AssumeRoleWithSAML\" && $.requestParameters.roleArn = \"*AdministratorAccess*\" && $.requestParameters.principalTags.github_team = \"*modernisation-platform-engineers*\" }"
+  log_group_name = var.cloudtrail_log_group_name
+
+  metric_transformation {
+    name      = "${var.admin_role_usage_metric_filter_name}-mp-team-usage"
+    namespace = "LogMetrics"
+    value     = 1
+  }
+}
+
+# 3. All use of the SSO AdministratorAccess role, used as the non-MP-team alarm input.
+
+resource "aws_cloudwatch_log_metric_filter" "admin_role_usage_non_mp_team_input" {
+  name           = "${var.admin_role_usage_metric_filter_name}-non-mp-team-input"
+  pattern        = "{ $.eventName = \"AssumeRoleWithSAML\" && $.requestParameters.roleArn = \"*AdministratorAccess*\" }"
+  log_group_name = var.cloudtrail_log_group_name
+
+  metric_transformation {
+    name      = "${var.admin_role_usage_metric_filter_name}-non-mp-team-input"
+    namespace = "LogMetrics"
+    value     = 1
+  }
+}
+
+# AdministratorAccess alarms
+
+# 1. Alarm for all use of the AdministratorAccess role.
+
 resource "aws_cloudwatch_metric_alarm" "admin_role_usage" {
-  alarm_name        = var.admin_role_usage_alarm_name
-  alarm_description = "Monitors for use of the AdministratorAccess role."
+  alarm_name        = "${var.admin_role_usage_alarm_name}-all-usage"
+  alarm_description = "Monitors for all use of the AdministratorAccess role."
   alarm_actions     = local.low_priority_excluding_suppressed_alarm_action
 
   comparison_operator = "GreaterThanOrEqualToThreshold"
   evaluation_periods  = "1"
-  metric_name         = aws_cloudwatch_log_metric_filter.admin_role_usage.id
+  metric_name         = "${var.admin_role_usage_metric_filter_name}-all-usage"
   namespace           = "LogMetrics"
   period              = "300"
   statistic           = "Sum"
   threshold           = "1"
   treat_missing_data  = "notBreaching"
+
+  tags = var.tags
+}
+
+# 2. Alarm for use of the AdministratorAccess role across all accounts by the MP team.
+
+resource "aws_cloudwatch_metric_alarm" "admin_role_usage_by_mp_team" {
+  alarm_name        = "${var.admin_role_usage_alarm_name}-mp-team"
+  alarm_description = "Monitors for use of the AdministratorAccess role."
+  alarm_actions     = local.low_priority_excluding_suppressed_alarm_action
+
+  comparison_operator = "GreaterThanOrEqualToThreshold"
+  evaluation_periods  = "1"
+  metric_name         = "${var.admin_role_usage_metric_filter_name}-mp-team-usage"
+  namespace           = "LogMetrics"
+  period              = "300"
+  statistic           = "Sum"
+  threshold           = "1"
+  treat_missing_data  = "notBreaching"
+
+  tags = var.tags
+}
+
+# 3. Alarm for use of the AdministratorAccess role across all accounts except the MP team.
+resource "aws_cloudwatch_metric_alarm" "admin_role_usage_non_mp_team" {
+  alarm_name        = "${var.admin_role_usage_alarm_name}-non-mp-team"
+  alarm_description = "Monitors for use of the AdministratorAccess role by principals outside the MP team."
+  alarm_actions     = local.low_priority_excluding_suppressed_alarm_action
+
+  comparison_operator = "GreaterThanOrEqualToThreshold"
+  evaluation_periods  = "1"
+  threshold           = "1"
+  treat_missing_data  = "notBreaching"
+
+  metric_query {
+    id          = "e1"
+    expression  = "FILL(m_non_mp_input, 0) - FILL(m_mp, 0)"
+    label       = "AdministratorAccess usage excluding MP team"
+    return_data = true
+  }
+
+  metric_query {
+    id = "m_non_mp_input"
+
+    metric {
+      metric_name = "${var.admin_role_usage_metric_filter_name}-non-mp-team-input"
+      namespace   = "LogMetrics"
+      period      = 300
+      stat        = "Sum"
+    }
+  }
+
+  metric_query {
+    id = "m_mp"
+
+    metric {
+      metric_name = "${var.admin_role_usage_metric_filter_name}-mp-team-usage"
+      namespace   = "LogMetrics"
+      period      = 300
+      stat        = "Sum"
+    }
+  }
 
   tags = var.tags
 }
