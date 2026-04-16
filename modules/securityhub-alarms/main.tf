@@ -840,7 +840,7 @@ resource "aws_cloudwatch_log_metric_filter" "admin_role_usage" {
   log_group_name = var.cloudtrail_log_group_name
 
   metric_transformation {
-    name      = "${var.admin_role_usage_metric_filter_name}-all-usage"
+    name      = "${var.admin_role_usage_metric_filter_name}"
     namespace = "LogMetrics"
     value     = 1
   }
@@ -885,7 +885,7 @@ resource "aws_cloudwatch_metric_alarm" "admin_role_usage" {
 
   comparison_operator = "GreaterThanOrEqualToThreshold"
   evaluation_periods  = "1"
-  metric_name         = "${var.admin_role_usage_metric_filter_name}-all-usage"
+  metric_name         = "${var.admin_role_usage_metric_filter_name}"
   namespace           = "LogMetrics"
   period              = "300"
   statistic           = "Sum"
@@ -918,7 +918,7 @@ resource "aws_cloudwatch_metric_alarm" "admin_role_usage_by_mp_team" {
 resource "aws_cloudwatch_metric_alarm" "admin_role_usage_non_mp_team" {
   alarm_name        = "${var.admin_role_usage_alarm_name}-non-mp-team"
   alarm_description = "Monitors for use of the AdministratorAccess role by principals outside the MP team."
-  alarm_actions     = local.low_priority_excluding_suppressed_alarm_action
+  alarm_actions     = local.high_priority_excluding_suppressed_alarm_action
 
   comparison_operator = "GreaterThanOrEqualToThreshold"
   evaluation_periods  = "1"
@@ -988,6 +988,7 @@ resource "aws_cloudwatch_metric_alarm" "orgaccess_role_usage" {
 
   tags = var.tags
 }
+
 
 # High Priority PagerDuty Notifications
 # This adds pagerduty ingration for alarms alerting to the high-priority slack channel.
