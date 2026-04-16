@@ -832,7 +832,7 @@ resource "aws_cloudwatch_metric_alarm" "privatelink_service_active_connection_co
 
 # AdministratorAccess metric filters
 
-# 1. All use of the SSO AdministratorAccess role.
+# 1. All use of the SSO AdministratorAccess role by all.
 
 resource "aws_cloudwatch_log_metric_filter" "admin_role_usage" {
   name           = "${var.admin_role_usage_metric_filter_name}-all-usage"
@@ -860,7 +860,7 @@ resource "aws_cloudwatch_log_metric_filter" "admin_role_usage_by_mp_team" {
   }
 }
 
-# 3. All use of the SSO AdministratorAccess role, used as the non-MP-team alarm input.
+# 3. All use of the SSO AdministratorAccess role, used as the non-MP-team alarm input and isn't used directly in any alarm
 
 resource "aws_cloudwatch_log_metric_filter" "admin_role_usage_non_mp_team_input" {
   name           = "${var.admin_role_usage_metric_filter_name}-non-mp-team-input"
@@ -876,26 +876,7 @@ resource "aws_cloudwatch_log_metric_filter" "admin_role_usage_non_mp_team_input"
 
 # AdministratorAccess alarms
 
-# 1. Alarm for all use of the AdministratorAccess role.
-
-resource "aws_cloudwatch_metric_alarm" "admin_role_usage" {
-  alarm_name        = "${var.admin_role_usage_alarm_name}-all-usage"
-  alarm_description = "Monitors for all use of the AdministratorAccess role."
-  alarm_actions     = local.low_priority_excluding_suppressed_alarm_action
-
-  comparison_operator = "GreaterThanOrEqualToThreshold"
-  evaluation_periods  = "1"
-  metric_name         = "${var.admin_role_usage_metric_filter_name}"
-  namespace           = "LogMetrics"
-  period              = "300"
-  statistic           = "Sum"
-  threshold           = "1"
-  treat_missing_data  = "notBreaching"
-
-  tags = var.tags
-}
-
-# 2. Alarm for use of the AdministratorAccess role across all accounts by the MP team.
+# 1. Alarm for use of the AdministratorAccess role across all accounts by the MP team.
 
 resource "aws_cloudwatch_metric_alarm" "admin_role_usage_by_mp_team" {
   alarm_name        = "${var.admin_role_usage_alarm_name}-mp-team"
@@ -914,7 +895,7 @@ resource "aws_cloudwatch_metric_alarm" "admin_role_usage_by_mp_team" {
   tags = var.tags
 }
 
-# 3. Alarm for use of the AdministratorAccess role across all accounts except the MP team.
+# 2. Alarm for use of the AdministratorAccess role across all accounts except the MP team.
 resource "aws_cloudwatch_metric_alarm" "admin_role_usage_non_mp_team" {
   alarm_name        = "${var.admin_role_usage_alarm_name}-non-mp-team"
   alarm_description = "Monitors for use of the AdministratorAccess role by principals outside the MP team."
@@ -980,6 +961,40 @@ resource "aws_cloudwatch_metric_alarm" "orgaccess_role_usage" {
   comparison_operator = "GreaterThanOrEqualToThreshold"
   evaluation_periods  = "1"
   metric_name         = aws_cloudwatch_log_metric_filter.orgaccess_role_usage.id
+  namespace           = "LogMetrics"
+  period              = "300"
+  statistic           = "Sum"
+  threshold           = "1"
+  treat_missing_data  = "notBreaching"
+
+  tags = var.tags
+}
+
+
+# Filter & Alarm for use of the SuperAdmin role in the modernisation-platform account only.
+
+resource "aws_cloudwatch_log_metric_filter" "superadmin_role_usage" {
+  count          = local.account_name == "modernisation-platform" ? 1 : 0
+  name           = "modernisation-platform-superadmin-role-usage"
+  pattern        = "{ $.eventName = \"AssumeRole\" && $.requestParameters.roleArn = \"*SuperAdmin*\" }"
+  log_group_name = var.cloudtrail_log_group_name
+
+  metric_transformation {
+    name      = "modernisation-platform-superadmin-role-usage"
+    namespace = "LogMetrics"
+    value     = 1
+  }
+}
+
+resource "aws_cloudwatch_metric_alarm" "superadmin_role_usage" {
+  count             = local.account_name == "modernisation-platform" ? 1 : 0
+  alarm_name        = "modernisation-platform-superadmin-role-usage"
+  alarm_description = "Monitors for use of the SuperAdmin role."
+  alarm_actions     = local.low_priority_excluding_suppressed_alarm_action
+
+  comparison_operator = "GreaterThanOrEqualToThreshold"
+  evaluation_periods  = "1"
+  metric_name         = "modernisation-platform-superadmin-role-usage"
   namespace           = "LogMetrics"
   period              = "300"
   statistic           = "Sum"
