@@ -716,6 +716,183 @@ resource "aws_cloudwatch_metric_alarm" "vpc-changes" {
   tags = var.tags
 }
 
+# Alerts for ALL changes to Network Firewalls outside of trusted automation roles
+
+locals {
+  network_firewall_change_event_names = [
+    "AssociateAvailabilityZones",
+    "AssociateSubnets",
+    "CreateFirewall",
+    "CreateFirewallPolicy",
+    "CreateRuleGroup",
+    "CreateTLSInspectionConfiguration",
+    "DeleteFirewall",
+    "DeleteFirewallPolicy",
+    "DeleteResourcePolicy",
+    "DeleteRuleGroup",
+    "DeleteTLSInspectionConfiguration",
+    "DisassociateAvailabilityZones",
+    "DisassociateSubnets",
+    "PutResourcePolicy",
+    "TagResource",
+    "UntagResource",
+    "UpdateFirewallDeleteProtection",
+    "UpdateFirewallDescription",
+    "UpdateFirewallEncryptionConfiguration",
+    "UpdateFirewallPolicy",
+    "UpdateFirewallPolicyChangeProtection",
+    "UpdateLoggingConfiguration",
+    "UpdateRuleGroup",
+    "UpdateSubnetChangeProtection",
+    "UpdateTLSInspectionConfiguration",
+  ]
+}
+
+resource "aws_cloudwatch_log_metric_filter" "network_firewall_changes" {
+  for_each       = local.account_name == "core-network-services-production" ? toset(local.network_firewall_change_event_names) : toset([])
+  name           = "network-firewall-changes-${each.key}"
+  pattern        = "{($.eventName = \"${each.value}\") && ${local.automation_role_filter}}"
+  log_group_name = var.cloudtrail_log_group_name
+
+  metric_transformation {
+    name      = "network-firewall-changes"
+    namespace = "LogMetrics"
+    value     = 1
+  }
+}
+
+resource "aws_cloudwatch_metric_alarm" "network_firewall_changes" {
+  alarm_name        = "network-firewall-changes"
+  alarm_description = "Monitors for changes to Network Firewalls in core-network-services outside of automation"
+	alarm_actions     = local.high_priority_excluding_suppressed_alarm_action
+
+	comparison_operator = "GreaterThanOrEqualToThreshold"
+	evaluation_periods  = "1"
+  metric_name         = "network-firewall-changes"
+	namespace           = "LogMetrics"
+	period              = "300"
+	statistic           = "Sum"
+	threshold           = "1"
+	treat_missing_data  = "notBreaching"
+
+	tags = var.tags
+}
+
+
+# Alerts for Cloudwatch Alarm Actions being Disabled outside of automation
+
+resource "aws_cloudwatch_log_metric_filter" "disable_alarm_actions_events" {
+  name           = "disable-alarm-actions-alerting"
+	log_group_name = var.cloudtrail_log_group_name
+  pattern        = "{($.eventName = \"DisableAlarmActions\") && ${local.automation_role_filter}}"
+
+	metric_transformation {
+    name      = "disable-alarm-actions"
+		namespace = "LogMetrics"
+		value     = 1
+	}
+}
+
+resource "aws_cloudwatch_metric_alarm" "disable_alarm_actions_events" {
+  alarm_name        = "disable-alarms-events"
+  alarm_description = "Monitors for CloudWatch alarm actions being disabled outside of automation"
+	alarm_actions     = local.high_priority_excluding_suppressed_alarm_action
+
+	comparison_operator = "GreaterThanOrEqualToThreshold"
+	evaluation_periods  = "1"
+  metric_name         = "disable-alarm-actions"
+	namespace           = "LogMetrics"
+	period              = "300"
+	statistic           = "Sum"
+	threshold           = "1"
+	treat_missing_data  = "notBreaching"
+
+	tags = var.tags
+}
+
+
+# Alerts for activities that disable alarm actions and other critical resources outside of automation
+
+locals {
+  critical_event_names = [
+    "DisableSecurityHub",
+    "DeleteDetector",
+    "UpdateDetector",
+  ]
+}
+
+resource "aws_cloudwatch_log_metric_filter" "critical_events" {
+  for_each       = toset(local.critical_event_names)
+  name           = "activity-alerting-${each.key}"
+	log_group_name = var.cloudtrail_log_group_name
+
+  pattern = "{($.eventName = \"${each.value}\") && ${local.automation_role_filter}}"
+
+	metric_transformation {
+    name      = "critical-events"
+		namespace = "LogMetrics"
+		value     = 1
+	}
+}
+
+resource "aws_cloudwatch_metric_alarm" "critical_events_events" {
+  alarm_name        = "disable-alarms-events"
+  alarm_description = "Monitors for SecurityHub being disabled and GuardDuty being disabled or materially changed."
+	alarm_actions     = local.high_priority_excluding_suppressed_alarm_action
+
+	comparison_operator = "GreaterThanOrEqualToThreshold"
+	evaluation_periods  = "1"
+  metric_name         = "critical-events"
+	namespace           = "LogMetrics"
+	period              = "300"
+	statistic           = "Sum"
+	threshold           = "1"
+	treat_missing_data  = "notBreaching"
+
+	tags = var.tags
+}
+
+# Alerts for changes to trust relationships of critical roles:
+
+locals {
+  critical_role_trust_relationship_change_role_names = [
+    "MemberInfrastructureAccess",
+    "ModernisationPlatformAccess",
+  ]
+}
+
+resource "aws_cloudwatch_log_metric_filter" "critical_role_trust_relationship_changes" {
+  for_each       = toset(local.critical_role_trust_relationship_change_role_names)
+  name           = "critical-role-trust-relationship-changes-${each.key}"
+  log_group_name = var.cloudtrail_log_group_name
+
+  pattern = "{($.eventName = \"UpdateAssumeRolePolicy\") && ($.requestParameters.roleName = \"${each.value}\") && ${local.automation_role_filter}}"
+
+  metric_transformation {
+    name      = "critical-role-trust-relationship-changes"
+    namespace = "LogMetrics"
+    value     = 1
+  }
+}
+
+resource "aws_cloudwatch_metric_alarm" "critical_role_trust_relationship_changes" {
+  alarm_name        = "critical-role-trust-relationship-changes"
+  alarm_description = "Monitors for trust relationship changes to MemberInfrastructureAccess or ModernisationPlatformAccess."
+  alarm_actions     = local.high_priority_excluding_suppressed_alarm_action
+
+  comparison_operator = "GreaterThanOrEqualToThreshold"
+  evaluation_periods  = "1"
+  metric_name         = "critical-role-trust-relationship-changes"
+  namespace           = "LogMetrics"
+  period              = "300"
+  statistic           = "Sum"
+  threshold           = "1"
+  treat_missing_data  = "notBreaching"
+
+  tags = var.tags
+}
+
+# Alerts for Private Link Changes
 
 resource "aws_cloudwatch_metric_alarm" "privatelink_new_flow_count_all" {
   alarm_name          = var.privatelink_new_flow_count_all_alarm_name
@@ -830,28 +1007,119 @@ resource "aws_cloudwatch_metric_alarm" "privatelink_service_active_connection_co
   tags          = var.tags
 }
 
-# Alarm for use of the AdministratorAccess Role
+# AdministratorAccess Alert Metric Filters and Alarms
+
+# - All use of the SSO AdministratorAccess role by all.
 
 resource "aws_cloudwatch_log_metric_filter" "admin_role_usage" {
-  name           = var.admin_role_usage_metric_filter_name
-  pattern        = "{ $.eventName = \"AssumeRoleWithSAML\" && $.requestParameters.roleArn = \"*AdministratorAccess*\" && $.requestParameters.principalTags.github_team = \"*modernisation-platform-engineers*\" }"
+  name           = "${var.admin_role_usage_metric_filter_name}-all-usage"
+  pattern        = "{ $.eventName = \"AssumeRoleWithSAML\" && $.requestParameters.roleArn = \"*AdministratorAccess*\" }"
   log_group_name = var.cloudtrail_log_group_name
 
   metric_transformation {
-    name      = var.admin_role_usage_metric_filter_name
+    name      = "${var.admin_role_usage_metric_filter_name}-all-usage"
     namespace = "LogMetrics"
     value     = 1
   }
 }
 
-resource "aws_cloudwatch_metric_alarm" "admin_role_usage" {
-  alarm_name        = var.admin_role_usage_alarm_name
+resource "aws_cloudwatch_metric_alarm" "admin_role_usage_by_mp_team" {
+  alarm_name        = "${var.admin_role_usage_alarm_name}-mp-team"
   alarm_description = "Monitors for use of the AdministratorAccess role."
   alarm_actions     = local.low_priority_excluding_suppressed_alarm_action
 
   comparison_operator = "GreaterThanOrEqualToThreshold"
   evaluation_periods  = "1"
-  metric_name         = aws_cloudwatch_log_metric_filter.admin_role_usage.id
+  metric_name         = aws_cloudwatch_log_metric_filter.admin_role_usage_by_mp_team.id
+  namespace           = "LogMetrics"
+  period              = "300"
+  statistic           = "Sum"
+  threshold           = "1"
+  treat_missing_data  = "notBreaching"
+
+  tags = var.tags
+
+}
+
+# - Alarm for use of the AdministratorAccess role across all accounts except the MP team.
+
+resource "aws_cloudwatch_log_metric_filter" "admin_role_usage_by_mp_team" {
+  name           = "${var.admin_role_usage_metric_filter_name}-mp-team-usage"
+  pattern        = "{ $.eventName = \"AssumeRoleWithSAML\" && $.requestParameters.roleArn = \"*AdministratorAccess*\" && $.requestParameters.principalTags.github_team = \"*modernisation-platform-engineers*\" }"
+  log_group_name = var.cloudtrail_log_group_name
+
+  metric_transformation {
+    name      = "${var.admin_role_usage_metric_filter_name}-mp-team-usage"
+    namespace = "LogMetrics"
+    value     = 1
+  }
+}
+
+
+resource "aws_cloudwatch_metric_alarm" "admin_role_usage_non_mp_team" {
+  alarm_name        = "${var.admin_role_usage_alarm_name}-non-mp-team"
+  alarm_description = "Monitors for use of the AdministratorAccess role by principals outside the MP team."
+  alarm_actions     = local.high_priority_excluding_suppressed_alarm_action
+
+  comparison_operator = "GreaterThanOrEqualToThreshold"
+  evaluation_periods  = "1"
+  threshold           = "1"
+  treat_missing_data  = "notBreaching"
+
+  metric_query {
+    id          = "e1"
+    expression  = "FILL(metric_all, 0) - FILL(metric_mp_team, 0)"
+    label       = "AdministratorAccess usage excluding MP team"
+    return_data = true
+  }
+
+  metric_query {
+    id = "metric_all"
+
+    metric {
+      metric_name = aws_cloudwatch_log_metric_filter.admin_role_usage.id
+      namespace   = "LogMetrics"
+      period      = 300
+      stat        = "Sum"
+    }
+  }
+
+  metric_query {
+    id = "metric_mp_team"
+
+    metric {
+      metric_name = aws_cloudwatch_log_metric_filter.admin_role_usage_by_mp_team.id
+      namespace   = "LogMetrics"
+      period      = 300
+      stat        = "Sum"
+    }
+  }
+
+  tags = var.tags
+}
+
+# - All use of the SSO AdministratorAccess outside of core business & on-call hours.
+
+resource "aws_cloudwatch_log_metric_filter" "admin_role_usage_outside_on_call_hours" {
+  name           = "${var.admin_role_usage_metric_filter_name}-all-usage-outside-on-call-hours"
+  pattern        = "{ $.eventName = \"AssumeRoleWithSAML\" && $.requestParameters.roleArn = \"*AdministratorAccess*\" && (($.eventTime = \"*T22:*\") || ($.eventTime = \"*T23:*\") || ($.eventTime = \"*T00:*\") || ($.eventTime = \"*T01:*\") || ($.eventTime = \"*T02:*\") || ($.eventTime = \"*T03:*\") || ($.eventTime = \"*T04:*\") || ($.eventTime = \"*T05:*\") || ($.eventTime = \"*T06:*\")) }"
+  log_group_name = var.cloudtrail_log_group_name
+
+  metric_transformation {
+    name      = "${var.admin_role_usage_metric_filter_name}-all-usage-outside-on-call"
+    namespace = "LogMetrics"
+    value     = 1
+  }
+}
+
+resource "aws_cloudwatch_metric_alarm" "admin_role_usage_outside_on_call_outside_on_call_hours" {
+  alarm_name        = "${var.admin_role_usage_metric_filter_name}-all-usage-outside-on-call-hours"
+  alarm_description = "Monitors for use of the Administrator role outside of core business and on-call hours."
+  alarm_actions     = local.high_priority_excluding_suppressed_alarm_action
+
+  comparison_operator = "GreaterThanOrEqualToThreshold"
+  evaluation_periods  = "1"
+  metric_name         = aws_cloudwatch_log_metric_filter.admin_role_usage_outside_on_call_hours.id
   namespace           = "LogMetrics"
   period              = "300"
   statistic           = "Sum"
@@ -860,6 +1128,7 @@ resource "aws_cloudwatch_metric_alarm" "admin_role_usage" {
 
   tags = var.tags
 }
+
 
 # Alarm for use of the OrganizationAccountAccessRole
 # Note that for this role we're not just looking for use of it by modernisation-platform-engineers github team, however the source log group is the same.
@@ -892,6 +1161,284 @@ resource "aws_cloudwatch_metric_alarm" "orgaccess_role_usage" {
 
   tags = var.tags
 }
+
+
+# Filter & Alarm for the deletion of IAM users not via automation roles
+
+resource "aws_cloudwatch_log_metric_filter" "iam_user_deletion_not_by_automation" {
+  name           = "iam-user-deletion-not-by-automation"
+  pattern        = "{ $.eventName = \"DeleteUser\" && ${local.automation_role_filter} }"
+  log_group_name = var.cloudtrail_log_group_name
+
+  metric_transformation {
+    name      = "iam-user-deletion-not-by-automation"
+    namespace = "LogMetrics"
+    value     = 1
+  }
+}
+
+resource "aws_cloudwatch_metric_alarm" "iam_user_deletion_by_untrusted_role" {
+  alarm_name        = "iam-user-deletion-by-untrusted-role"
+  alarm_description = "Monitors for the deletion of IAM users other than via automation"
+  alarm_actions     = local.high_priority_excluding_suppressed_alarm_action
+
+  comparison_operator = "GreaterThanOrEqualToThreshold"
+  evaluation_periods  = "1"
+  metric_name         = "iam-user-deletion-not-by-automation"
+  namespace           = "LogMetrics"
+  period              = "300"
+  statistic           = "Sum"
+  threshold           = "1"
+  treat_missing_data  = "notBreaching"
+
+  tags = var.tags
+}
+
+
+# Filter & Alarm for use of the SuperAdmin role in the modernisation-platform account only.
+
+resource "aws_cloudwatch_log_metric_filter" "superadmin_role_usage" {
+  count          = local.account_name == "modernisation-platform" ? 1 : 0
+  name           = "modernisation-platform-superadmin-role-usage"
+  pattern        = "{ $.eventName = \"AssumeRole\" && $.requestParameters.roleArn = \"*SuperAdmin*\" }"
+  log_group_name = var.cloudtrail_log_group_name
+
+  metric_transformation {
+    name      = "modernisation-platform-superadmin-role-usage"
+    namespace = "LogMetrics"
+    value     = 1
+  }
+}
+
+resource "aws_cloudwatch_metric_alarm" "superadmin_role_usage" {
+  count             = local.account_name == "modernisation-platform" ? 1 : 0
+  alarm_name        = "modernisation-platform-superadmin-role-usage"
+  alarm_description = "Monitors for use of the SuperAdmin role."
+  alarm_actions     = local.high_priority_excluding_suppressed_alarm_action
+
+  comparison_operator = "GreaterThanOrEqualToThreshold"
+  evaluation_periods  = "1"
+  metric_name         = "modernisation-platform-superadmin-role-usage"
+  namespace           = "LogMetrics"
+  period              = "300"
+  statistic           = "Sum"
+  threshold           = "1"
+  treat_missing_data  = "notBreaching"
+
+  tags = var.tags
+}
+
+# Deletion of SuperAdmin Users in the modernisation-platform account manually by unknown roles
+
+resource "aws_cloudwatch_log_metric_filter" "superadmin_user_deletion" {
+  count          = local.account_name == "modernisation-platform" ? 1 : 0
+  name           = "modernisation-platform-superadmin-user-deletion"
+  pattern        = "{($.eventName = \"DeleteUser\") && ($.requestParameters.userName = \"*-superadmin\") && ${local.automation_role_filter}}"
+  log_group_name = var.cloudtrail_log_group_name
+
+  metric_transformation {
+    name      = "modernisation-platform-superadmin-user-deletion"
+    namespace = "LogMetrics"
+    value     = 1
+  }
+}
+
+resource "aws_cloudwatch_metric_alarm" "superadmin_user_deletion" {
+  count             = local.account_name == "modernisation-platform" ? 1 : 0
+  alarm_name        = "modernisation-platform-superadmin-user-deletion"
+  alarm_description = "Monitors for manual deletion of IAM users with the -superadmin suffix."
+  alarm_actions     = local.high_priority_excluding_suppressed_alarm_action
+
+  comparison_operator = "GreaterThanOrEqualToThreshold"
+  evaluation_periods  = "1"
+  metric_name         = "modernisation-platform-superadmin-user-deletion"
+  namespace           = "LogMetrics"
+  period              = "300"
+  statistic           = "Sum"
+  threshold           = "1"
+  treat_missing_data  = "notBreaching"
+
+  tags = var.tags
+}
+
+# SuperAdmin IAM User - Access Key Creation not via automation
+
+resource "aws_cloudwatch_log_metric_filter" "superadmin_user_access_key_creation" {
+  count          = local.account_name == "modernisation-platform" ? 1 : 0
+  name           = "modernisation-platform-superadmin-user-access-key-creation"
+  pattern        = "{($.eventName = \"CreateAccessKey\") && ($.requestParameters.userName = \"*-superadmin\") && ${local.automation_role_filter}}"
+  log_group_name = var.cloudtrail_log_group_name
+
+  metric_transformation {
+    name      = "modernisation-platform-superadmin-user-access-key-creation"
+    namespace = "LogMetrics"
+    value     = 1
+  }
+}
+
+resource "aws_cloudwatch_metric_alarm" "superadmin_user_access_key_creation" {
+  count             = local.account_name == "modernisation-platform" ? 1 : 0
+  alarm_name        = "modernisation-platform-superadmin-user-access-key-creation"
+  alarm_description = "Monitors for creation of access keys of IAM users with the -superadmin suffix."
+  alarm_actions     = local.high_priority_excluding_suppressed_alarm_action
+
+  comparison_operator = "GreaterThanOrEqualToThreshold"
+  evaluation_periods  = "1"
+  metric_name         = "modernisation-platform-superadmin-user-access-key-creation"
+  namespace           = "LogMetrics"
+  period              = "300"
+  statistic           = "Sum"
+  threshold           = "1"
+  treat_missing_data  = "notBreaching"
+
+  tags = var.tags
+}
+
+
+# All Secrets Manager Actions in MP Accounts but not by MP Team Members and Not via Automation
+
+locals {
+  secrets_manager_cloudtrail_events = [
+    "BatchGetSecretValue",
+    "CancelRotateSecret",
+    "CreateSecret",
+    "DeleteResourcePolicy",
+    "DeleteSecret",
+    "DescribeSecret",
+    "GetRandomPassword",
+    "GetResourcePolicy",
+    "GetSecretValue",
+    "ListSecrets",
+    "ListSecretVersionIds",
+    "PutResourcePolicy",
+    "PutSecretValue",
+    "RemoveRegionsFromReplication",
+    "ReplicateSecretToRegions",
+    "RestoreSecret",
+    "RotateSecret",
+    "StopReplicationToReplica",
+    "TagResource",
+    "UntagResource",
+    "UpdateSecret",
+    "UpdateSecretVersionStage",
+    "ValidateResourcePolicy",
+  ]
+}
+
+# All events except by trusted automation roles
+resource "aws_cloudwatch_log_metric_filter" "secrets_manager_events_core_accounts_mp_all" {
+  for_each       = local.is_mp_workspace || local.account_name == "modernisation-platform" ? toset(local.secrets_manager_cloudtrail_events) : toset([])
+  name           = "secrets-manager-cloudtrail-events-mp-all-${each.key}"
+  log_group_name = var.cloudtrail_log_group_name
+
+  pattern = "{($.eventName = \"${each.value}\") && ${local.automation_role_filter}}"
+
+  metric_transformation {
+    name      = "secrets-manager-cloudtrail-events-mp-all"
+    namespace = "LogMetrics"
+    value     = 1
+  }
+}
+
+# All non-automation events by MP Team members (which we will use to filter out from the alarm)
+resource "aws_cloudwatch_log_metric_filter" "secrets_manager_events_core_accounts_mp_team" {
+  for_each       = local.is_mp_workspace || local.account_name == "modernisation-platform" ? toset(local.secrets_manager_cloudtrail_events) : toset([])
+  name           = "secrets-manager-cloudtrail-events-mp-team${each.key}"
+  log_group_name = var.cloudtrail_log_group_name
+
+  pattern = "{($.eventName = \"${each.value}\") && $.requestParameters.principalTags.github_team = \"*modernisation-platform-engineers*\" && ${local.automation_role_filter}}"
+
+  metric_transformation {
+    name      = "secrets-manager-cloudtrail-events-mp-team"
+    namespace = "LogMetrics"
+    value     = 1
+  }
+}
+
+# Alarm that generates alerts if actions on MP accounts are:
+# 1. In an MP owned account, but
+# 2. Is not by the MP team, and
+# 3. Is not by an automation role
+
+resource "aws_cloudwatch_metric_alarm" "secrets_manager_core_account_events_not_by_mp_team" {
+  count             = local.is_mp_workspace || local.account_name == "modernisation-platform" ? 1 : 0
+  alarm_name        = "secrets-manager-events-core-account-non-mp-team"
+  alarm_description = "Monitors for the use of non-automation Secrets Manager events by principals outside the MP team."
+  alarm_actions     = local.high_priority_excluding_suppressed_alarm_action
+
+  comparison_operator = "GreaterThanOrEqualToThreshold"
+  evaluation_periods  = "1"
+  threshold           = "1"
+  treat_missing_data  = "notBreaching"
+
+  metric_query {
+    id          = "e1"
+    expression  = "FILL(metric_sm_core_all, 0) - FILL(metric_sm_core_mp_team, 0)"
+    label       = "Secrets Manager usage in core accounts excluding automation and MP team"
+    return_data = true
+  }
+
+  metric_query {
+    id = "metric_sm_core_all"
+
+    metric {
+      metric_name = "secrets-manager-cloudtrail-events-mp-all"
+      namespace   = "LogMetrics"
+      period      = 300
+      stat        = "Sum"
+    }
+  }
+
+  metric_query {
+    id = "metric_sm_core_mp_team"
+
+    metric {
+      metric_name = "secrets-manager-cloudtrail-events-mp-team"
+      namespace   = "LogMetrics"
+      period      = 300
+      stat        = "Sum"
+    }
+  }
+
+  tags = var.tags
+}
+
+# Alerts for S3 file deletion in MP Core Accounts except core-shared-services as that contains end-user buckets
+
+resource "aws_cloudwatch_log_metric_filter" "s3_object_deletions_excluding_tf_lock_files" {
+  count          = local.is_core_account && local.account_name != "core-shared-services" ? 1 : 0
+  name           = "s3-object-deletions-excluding-tf-lock-files"
+  log_group_name = var.cloudtrail_log_group_name
+
+  pattern = "{($.eventSource = \"s3.amazonaws.com\") && (((($.eventName = \"DeleteObject\") && ($.requestParameters.key != \"*.tflock\"))) || ($.eventName = \"DeleteObjects\"))}"
+
+  metric_transformation {
+    name      = "s3-object-deletions-excluding-tf-lock-files"
+    namespace = "LogMetrics"
+    value     = 1
+  }
+}
+
+resource "aws_cloudwatch_metric_alarm" "s3_object_deletions_excluding_tf_lock_files" {
+  count             = local.is_mp_workspace && local.account_name != "core-shared-services-production" ? 1 : 0
+  alarm_name        = "s3-object-deletions-excluding-tf-lock-files"
+  alarm_description = "Monitors for S3 object deletions excluding Terraform state lock files in core accounts other than core-shared-services."
+  alarm_actions     = local.high_priority_excluding_suppressed_alarm_action
+
+  comparison_operator = "GreaterThanOrEqualToThreshold"
+  evaluation_periods  = "1"
+  metric_name         = "s3-object-deletions-excluding-tf-lock-files"
+  namespace           = "LogMetrics"
+  period              = "300"
+  statistic           = "Sum"
+  threshold           = "1"
+  treat_missing_data  = "notBreaching"
+
+  tags = var.tags
+}
+
+
+
 
 # High Priority PagerDuty Notifications
 # This adds pagerduty ingration for alarms alerting to the high-priority slack channel.
