@@ -716,6 +716,50 @@ resource "aws_cloudwatch_metric_alarm" "vpc-changes" {
   tags = var.tags
 }
 
+# Ensures alerts in place for activities that disable critical resources
+
+locals {
+  custom_activity_alert_event_names = [
+    "DisableAlarmActions",
+    "StopLogging",
+    "DeleteTrail",
+    "DisableSecurityHub",
+    "DeleteDetector",
+    "UpdateDetector",
+  ]
+}
+
+resource "aws_cloudwatch_log_metric_filter" "custom_activity_alerts" {
+  for_each       = toset(local.custom_activity_alert_event_names)
+  name           = "activity-alerting-${each.key}"
+	log_group_name = var.cloudtrail_log_group_name
+
+  pattern = "{($.eventName = \"${each.value}\") && ${local.automation_role_filter}}"
+
+	metric_transformation {
+    name      = "activity-alerting"
+		namespace = "LogMetrics"
+		value     = 1
+	}
+}
+
+resource "aws_cloudwatch_metric_alarm" "custom_activity_alerts" {
+  alarm_name        = "activity-alerting"
+  alarm_description = "Monitors for CloudWatch alarm actions, CloudTrail trails, Security Hub, or GuardDuty being disabled or materially changed."
+	alarm_actions     = local.high_priority_excluding_suppressed_alarm_action
+
+	comparison_operator = "GreaterThanOrEqualToThreshold"
+	evaluation_periods  = "1"
+  metric_name         = "activity-alerting"
+	namespace           = "LogMetrics"
+	period              = "300"
+	statistic           = "Sum"
+	threshold           = "1"
+	treat_missing_data  = "notBreaching"
+
+	tags = var.tags
+}
+
 
 resource "aws_cloudwatch_metric_alarm" "privatelink_new_flow_count_all" {
   alarm_name          = var.privatelink_new_flow_count_all_alarm_name
@@ -1003,6 +1047,7 @@ resource "aws_cloudwatch_metric_alarm" "superadmin_role_usage" {
 
   tags = var.tags
 }
+
 
 
 # High Priority PagerDuty Notifications
