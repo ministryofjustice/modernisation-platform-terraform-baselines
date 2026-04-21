@@ -6,6 +6,7 @@ env:
   TF_IN_AUTOMATION: true
   MODERNISATION_PLATFORM_ACCOUNT_NUMBER: ${{ secrets.MODERNISATION_PLATFORM_ACCOUNT_NUMBER }}
   PASSPHRASE: ${{ secrets.PASSPHRASE }}
+  AWS_REGION: eu-west-2
 
 permissions: {}
 
@@ -21,6 +22,7 @@ jobs:
 
   go-tests:
     permissions:
+      id-token: write
       contents: read
       actions: write
     name: Run Go Unit Tests
@@ -32,9 +34,21 @@ jobs:
       - name: Decrypt Secrets
         uses: ministryofjustice/modernisation-platform-github-actions/decrypt-secrets@5b44b387694dfa249cfa2dcf289ca871abe9e3e2 # v5.0.1
         with:
-          testing_ci_iam_user_access_key_id: ${{ needs.fetch-secrets.outputs.testing_ci_iam_user_access_key_id }}
-          testing_ci_iam_user_secret_access_key: ${{ needs.fetch-secrets.outputs.testing_ci_iam_user_secret_access_key }}
+          environment_management: ${{ needs.fetch-secrets.outputs.environment_management}}
           PASSPHRASE: ${{ secrets.PASSPHRASE }}
+
+      - name: Set Account Number
+        run: |
+          ACCOUNT_NUMBER=$(jq -r -e '.account_ids["testing-test"]' <<< "$ENVIRONMENT_MANAGEMENT")
+          echo "::add-mask::$ACCOUNT_NUMBER"
+          echo ACCOUNT_NUMBER=$ACCOUNT_NUMBER >> $GITHUB_ENV
+
+      - name: Configure AWS credentials (OIDC)
+        uses: aws-actions/configure-aws-credentials@8df5847569e6427dd6c4fb1cf565c83acfa8afa7 # v6.0.0
+        with:
+          role-to-assume: arn:aws:iam::${{ env.ACCOUNT_NUMBER }}:role/github-actions-testing
+          role-session-name: terratest-oidc
+          aws-region: ${{ env.AWS_REGION }}
 
       - uses: actions/setup-go@4a3601121dd01d1626a1e23e37211e3254c1c06c # v6.4.0
         with:
