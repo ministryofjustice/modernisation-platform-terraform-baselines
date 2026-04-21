@@ -201,6 +201,171 @@ output "admin_role_usage_metric_filter_id" {
 }
 
 output "admin_role_usage_alarm_arn" {
-  description = "The ARN of the CloudWatch Alarm for admin role usage"
-  value       = aws_cloudwatch_metric_alarm.admin_role_usage.arn
+  description = "The ARN of the CloudWatch alarm for admin role usage by the MP team"
+  value       = aws_cloudwatch_metric_alarm.admin_role_usage_by_mp_team.arn
+}
+
+output "high_priority_alarms_topic_arn" {
+  value       = aws_sns_topic.high_priority_alarms_topic.arn
+  description = "The ARN of the high-priority alarms SNS topic"
+}
+
+output "vpn_changes_metric_filter_ids" {
+  description = "The IDs of the CloudWatch metric filters for VPN changes, keyed by event name"
+  value       = { for k, v in aws_cloudwatch_log_metric_filter.vpn-changes : k => v.id }
+}
+
+output "vpn_changes_alarm_arn" {
+  value       = aws_cloudwatch_metric_alarm.vpn-changes.arn
+  description = "The ARN of the CloudWatch alarm for VPN changes"
+}
+
+output "network_firewall_changes_metric_filter_ids" {
+  description = "The IDs of the CloudWatch metric filters for Network Firewall changes, keyed by event name"
+  value       = { for k, v in aws_cloudwatch_log_metric_filter.network_firewall_changes : k => v.id }
+}
+
+output "network_firewall_changes_alarm_arn" {
+  value       = aws_cloudwatch_metric_alarm.network_firewall_changes.arn
+  description = "The ARN of the CloudWatch alarm for Network Firewall changes"
+}
+
+output "disable_alarm_actions_events_metric_filter_id" {
+  value       = aws_cloudwatch_log_metric_filter.disable_alarm_actions_events.id
+  description = "The ID of the CloudWatch metric filter for disabled alarm actions"
+}
+
+output "disable_alarm_actions_events_alarm_arn" {
+  value       = aws_cloudwatch_metric_alarm.disable_alarm_actions_events.arn
+  description = "The ARN of the CloudWatch alarm for disabled alarm actions"
+}
+
+output "critical_events_metric_filter_ids" {
+  description = "The IDs of the CloudWatch metric filters for critical events, keyed by event name"
+  value       = { for k, v in aws_cloudwatch_log_metric_filter.critical_events : k => v.id }
+}
+
+output "critical_events_alarm_arn" {
+  value       = aws_cloudwatch_metric_alarm.critical_events_events.arn
+  description = "The ARN of the CloudWatch alarm for critical events"
+}
+
+output "critical_role_trust_relationship_changes_metric_filter_ids" {
+  description = "The IDs of the CloudWatch metric filters for critical role trust relationship changes, keyed by role name"
+  value       = { for k, v in aws_cloudwatch_log_metric_filter.critical_role_trust_relationship_changes : k => v.id }
+}
+
+output "critical_role_trust_relationship_changes_alarm_arn" {
+  value       = aws_cloudwatch_metric_alarm.critical_role_trust_relationship_changes.arn
+  description = "The ARN of the CloudWatch alarm for critical role trust relationship changes"
+}
+
+output "admin_role_usage_by_mp_team_metric_filter_id" {
+  value       = aws_cloudwatch_log_metric_filter.admin_role_usage_by_mp_team.id
+  description = "The ID of the CloudWatch metric filter for admin role usage by the MP team"
+}
+
+output "admin_role_usage_by_mp_team_alarm_arn" {
+  value       = aws_cloudwatch_metric_alarm.admin_role_usage_by_mp_team.arn
+  description = "The ARN of the CloudWatch alarm for admin role usage by the MP team"
+}
+
+output "admin_role_usage_non_mp_team_alarm_arn" {
+  value       = aws_cloudwatch_metric_alarm.admin_role_usage_non_mp_team.arn
+  description = "The ARN of the CloudWatch alarm for admin role usage outside the MP team"
+}
+
+output "admin_role_usage_outside_on_call_hours_metric_filter_id" {
+  value       = aws_cloudwatch_log_metric_filter.admin_role_usage_outside_on_call_hours.id
+  description = "The ID of the CloudWatch metric filter for admin role usage outside on-call hours"
+}
+
+output "admin_role_usage_outside_on_call_hours_alarm_arn" {
+  value       = aws_cloudwatch_metric_alarm.admin_role_usage_outside_on_call_outside_on_call_hours.arn
+  description = "The ARN of the CloudWatch alarm for admin role usage outside on-call hours"
+}
+
+output "orgaccess_role_usage_metric_filter_id" {
+  value       = aws_cloudwatch_log_metric_filter.orgaccess_role_usage.id
+  description = "The ID of the CloudWatch metric filter for OrganizationAccountAccessRole usage"
+}
+
+output "orgaccess_role_usage_alarm_arn" {
+  value       = aws_cloudwatch_metric_alarm.orgaccess_role_usage.arn
+  description = "The ARN of the CloudWatch alarm for OrganizationAccountAccessRole usage"
+}
+
+output "iam_user_deletion_not_by_automation_metric_filter_id" {
+  value       = aws_cloudwatch_log_metric_filter.iam_user_deletion_not_by_automation.id
+  description = "The ID of the CloudWatch metric filter for IAM user deletion not by automation"
+}
+
+output "iam_user_deletion_by_untrusted_role_alarm_arn" {
+  value       = aws_cloudwatch_metric_alarm.iam_user_deletion_by_untrusted_role.arn
+  description = "The ARN of the CloudWatch alarm for IAM user deletion by untrusted roles"
+}
+
+output "superadmin_role_usage_metric_filter_id" {
+  value       = try(aws_cloudwatch_log_metric_filter.superadmin_role_usage[0].id, null)
+  description = "The ID of the CloudWatch metric filter for SuperAdmin role usage"
+}
+
+output "superadmin_role_usage_alarm_arn" {
+  value       = try(aws_cloudwatch_metric_alarm.superadmin_role_usage[0].arn, null)
+  description = "The ARN of the CloudWatch alarm for SuperAdmin role usage"
+}
+
+output "superadmin_user_deletion_metric_filter_id" {
+  value       = try(aws_cloudwatch_log_metric_filter.superadmin_user_deletion[0].id, null)
+  description = "The ID of the CloudWatch metric filter for SuperAdmin user deletion"
+}
+
+output "superadmin_user_deletion_alarm_arn" {
+  value       = try(aws_cloudwatch_metric_alarm.superadmin_user_deletion[0].arn, null)
+  description = "The ARN of the CloudWatch alarm for SuperAdmin user deletion"
+}
+
+output "superadmin_user_access_key_creation_metric_filter_id" {
+  value       = try(aws_cloudwatch_log_metric_filter.superadmin_user_access_key_creation[0].id, null)
+  description = "The ID of the CloudWatch metric filter for SuperAdmin user access key creation"
+}
+
+output "superadmin_user_access_key_creation_alarm_arn" {
+  value       = try(aws_cloudwatch_metric_alarm.superadmin_user_access_key_creation[0].arn, null)
+  description = "The ARN of the CloudWatch alarm for SuperAdmin user access key creation"
+}
+
+output "secrets_manager_events_core_accounts_mp_all_metric_filter_ids" {
+  description = "The IDs of the CloudWatch metric filters for non-automation Secrets Manager events in MP accounts, keyed by event name"
+  value       = { for k, v in aws_cloudwatch_log_metric_filter.secrets_manager_events_core_accounts_mp_all : k => v.id }
+}
+
+output "secrets_manager_events_core_accounts_mp_team_metric_filter_ids" {
+  description = "The IDs of the CloudWatch metric filters for non-automation Secrets Manager events by MP team members, keyed by event name"
+  value       = { for k, v in aws_cloudwatch_log_metric_filter.secrets_manager_events_core_accounts_mp_team : k => v.id }
+}
+
+output "secrets_manager_core_account_events_not_by_mp_team_alarm_arn" {
+  value       = try(aws_cloudwatch_metric_alarm.secrets_manager_core_account_events_not_by_mp_team[0].arn, null)
+  description = "The ARN of the CloudWatch alarm for Secrets Manager events outside MP team and automation"
+}
+
+output "s3_object_deletions_excluding_tf_lock_files_metric_filter_id" {
+  value       = try(aws_cloudwatch_log_metric_filter.s3_object_deletions_excluding_tf_lock_files[0].id, null)
+  description = "The ID of the CloudWatch metric filter for S3 object deletions excluding Terraform lock files"
+}
+
+output "s3_object_deletions_excluding_tf_lock_files_alarm_arn" {
+  value       = try(aws_cloudwatch_metric_alarm.s3_object_deletions_excluding_tf_lock_files[0].arn, null)
+  description = "The ARN of the CloudWatch alarm for S3 object deletions excluding Terraform lock files"
+}
+
+output "ec2_termination_in_core_shared_services_metric_filter_id" {
+  value       = try(aws_cloudwatch_log_metric_filter.ec2_termination_in_core_shared_services[0].id, null)
+  description = "The ID of the CloudWatch metric filter for EC2 termination in core-shared-services"
+}
+
+output "ec2_termination_in_core_shared_services_alarm_arn" {
+  value       = try(aws_cloudwatch_metric_alarm.ec2_termination_in_core_shared_services[0].arn, null)
+  description = "The ARN of the CloudWatch alarm for EC2 termination in core-shared-services"
 }
