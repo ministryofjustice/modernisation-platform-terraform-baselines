@@ -687,7 +687,7 @@ resource "aws_cloudwatch_log_metric_filter" "vpn-changes" {
 resource "aws_cloudwatch_metric_alarm" "vpn-changes" {
   alarm_name        = "vpn-changes"
   alarm_description = "Monitors for VPN changes."
-  alarm_actions     = local.high_priority_excluding_suppressed_alarm_action
+  alarm_actions     = [] #local.high_priority_excluding_suppressed_alarm_action
 
   comparison_operator = "GreaterThanOrEqualToThreshold"
   evaluation_periods  = "1"
@@ -840,7 +840,7 @@ resource "aws_cloudwatch_log_metric_filter" "network_firewall_changes" {
 resource "aws_cloudwatch_metric_alarm" "network_firewall_changes" {
   alarm_name        = "network-firewall-changes"
   alarm_description = "Monitors for changes to Network Firewalls in core-network-services outside of automation"
-	alarm_actions     = local.high_priority_excluding_suppressed_alarm_action
+	alarm_actions     = [] #local.high_priority_excluding_suppressed_alarm_action
 
 	comparison_operator = "GreaterThanOrEqualToThreshold"
 	evaluation_periods  = "1"
@@ -872,7 +872,7 @@ resource "aws_cloudwatch_log_metric_filter" "disable_alarm_actions_events" {
 resource "aws_cloudwatch_metric_alarm" "disable_alarm_actions_events" {
   alarm_name        = "disable-alarms-events"
   alarm_description = "Monitors for CloudWatch alarm actions being disabled outside of automation"
-	alarm_actions     = local.high_priority_excluding_suppressed_alarm_action
+	alarm_actions     = [] #local.high_priority_excluding_suppressed_alarm_action
 
 	comparison_operator = "GreaterThanOrEqualToThreshold"
 	evaluation_periods  = "1"
@@ -914,7 +914,7 @@ resource "aws_cloudwatch_log_metric_filter" "critical_events" {
 resource "aws_cloudwatch_metric_alarm" "critical_events_events" {
   alarm_name        = "disable-alarms-events"
   alarm_description = "Monitors for SecurityHub being disabled and GuardDuty being disabled or materially changed."
-	alarm_actions     = local.high_priority_excluding_suppressed_alarm_action
+	alarm_actions     = [] #local.high_priority_excluding_suppressed_alarm_action
 
 	comparison_operator = "GreaterThanOrEqualToThreshold"
 	evaluation_periods  = "1"
@@ -954,7 +954,7 @@ resource "aws_cloudwatch_log_metric_filter" "critical_role_trust_relationship_ch
 resource "aws_cloudwatch_metric_alarm" "critical_role_trust_relationship_changes" {
   alarm_name        = "critical-role-trust-relationship-changes"
   alarm_description = "Monitors for trust relationship changes to MemberInfrastructureAccess or ModernisationPlatformAccess."
-  alarm_actions     = local.high_priority_excluding_suppressed_alarm_action
+  alarm_actions     = [] # local.high_priority_excluding_suppressed_alarm_action
 
   comparison_operator = "GreaterThanOrEqualToThreshold"
   evaluation_periods  = "1"
@@ -1256,7 +1256,7 @@ resource "aws_cloudwatch_log_metric_filter" "iam_user_deletion_not_by_automation
 resource "aws_cloudwatch_metric_alarm" "iam_user_deletion_by_untrusted_role" {
   alarm_name        = "iam-user-deletion-by-untrusted-role"
   alarm_description = "Monitors for the deletion of IAM users other than via automation"
-  alarm_actions     = local.high_priority_excluding_suppressed_alarm_action
+  alarm_actions     = [] #local.high_priority_excluding_suppressed_alarm_action
 
   comparison_operator = "GreaterThanOrEqualToThreshold"
   evaluation_periods  = "1"
@@ -1440,7 +1440,7 @@ resource "aws_cloudwatch_metric_alarm" "secrets_manager_core_account_events_not_
   count             = local.is_mp_workspace || local.account_name == "modernisation-platform" ? 1 : 0
   alarm_name        = "secrets-manager-events-core-account-non-mp-team"
   alarm_description = "Monitors for the use of non-automation Secrets Manager events by principals outside the MP team."
-  alarm_actions     = local.high_priority_excluding_suppressed_alarm_action
+  alarm_actions     = [] #local.high_priority_excluding_suppressed_alarm_action
 
   comparison_operator = "GreaterThanOrEqualToThreshold"
   evaluation_periods  = "1"
@@ -1479,10 +1479,10 @@ resource "aws_cloudwatch_metric_alarm" "secrets_manager_core_account_events_not_
   tags = var.tags
 }
 
-# 3.29 - Alerts for S3 file deletion in MP Core Accounts except core-shared-services as that contains end-user buckets
+# 3.29 - Alerts for S3 file deletion in MP Core Accounts
 
 resource "aws_cloudwatch_log_metric_filter" "s3_object_deletions_excluding_tf_lock_files" {
-  count          = local.is_core_account && local.account_name != "core-shared-services" ? 1 : 0
+  count          = local.is_core_account ? 1 : 0
   name           = "s3-object-deletions-excluding-tf-lock-files"
   log_group_name = var.cloudtrail_log_group_name
 
@@ -1496,10 +1496,10 @@ resource "aws_cloudwatch_log_metric_filter" "s3_object_deletions_excluding_tf_lo
 }
 
 resource "aws_cloudwatch_metric_alarm" "s3_object_deletions_excluding_tf_lock_files" {
-  count             = local.is_mp_workspace && local.account_name == "modernisation-platform" && local.account_name != "core-shared-services-production" ? 1 : 0
+  count             = local.is_mp_workspace || local.account_name == "modernisation-platform" ? 1 : 0
   alarm_name        = "s3-object-deletions-excluding-tf-lock-files"
   alarm_description = "Monitors for S3 object deletions excluding Terraform state lock files in core accounts other than core-shared-services."
-  alarm_actions     = local.high_priority_excluding_suppressed_alarm_action
+  alarm_actions     = [] #local.high_priority_excluding_suppressed_alarm_action
 
   comparison_operator = "GreaterThanOrEqualToThreshold"
   evaluation_periods  = "1"
