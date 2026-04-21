@@ -201,8 +201,18 @@ output "admin_role_usage_metric_filter_id" {
 }
 
 output "admin_role_usage_alarm_arn" {
-  description = "The ARN of the CloudWatch alarm for admin role usage by the MP team"
-  value       = aws_cloudwatch_metric_alarm.admin_role_usage_by_mp_team.arn
+  description = "The ARN of the CloudWatch alarm for admin role usage"
+  value       = aws_cloudwatch_metric_alarm.admin_role_usage.arn
+}
+
+output "admin_role_usage_all_metric_filter_id" {
+  value       = aws_cloudwatch_log_metric_filter.admin_role_usage.id
+  description = "The ID of the CloudWatch metric filter for all AdministratorAccess role usage"
+}
+
+output "admin_role_usage_all_alarm_arn" {
+  value       = aws_cloudwatch_metric_alarm.admin_role_usage.arn
+  description = "The ARN of the CloudWatch alarm for all AdministratorAccess role usage"
 }
 
 output "high_priority_alarms_topic_arn" {
@@ -263,11 +273,6 @@ output "critical_role_trust_relationship_changes_alarm_arn" {
 output "admin_role_usage_by_mp_team_metric_filter_id" {
   value       = aws_cloudwatch_log_metric_filter.admin_role_usage_by_mp_team.id
   description = "The ID of the CloudWatch metric filter for admin role usage by the MP team"
-}
-
-output "admin_role_usage_by_mp_team_alarm_arn" {
-  value       = aws_cloudwatch_metric_alarm.admin_role_usage_by_mp_team.arn
-  description = "The ARN of the CloudWatch alarm for admin role usage by the MP team"
 }
 
 output "admin_role_usage_non_mp_team_alarm_arn" {

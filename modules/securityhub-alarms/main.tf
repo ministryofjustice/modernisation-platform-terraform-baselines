@@ -1089,25 +1089,25 @@ resource "aws_cloudwatch_metric_alarm" "privatelink_service_active_connection_co
 # - All use of the SSO AdministratorAccess role by all.
 
 resource "aws_cloudwatch_log_metric_filter" "admin_role_usage" {
-  name           = "${var.admin_role_usage_metric_filter_name}-all-usage"
-  pattern        = "{ $.eventName = \"AssumeRoleWithSAML\" && $.requestParameters.roleArn = \"*AdministratorAccess*\" }"
+  name           = var.admin_role_usage_metric_filter_name
+  pattern        = "{ $.eventName = \"AssumeRoleWithSAML\" && $.requestParameters.roleArn = \"*AdministratorAccess*\" && $.requestParameters.principalTags.github_team = \"*modernisation-platform-engineers*\" }"
   log_group_name = var.cloudtrail_log_group_name
 
   metric_transformation {
-    name      = "${var.admin_role_usage_metric_filter_name}-all-usage"
+    name      = var.admin_role_usage_metric_filter_name
     namespace = "LogMetrics"
     value     = 1
   }
 }
 
-resource "aws_cloudwatch_metric_alarm" "admin_role_usage_by_mp_team" {
-  alarm_name        = "${var.admin_role_usage_alarm_name}-mp-team"
+resource "aws_cloudwatch_metric_alarm" "admin_role_usage" {
+  alarm_name        = var.admin_role_usage_alarm_name
   alarm_description = "Monitors for use of the AdministratorAccess role."
   alarm_actions     = local.low_priority_excluding_suppressed_alarm_action
 
   comparison_operator = "GreaterThanOrEqualToThreshold"
   evaluation_periods  = "1"
-  metric_name         = aws_cloudwatch_log_metric_filter.admin_role_usage_by_mp_team.id
+  metric_name         = aws_cloudwatch_log_metric_filter.admin_role_usage.id
   namespace           = "LogMetrics"
   period              = "300"
   statistic           = "Sum"
@@ -1115,7 +1115,6 @@ resource "aws_cloudwatch_metric_alarm" "admin_role_usage_by_mp_team" {
   treat_missing_data  = "notBreaching"
 
   tags = var.tags
-
 }
 
 # - Alarm for use of the AdministratorAccess role across all accounts except the MP team.
