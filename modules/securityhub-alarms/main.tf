@@ -587,7 +587,7 @@ resource "aws_cloudwatch_metric_alarm" "nacl-changes" {
   tags = var.tags
 }
 
-# 3.12 - Ensure a log metric filter and alarm exist for changes to network gateways
+# 3.12 - Ensure a log metric filter and alarm exist for changes to network gateways, including Transit Gateways
 locals {
   ngw_unauthorised_event_names = [
     "CreateCustomerGateway",
@@ -595,7 +595,32 @@ locals {
     "AttachInternetGateway",
     "CreateInternetGateway",
     "DeleteInternetGateway",
-    "DetachInternetGateway"
+    "DetachInternetGateway",
+    "CreateTransitGateway",
+    "DeleteTransitGateway",
+    "ModifyTransitGateway",
+    "CreateTransitGatewayRouteTable",
+    "DeleteTransitGatewayRouteTable",
+    "AssociateTransitGatewayRouteTable",
+    "DisassociateTransitGatewayRouteTable",
+    "EnableTransitGatewayRouteTablePropagation",
+    "DisableTransitGatewayRouteTablePropagation",
+    "CreateTransitGatewayRoute",
+    "DeleteTransitGatewayRoute",
+    "ReplaceTransitGatewayRoute",
+    "CreateTransitGatewayVpcAttachment",
+    "DeleteTransitGatewayVpcAttachment",
+    "ModifyTransitGatewayVpcAttachment",
+    "AcceptTransitGatewayVpcAttachment",
+    "RejectTransitGatewayVpcAttachment",
+    "CreateTransitGatewayPeeringAttachment",
+    "DeleteTransitGatewayPeeringAttachment",
+    "AcceptTransitGatewayPeeringAttachment",
+    "RejectTransitGatewayPeeringAttachment",
+    "CreateTransitGatewayConnect",
+    "DeleteTransitGatewayConnect",
+    "CreateTransitGatewayConnectPeer",
+    "DeleteTransitGatewayConnectPeer"
   ]
 }
 resource "aws_cloudwatch_log_metric_filter" "network-gateway-changes" {
@@ -619,6 +644,54 @@ resource "aws_cloudwatch_metric_alarm" "network-gateway-changes" {
   comparison_operator = "GreaterThanOrEqualToThreshold"
   evaluation_periods  = "1"
   metric_name         = var.network_gateway_changes_metric_filter_name
+  namespace           = "LogMetrics"
+  period              = "300"
+  statistic           = "Sum"
+  threshold           = "1"
+  treat_missing_data  = "notBreaching"
+
+  tags = var.tags
+}
+
+# 3.12.1 - Alerts for VPN changes made outside of trusted automation roles
+
+locals {
+  vpn_change_event_names = [
+    "CreateVpnConnection",
+    "DeleteVpnConnection",
+    "ModifyVpnConnection",
+    "CreateVpnConnectionRoute",
+    "DeleteVpnConnectionRoute",
+    "CreateVpnGateway",
+    "DeleteVpnGateway",
+    "AttachVpnGateway",
+    "DetachVpnGateway",
+    "CreateCustomerGateway",
+    "DeleteCustomerGateway",
+  ]
+}
+
+resource "aws_cloudwatch_log_metric_filter" "vpn-changes" {
+  for_each       = toset(local.vpn_change_event_names)
+  name           = "vpn-changes-${each.key}"
+  pattern        = "{($.eventName = \"${each.value}\") && ${local.automation_role_filter}}"
+  log_group_name = var.cloudtrail_log_group_name
+
+  metric_transformation {
+    name      = "vpn-changes"
+    namespace = "LogMetrics"
+    value     = 1
+  }
+}
+
+resource "aws_cloudwatch_metric_alarm" "vpn-changes" {
+  alarm_name        = "vpn-changes"
+  alarm_description = "Monitors for VPN changes."
+  alarm_actions     = local.high_priority_excluding_suppressed_alarm_action
+
+  comparison_operator = "GreaterThanOrEqualToThreshold"
+  evaluation_periods  = "1"
+  metric_name         = "vpn-changes"
   namespace           = "LogMetrics"
   period              = "300"
   statistic           = "Sum"
@@ -716,7 +789,10 @@ resource "aws_cloudwatch_metric_alarm" "vpc-changes" {
   tags = var.tags
 }
 
-# Alerts for ALL changes to Network Firewalls outside of trusted automation roles
+
+
+
+# 3.15 - Alerts for ALL changes to Network Firewalls outside of trusted automation roles
 
 locals {
   network_firewall_change_event_names = [
@@ -779,7 +855,7 @@ resource "aws_cloudwatch_metric_alarm" "network_firewall_changes" {
 }
 
 
-# Alerts for Cloudwatch Alarm Actions being Disabled outside of automation
+# 3.16 - Alerts for Cloudwatch Alarm Actions being Disabled outside of automation
 
 resource "aws_cloudwatch_log_metric_filter" "disable_alarm_actions_events" {
   name           = "disable-alarm-actions-alerting"
@@ -811,7 +887,7 @@ resource "aws_cloudwatch_metric_alarm" "disable_alarm_actions_events" {
 }
 
 
-# Alerts for activities that disable alarm actions and other critical resources outside of automation
+# 3.17 - Alerts for activities that disable alarm actions and other critical resources outside of automation
 
 locals {
   critical_event_names = [
@@ -852,7 +928,7 @@ resource "aws_cloudwatch_metric_alarm" "critical_events_events" {
 	tags = var.tags
 }
 
-# Alerts for changes to trust relationships of critical roles:
+# 3.18 - Alerts for changes to trust relationships of critical roles:
 
 locals {
   critical_role_trust_relationship_change_role_names = [
@@ -892,7 +968,7 @@ resource "aws_cloudwatch_metric_alarm" "critical_role_trust_relationship_changes
   tags = var.tags
 }
 
-# Alerts for Private Link Changes
+# 3.19 - Alerts for Private Link Changes
 
 resource "aws_cloudwatch_metric_alarm" "privatelink_new_flow_count_all" {
   alarm_name          = var.privatelink_new_flow_count_all_alarm_name
@@ -950,7 +1026,8 @@ resource "aws_cloudwatch_metric_alarm" "privatelink_active_flow_count_all" {
   tags          = var.tags
 }
 
-# New Connection Count Alarm
+# 3.20 - New Connection Count Alarm
+
 resource "aws_cloudwatch_metric_alarm" "privatelink_service_new_connection_count_all" {
   alarm_name          = var.privatelink_service_new_connection_count_all_alarm_name
   comparison_operator = "GreaterThanThreshold"
@@ -1007,7 +1084,7 @@ resource "aws_cloudwatch_metric_alarm" "privatelink_service_active_connection_co
   tags          = var.tags
 }
 
-# AdministratorAccess Alert Metric Filters and Alarms
+# 3.21 - AdministratorAccess Alert Metric Filters and Alarms
 
 # - All use of the SSO AdministratorAccess role by all.
 
@@ -1055,7 +1132,6 @@ resource "aws_cloudwatch_log_metric_filter" "admin_role_usage_by_mp_team" {
   }
 }
 
-
 resource "aws_cloudwatch_metric_alarm" "admin_role_usage_non_mp_team" {
   alarm_name        = "${var.admin_role_usage_alarm_name}-non-mp-team"
   alarm_description = "Monitors for use of the AdministratorAccess role by principals outside the MP team."
@@ -1098,7 +1174,7 @@ resource "aws_cloudwatch_metric_alarm" "admin_role_usage_non_mp_team" {
   tags = var.tags
 }
 
-# - All use of the SSO AdministratorAccess outside of core business & on-call hours.
+# 3.22 - All use of the SSO AdministratorAccess outside of core business & on-call hours.
 
 resource "aws_cloudwatch_log_metric_filter" "admin_role_usage_outside_on_call_hours" {
   name           = "${var.admin_role_usage_metric_filter_name}-all-usage-outside-on-call-hours"
@@ -1130,7 +1206,7 @@ resource "aws_cloudwatch_metric_alarm" "admin_role_usage_outside_on_call_outside
 }
 
 
-# Alarm for use of the OrganizationAccountAccessRole
+# 3.23 - Alarm for use of the OrganizationAccountAccessRole
 # Note that for this role we're not just looking for use of it by modernisation-platform-engineers github team, however the source log group is the same.
 
 resource "aws_cloudwatch_log_metric_filter" "orgaccess_role_usage" {
@@ -1163,7 +1239,7 @@ resource "aws_cloudwatch_metric_alarm" "orgaccess_role_usage" {
 }
 
 
-# Filter & Alarm for the deletion of IAM users not via automation roles
+# 3.24 - Filter & Alarm for the deletion of IAM users not via automation roles
 
 resource "aws_cloudwatch_log_metric_filter" "iam_user_deletion_not_by_automation" {
   name           = "iam-user-deletion-not-by-automation"
@@ -1195,7 +1271,7 @@ resource "aws_cloudwatch_metric_alarm" "iam_user_deletion_by_untrusted_role" {
 }
 
 
-# Filter & Alarm for use of the SuperAdmin role in the modernisation-platform account only.
+# 3.25 - Filter & Alarm for use of the SuperAdmin role in the modernisation-platform account only.
 
 resource "aws_cloudwatch_log_metric_filter" "superadmin_role_usage" {
   count          = local.account_name == "modernisation-platform" ? 1 : 0
@@ -1228,7 +1304,7 @@ resource "aws_cloudwatch_metric_alarm" "superadmin_role_usage" {
   tags = var.tags
 }
 
-# Deletion of SuperAdmin Users in the modernisation-platform account manually by unknown roles
+# 3.26 - Deletion of SuperAdmin Users in the modernisation-platform account manually by unknown roles
 
 resource "aws_cloudwatch_log_metric_filter" "superadmin_user_deletion" {
   count          = local.account_name == "modernisation-platform" ? 1 : 0
@@ -1261,7 +1337,7 @@ resource "aws_cloudwatch_metric_alarm" "superadmin_user_deletion" {
   tags = var.tags
 }
 
-# SuperAdmin IAM User - Access Key Creation not via automation
+# 3.27 - SuperAdmin IAM User - Access Key Creation not via automation
 
 resource "aws_cloudwatch_log_metric_filter" "superadmin_user_access_key_creation" {
   count          = local.account_name == "modernisation-platform" ? 1 : 0
@@ -1295,7 +1371,7 @@ resource "aws_cloudwatch_metric_alarm" "superadmin_user_access_key_creation" {
 }
 
 
-# All Secrets Manager Actions in MP Accounts but not by MP Team Members and Not via Automation
+# 3.28 - All Secrets Manager Actions in MP Accounts but not by MP Team Members and Not via Automation
 
 locals {
   secrets_manager_cloudtrail_events = [
@@ -1403,7 +1479,7 @@ resource "aws_cloudwatch_metric_alarm" "secrets_manager_core_account_events_not_
   tags = var.tags
 }
 
-# Alerts for S3 file deletion in MP Core Accounts except core-shared-services as that contains end-user buckets
+# 3.29 - Alerts for S3 file deletion in MP Core Accounts except core-shared-services as that contains end-user buckets
 
 resource "aws_cloudwatch_log_metric_filter" "s3_object_deletions_excluding_tf_lock_files" {
   count          = local.is_core_account && local.account_name != "core-shared-services" ? 1 : 0
@@ -1420,7 +1496,7 @@ resource "aws_cloudwatch_log_metric_filter" "s3_object_deletions_excluding_tf_lo
 }
 
 resource "aws_cloudwatch_metric_alarm" "s3_object_deletions_excluding_tf_lock_files" {
-  count             = local.is_mp_workspace && local.account_name != "core-shared-services-production" ? 1 : 0
+  count             = local.is_mp_workspace && local.account_name == "modernisation-platform" && local.account_name != "core-shared-services-production" ? 1 : 0
   alarm_name        = "s3-object-deletions-excluding-tf-lock-files"
   alarm_description = "Monitors for S3 object deletions excluding Terraform state lock files in core accounts other than core-shared-services."
   alarm_actions     = local.high_priority_excluding_suppressed_alarm_action
@@ -1437,7 +1513,39 @@ resource "aws_cloudwatch_metric_alarm" "s3_object_deletions_excluding_tf_lock_fi
   tags = var.tags
 }
 
+# 3.30 - Alert for termination of ec2s from core-shared-services-production not by automation
 
+resource "aws_cloudwatch_log_metric_filter" "ec2_termination_in_core_shared_services" {
+  count          = local.account_name == "core-shared-services-production" ? 1 : 0
+  name           = "ec2-termination-in-core-shared-services"
+  log_group_name = var.cloudtrail_log_group_name
+
+  pattern = "{($.eventName = \"DeleteObjects\") && ${local.automation_role_filter}}"
+
+  metric_transformation {
+    name      = "ec2-termination-in-core-shared-services"
+    namespace = "LogMetrics"
+    value     = 1
+  }
+}
+
+resource "aws_cloudwatch_metric_alarm" "ec2_termination_in_core_shared_services" {
+  count          = local.account_name == "core-shared-services-production" ? 1 : 0
+  alarm_name        = "ec2-termination-in-core-shared-services"
+  alarm_description = "Monitors for termination of ec2 instances in core-shared-services"
+  alarm_actions     = local.high_priority_excluding_suppressed_alarm_action
+
+  comparison_operator = "GreaterThanOrEqualToThreshold"
+  evaluation_periods  = "1"
+  metric_name         = "ec2-termination-in-core-shared-services"
+  namespace           = "LogMetrics"
+  period              = "300"
+  statistic           = "Sum"
+  threshold           = "1"
+  treat_missing_data  = "notBreaching"
+
+  tags = var.tags
+}
 
 
 # High Priority PagerDuty Notifications
