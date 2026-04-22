@@ -53,6 +53,7 @@ locals {
   # Combined suppression flag
   is_suppressed_account = local.is_member_unrestricted || local.is_sandbox_environment
 
+  
   # Alarm actions
 
   # Low priority alarms action
@@ -63,6 +64,9 @@ locals {
 
   # High-priority alarms disabled for suppressed accounts (member-unrestricted or sandbox), enabled everywhere else.
   high_priority_excluding_suppressed_alarm_action = local.is_suppressed_account ? [] : [aws_sns_topic.high_priority_alarms_topic.arn]
+
+  # High-priority alarms disabled for alerts from member-unrestricted account only, enabled everywhere else.
+  high_priority_excluding_member_unrestricted_action = local.is_member_unrestricted ? [] : [aws_sns_topic.high_priority_alarms_topic.arn]
 
   # Low priority alarms disabled for suppressed accounts (member-unrestricted or sandbox), enabled everywhere else.
   low_priority_excluding_suppressed_alarm_action = local.is_suppressed_account ? [] : local.low_priority_alarm_action
@@ -343,7 +347,7 @@ resource "aws_cloudwatch_log_metric_filter" "cloudtrail-configuration-changes" {
 resource "aws_cloudwatch_metric_alarm" "cloudtrail-configuration-changes" {
   alarm_name        = var.cloudtrail_configuration_changes_alarm_name
   alarm_description = "Monitors for CloudTrail configuration changes."
-  alarm_actions     = local.high_priority_excluding_suppressed_alarm_action
+  alarm_actions     = [aws_sns_topic.high_priority_alarms_topic.arn]
 
   comparison_operator = "GreaterThanOrEqualToThreshold"
   evaluation_periods  = "1"
@@ -789,9 +793,6 @@ resource "aws_cloudwatch_metric_alarm" "vpc-changes" {
   tags = var.tags
 }
 
-
-
-
 # 3.15 - Alerts for ALL changes to Network Firewalls outside of trusted automation roles
 
 locals {
@@ -914,7 +915,7 @@ resource "aws_cloudwatch_log_metric_filter" "critical_events" {
 resource "aws_cloudwatch_metric_alarm" "critical_events_events" {
   alarm_name        = "disable-alarms-events"
   alarm_description = "Monitors for SecurityHub being disabled and GuardDuty being disabled or materially changed."
-	alarm_actions     = [] #local.high_priority_excluding_suppressed_alarm_action
+	alarm_actions     = [] #local.high_priority_excluding_member_unrestricted_action
 
 	comparison_operator = "GreaterThanOrEqualToThreshold"
 	evaluation_periods  = "1"
@@ -954,7 +955,7 @@ resource "aws_cloudwatch_log_metric_filter" "critical_role_trust_relationship_ch
 resource "aws_cloudwatch_metric_alarm" "critical_role_trust_relationship_changes" {
   alarm_name        = "critical-role-trust-relationship-changes"
   alarm_description = "Monitors for trust relationship changes to MemberInfrastructureAccess or ModernisationPlatformAccess."
-  alarm_actions     = [] # local.high_priority_excluding_suppressed_alarm_action
+  alarm_actions     = [] # local.high_priority_excluding_member_unrestricted_action
 
   comparison_operator = "GreaterThanOrEqualToThreshold"
   evaluation_periods  = "1"
@@ -1004,6 +1005,8 @@ resource "aws_cloudwatch_metric_alarm" "privatelink_active_flow_count_all" {
   evaluation_periods  = 3
   threshold           = "1000" # Adjust this threshold as needed
   alarm_description   = "This alarm monitors the total number of active flows across all VPC endpoints."
+  alarm_actions       = local.low_priority_alarm_action
+
 
   metric_query {
     id          = "e1"
@@ -1022,7 +1025,6 @@ resource "aws_cloudwatch_metric_alarm" "privatelink_active_flow_count_all" {
     }
   }
 
-  alarm_actions = local.low_priority_alarm_action
   tags          = var.tags
 }
 
@@ -1034,6 +1036,7 @@ resource "aws_cloudwatch_metric_alarm" "privatelink_service_new_connection_count
   evaluation_periods  = 3
   threshold           = "100" # Adjust this threshold as needed
   alarm_description   = "This alarm monitors the total number of new connections across all VPC Endpoint Services."
+  alarm_actions       = local.low_priority_alarm_action
 
   metric_query {
     id          = "e1"
@@ -1052,7 +1055,6 @@ resource "aws_cloudwatch_metric_alarm" "privatelink_service_new_connection_count
     }
   }
 
-  alarm_actions = local.low_priority_alarm_action
   tags          = var.tags
 }
 
@@ -1134,7 +1136,7 @@ resource "aws_cloudwatch_log_metric_filter" "admin_role_usage_by_mp_team" {
 resource "aws_cloudwatch_metric_alarm" "admin_role_usage_non_mp_team" {
   alarm_name        = "${var.admin_role_usage_alarm_name}-non-mp-team"
   alarm_description = "Monitors for use of the AdministratorAccess role by principals outside the MP team."
-  alarm_actions     = local.high_priority_excluding_suppressed_alarm_action
+  alarm_actions     = local.high_priority_excluding_member_unrestricted_action
 
   comparison_operator = "GreaterThanOrEqualToThreshold"
   evaluation_periods  = "1"
@@ -1190,7 +1192,7 @@ resource "aws_cloudwatch_log_metric_filter" "admin_role_usage_outside_on_call_ho
 resource "aws_cloudwatch_metric_alarm" "admin_role_usage_outside_on_call_outside_on_call_hours" {
   alarm_name        = "${var.admin_role_usage_metric_filter_name}-all-usage-outside-on-call-hours"
   alarm_description = "Monitors for use of the Administrator role outside of core business and on-call hours."
-  alarm_actions     = local.high_priority_excluding_suppressed_alarm_action
+  alarm_actions     = local.high_priority_excluding_member_unrestricted_action
 
   comparison_operator = "GreaterThanOrEqualToThreshold"
   evaluation_periods  = "1"
@@ -1255,7 +1257,7 @@ resource "aws_cloudwatch_log_metric_filter" "iam_user_deletion_not_by_automation
 resource "aws_cloudwatch_metric_alarm" "iam_user_deletion_by_untrusted_role" {
   alarm_name        = "iam-user-deletion-by-untrusted-role"
   alarm_description = "Monitors for the deletion of IAM users other than via automation"
-  alarm_actions     = [] #local.high_priority_excluding_suppressed_alarm_action
+  alarm_actions     = [] #local.high_priority_excluding_member_unrestricted_action
 
   comparison_operator = "GreaterThanOrEqualToThreshold"
   evaluation_periods  = "1"
@@ -1478,10 +1480,10 @@ resource "aws_cloudwatch_metric_alarm" "secrets_manager_core_account_events_not_
   tags = var.tags
 }
 
-# 3.29 - Alerts for S3 file deletion in MP Core Accounts
+# 3.29 - Alerts for S3 file deletion in the MP Core Accounts
 
 resource "aws_cloudwatch_log_metric_filter" "s3_object_deletions_excluding_tf_lock_files" {
-  count          = local.is_core_account ? 1 : 0
+  count          = local.is_mp_workspace || local.account_name == "modernisation-platform" ? 1 : 0
   name           = "s3-object-deletions-excluding-tf-lock-files"
   log_group_name = var.cloudtrail_log_group_name
 
