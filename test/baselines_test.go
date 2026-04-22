@@ -21,27 +21,35 @@ func TestTerraformBackup(t *testing.T) {
 	// Unique names for Backup resources
 	BackupIamRoleName := fmt.Sprintf("AWSBackup-%s", uniqueId)
 	BackupVaultName := fmt.Sprintf("everything-%s", uniqueId)
-	ProdBackupVaultName := fmt.Sprintf("backup-daily-retain-30-days-%s", uniqueId)
+	ProdBackupVaultName := fmt.Sprintf("backup-daily-production-retain-30-days-%s", uniqueId)
 	ProdBackupSelectionName := fmt.Sprintf("is-production-true-%s", uniqueId)
-	NonProdBackupPlanName := fmt.Sprintf("backup-daily-cold-storage-monthly-retain-30-days-%s", uniqueId)
+	NonProdBackupPlanName := fmt.Sprintf("backup-daily-non-production-retain-30-days-%s", uniqueId)
 	NonProdBackupSelectionName := fmt.Sprintf("non-production-backup-%s", uniqueId)
+	ProdColdStoragePlanName := fmt.Sprintf("backup-daily-production-cold-storage-90-days-%s", uniqueId)
+	ProdColdStorageSelectionName := fmt.Sprintf("is-production-true-cold-storage-90-days-%s", uniqueId)
+	NonProdColdStoragePlanName := fmt.Sprintf("backup-daily-non-production-cold-storage-90-days-%s", uniqueId)
+	NonProdColdStorageSelectionName := fmt.Sprintf("non-production-backup-cold-storage-90-days-%s", uniqueId)
 	BackupSNSTopicName := fmt.Sprintf("backup_failure_topic-%s", uniqueId)
 	BackupLockSNSTopicName := fmt.Sprintf("backup_vault_lock_sns_topic_name-%s", uniqueId)
 	BackupKmsAliasName := fmt.Sprintf("alias/backup-alarms-key-multi-region-%s", uniqueId)
-	
+
 	terraformOptions := &terraform.Options{
-	    TerraformDir: terraformDir,
-	    Vars: map[string]interface{}{
-	        "aws_iam_role_backup_name":             BackupIamRoleName,
-	        "aws_backup_vault_name":                BackupVaultName,
-	        "production_backup_plan_name":          ProdBackupVaultName,
-	        "production_backup_selection_name":     ProdBackupSelectionName,
-	        "non_production_backup_plan_name":      NonProdBackupPlanName,
-	        "non_production_backup_selection_name": NonProdBackupSelectionName,
-	        "backup_aws_sns_topic_name":            BackupSNSTopicName,
-	        "backup_vault_lock_sns_topic_name":     BackupLockSNSTopicName,
-	        "aws_kms_alias_name":                   BackupKmsAliasName,
-	    },
+		TerraformDir: terraformDir,
+		Vars: map[string]interface{}{
+			"aws_iam_role_backup_name":                        BackupIamRoleName,
+			"aws_backup_vault_name":                           BackupVaultName,
+			"production_backup_plan_name":                     ProdBackupVaultName,
+			"production_backup_selection_name":                ProdBackupSelectionName,
+			"non_production_backup_plan_name":                 NonProdBackupPlanName,
+			"non_production_backup_selection_name":              NonProdBackupSelectionName,
+			"production_cold_storage_backup_plan_name":          ProdColdStoragePlanName,
+			"production_cold_storage_backup_selection_name":     ProdColdStorageSelectionName,
+			"non_production_cold_storage_backup_plan_name":      NonProdColdStoragePlanName,
+			"non_production_cold_storage_backup_selection_name": NonProdColdStorageSelectionName,
+			"backup_aws_sns_topic_name":                         BackupSNSTopicName,
+			"backup_vault_lock_sns_topic_name":                  BackupLockSNSTopicName,
+			"aws_kms_alias_name":                                BackupKmsAliasName,
+		},
 	}
 	// Clean up resources with "terraform destroy" at the end of the test
 	defer terraform.Destroy(t, terraformOptions)
@@ -55,7 +63,9 @@ func TestTerraformBackup(t *testing.T) {
 	// Test backup module
 	AwsBackupVaultArn := terraform.Output(t, terraformOptions, "aws_backup_vault_arn")
 	AwsBackupPlanProd := terraform.Output(t, terraformOptions, "aws_backup_plan_production")
+	AwsBackupPlanProdCold := terraform.Output(t, terraformOptions, "aws_backup_plan_production_cold_storage")
 	AwsBackupPlanNonProd := terraform.Output(t, terraformOptions, "aws_backup_plan_non_production")
+	AwsBackupPlanNonProdCold := terraform.Output(t, terraformOptions, "aws_backup_plan_non_production_cold_storage")
 	AwsBackupSelectionProd := terraform.Output(t, terraformOptions, "aws_backup_selection_production")
 	AwsBackupSelectionNonProd := terraform.Output(t, terraformOptions, "aws_backup_selection_non_production")
 	AwsBackupSNSTopicArn := terraform.Output(t, terraformOptions, "backup_aws_sns_topic_arn")
@@ -64,7 +74,9 @@ func TestTerraformBackup(t *testing.T) {
 
 	assert.Regexp(t, regexp.MustCompile(`^arn:aws:backup:eu-west-2:[0-9]{12}:backup-vault:everything-`+uniqueId), AwsBackupVaultArn)
 	assert.Regexp(t, regexp.MustCompile(`^arn:aws:backup:eu-west-2:[0-9]{12}:backup-plan:*`), AwsBackupPlanProd)
+	assert.Regexp(t, regexp.MustCompile(`^arn:aws:backup:eu-west-2:[0-9]{12}:backup-plan:*`), AwsBackupPlanProdCold)
 	assert.Regexp(t, regexp.MustCompile(`^arn:aws:backup:eu-west-2:[0-9]{12}:backup-plan:*`), AwsBackupPlanNonProd)
+	assert.Regexp(t, regexp.MustCompile(`^arn:aws:backup:eu-west-2:[0-9]{12}:backup-plan:*`), AwsBackupPlanNonProdCold)
 	assert.Regexp(t, regexp.MustCompile(`^*`), AwsBackupSelectionProd)
 	assert.Regexp(t, regexp.MustCompile(`^*`), AwsBackupSelectionNonProd)
 	assert.Regexp(t, regexp.MustCompile(`^arn:aws:sns:eu-west-2:[0-9]{12}:backup_failure_topic-`+uniqueId), AwsBackupSNSTopicArn)
