@@ -599,32 +599,7 @@ locals {
     "AttachInternetGateway",
     "CreateInternetGateway",
     "DeleteInternetGateway",
-    "DetachInternetGateway",
-    "CreateTransitGateway",
-    "DeleteTransitGateway",
-    "ModifyTransitGateway",
-    "CreateTransitGatewayRouteTable",
-    "DeleteTransitGatewayRouteTable",
-    "AssociateTransitGatewayRouteTable",
-    "DisassociateTransitGatewayRouteTable",
-    "EnableTransitGatewayRouteTablePropagation",
-    "DisableTransitGatewayRouteTablePropagation",
-    "CreateTransitGatewayRoute",
-    "DeleteTransitGatewayRoute",
-    "ReplaceTransitGatewayRoute",
-    "CreateTransitGatewayVpcAttachment",
-    "DeleteTransitGatewayVpcAttachment",
-    "ModifyTransitGatewayVpcAttachment",
-    "AcceptTransitGatewayVpcAttachment",
-    "RejectTransitGatewayVpcAttachment",
-    "CreateTransitGatewayPeeringAttachment",
-    "DeleteTransitGatewayPeeringAttachment",
-    "AcceptTransitGatewayPeeringAttachment",
-    "RejectTransitGatewayPeeringAttachment",
-    "CreateTransitGatewayConnect",
-    "DeleteTransitGatewayConnect",
-    "CreateTransitGatewayConnectPeer",
-    "DeleteTransitGatewayConnectPeer"
+    "DetachInternetGateway"
   ]
 }
 resource "aws_cloudwatch_log_metric_filter" "network-gateway-changes" {
@@ -657,28 +632,40 @@ resource "aws_cloudwatch_metric_alarm" "network-gateway-changes" {
   tags = var.tags
 }
 
-# 3.12.1 - Alerts for VPN changes made outside of trusted automation roles
+resource "aws_cloudwatch_log_metric_filter" "transit-gateway-changes" {
+  name           = var.transit_gateway_changes_metric_filter_name
+  pattern        = "{((($.eventName = \"CreateTransitGateway\") || ($.eventName = \"DeleteTransitGateway\") || ($.eventName = \"ModifyTransitGateway\") || ($.eventName = \"CreateTransitGatewayRouteTable\") || ($.eventName = \"DeleteTransitGatewayRouteTable\") || ($.eventName = \"AssociateTransitGatewayRouteTable\") || ($.eventName = \"DisassociateTransitGatewayRouteTable\") || ($.eventName = \"EnableTransitGatewayRouteTablePropagation\") || ($.eventName = \"DisableTransitGatewayRouteTablePropagation\") || ($.eventName = \"CreateTransitGatewayRoute\") || ($.eventName = \"DeleteTransitGatewayRoute\") || ($.eventName = \"ReplaceTransitGatewayRoute\") || ($.eventName = \"CreateTransitGatewayVpcAttachment\") || ($.eventName = \"DeleteTransitGatewayVpcAttachment\") || ($.eventName = \"ModifyTransitGatewayVpcAttachment\") || ($.eventName = \"AcceptTransitGatewayVpcAttachment\") || ($.eventName = \"RejectTransitGatewayVpcAttachment\") || ($.eventName = \"CreateTransitGatewayPeeringAttachment\") || ($.eventName = \"DeleteTransitGatewayPeeringAttachment\") || ($.eventName = \"AcceptTransitGatewayPeeringAttachment\") || ($.eventName = \"RejectTransitGatewayPeeringAttachment\") || ($.eventName = \"CreateTransitGatewayConnect\") || ($.eventName = \"DeleteTransitGatewayConnect\") || ($.eventName = \"CreateTransitGatewayConnectPeer\") || ($.eventName = \"DeleteTransitGatewayConnectPeer\")) && ${local.automation_role_filter}}"
+  log_group_name = var.cloudtrail_log_group_name
 
-locals {
-  vpn_change_event_names = [
-    "CreateVpnConnection",
-    "DeleteVpnConnection",
-    "ModifyVpnConnection",
-    "CreateVpnConnectionRoute",
-    "DeleteVpnConnectionRoute",
-    "CreateVpnGateway",
-    "DeleteVpnGateway",
-    "AttachVpnGateway",
-    "DetachVpnGateway",
-    "CreateCustomerGateway",
-    "DeleteCustomerGateway",
-  ]
+  metric_transformation {
+    name      = var.transit_gateway_changes_metric_filter_name
+    namespace = "LogMetrics"
+    value     = 1
+  }
 }
 
+resource "aws_cloudwatch_metric_alarm" "transit-gateway-changes" {
+  alarm_name        = var.transit_gateway_changes_alarm_name
+  alarm_description = "Monitors for AWS EC2 transit gateway changes."
+  alarm_actions     = local.high_priority_excluding_suppressed_alarm_action
+
+  comparison_operator = "GreaterThanOrEqualToThreshold"
+  evaluation_periods  = "1"
+  metric_name         = var.transit_gateway_changes_metric_filter_name
+  namespace           = "LogMetrics"
+  period              = "300"
+  statistic           = "Sum"
+  threshold           = "1"
+  treat_missing_data  = "notBreaching"
+
+  tags = var.tags
+}
+
+# 3.12.1 - Alerts for VPN changes made outside of trusted automation roles
+
 resource "aws_cloudwatch_log_metric_filter" "vpn-changes" {
-  for_each       = toset(local.vpn_change_event_names)
-  name           = "vpn-changes-${each.key}"
-  pattern        = "{($.eventName = \"${each.value}\") && ${local.automation_role_filter}}"
+  name           = "vpn-changes"
+  pattern        = "{((($.eventName = \"CreateVpnConnection\") || ($.eventName = \"DeleteVpnConnection\") || ($.eventName = \"ModifyVpnConnection\") || ($.eventName = \"CreateVpnConnectionRoute\") || ($.eventName = \"DeleteVpnConnectionRoute\") || ($.eventName = \"CreateVpnGateway\") || ($.eventName = \"DeleteVpnGateway\") || ($.eventName = \"AttachVpnGateway\") || ($.eventName = \"DetachVpnGateway\") || ($.eventName = \"CreateCustomerGateway\") || ($.eventName = \"DeleteCustomerGateway\")) && ${local.automation_role_filter}}"
   log_group_name = var.cloudtrail_log_group_name
 
   metric_transformation {
@@ -795,40 +782,10 @@ resource "aws_cloudwatch_metric_alarm" "vpc-changes" {
 
 # 3.15 - Alerts for ALL changes to Network Firewalls outside of trusted automation roles
 
-locals {
-  network_firewall_change_event_names = [
-    "AssociateAvailabilityZones",
-    "AssociateSubnets",
-    "CreateFirewall",
-    "CreateFirewallPolicy",
-    "CreateRuleGroup",
-    "CreateTLSInspectionConfiguration",
-    "DeleteFirewall",
-    "DeleteFirewallPolicy",
-    "DeleteResourcePolicy",
-    "DeleteRuleGroup",
-    "DeleteTLSInspectionConfiguration",
-    "DisassociateAvailabilityZones",
-    "DisassociateSubnets",
-    "PutResourcePolicy",
-    "TagResource",
-    "UntagResource",
-    "UpdateFirewallDeleteProtection",
-    "UpdateFirewallDescription",
-    "UpdateFirewallEncryptionConfiguration",
-    "UpdateFirewallPolicy",
-    "UpdateFirewallPolicyChangeProtection",
-    "UpdateLoggingConfiguration",
-    "UpdateRuleGroup",
-    "UpdateSubnetChangeProtection",
-    "UpdateTLSInspectionConfiguration",
-  ]
-}
-
 resource "aws_cloudwatch_log_metric_filter" "network_firewall_changes" {
-  for_each       = local.account_name == "core-network-services-production" ? toset(local.network_firewall_change_event_names) : toset([])
-  name           = "network-firewall-changes-${each.key}"
-  pattern        = "{($.eventName = \"${each.value}\") && ${local.automation_role_filter}}"
+  count          = local.account_name == "core-network-services-production" ? 1 : 0
+  name           = "network-firewall-changes"
+  pattern        = "{((($.eventName = \"AssociateAvailabilityZones\") || ($.eventName = \"AssociateSubnets\") || ($.eventName = \"CreateFirewall\") || ($.eventName = \"CreateFirewallPolicy\") || ($.eventName = \"CreateRuleGroup\") || ($.eventName = \"CreateTLSInspectionConfiguration\") || ($.eventName = \"DeleteFirewall\") || ($.eventName = \"DeleteFirewallPolicy\") || ($.eventName = \"DeleteResourcePolicy\") || ($.eventName = \"DeleteRuleGroup\") || ($.eventName = \"DeleteTLSInspectionConfiguration\") || ($.eventName = \"DisassociateAvailabilityZones\") || ($.eventName = \"DisassociateSubnets\") || ($.eventName = \"PutResourcePolicy\") || ($.eventName = \"TagResource\") || ($.eventName = \"UntagResource\") || ($.eventName = \"UpdateFirewallDeleteProtection\") || ($.eventName = \"UpdateFirewallDescription\") || ($.eventName = \"UpdateFirewallEncryptionConfiguration\") || ($.eventName = \"UpdateFirewallPolicy\") || ($.eventName = \"UpdateFirewallPolicyChangeProtection\") || ($.eventName = \"UpdateLoggingConfiguration\") || ($.eventName = \"UpdateRuleGroup\") || ($.eventName = \"UpdateSubnetChangeProtection\") || ($.eventName = \"UpdateTLSInspectionConfiguration\")) && ${local.automation_role_filter}}"
   log_group_name = var.cloudtrail_log_group_name
 
   metric_transformation {
@@ -839,6 +796,7 @@ resource "aws_cloudwatch_log_metric_filter" "network_firewall_changes" {
 }
 
 resource "aws_cloudwatch_metric_alarm" "network_firewall_changes" {
+  count             = local.account_name == "core-network-services-production" ? 1 : 0
   alarm_name        = "network-firewall-changes"
   alarm_description = "Monitors for changes to Network Firewalls in core-network-services outside of automation"
 	alarm_actions     = [] #local.high_priority_excluding_suppressed_alarm_action
@@ -890,20 +848,11 @@ resource "aws_cloudwatch_metric_alarm" "disable_alarm_actions_events" {
 
 # 3.17 - Alerts for activities that disable alarm actions and other critical resources outside of automation
 
-locals {
-  critical_event_names = [
-    "DisableSecurityHub",
-    "DeleteDetector",
-    "UpdateDetector",
-  ]
-}
-
 resource "aws_cloudwatch_log_metric_filter" "critical_events" {
-  for_each       = toset(local.critical_event_names)
-  name           = "activity-alerting-${each.key}"
+  name           = "activity-alerting"
 	log_group_name = var.cloudtrail_log_group_name
 
-  pattern = "{($.eventName = \"${each.value}\") && ${local.automation_role_filter}}"
+  pattern = "{((($.eventName = \"DisableSecurityHub\") || ($.eventName = \"DeleteDetector\") || ($.eventName = \"UpdateDetector\")) && ${local.automation_role_filter})}"
 
 	metric_transformation {
     name      = "critical-events"
@@ -931,19 +880,11 @@ resource "aws_cloudwatch_metric_alarm" "critical_events_events" {
 
 # 3.18 - Alerts for changes to trust relationships of critical roles:
 
-locals {
-  critical_role_trust_relationship_change_role_names = [
-    "MemberInfrastructureAccess",
-    "ModernisationPlatformAccess",
-  ]
-}
-
 resource "aws_cloudwatch_log_metric_filter" "critical_role_trust_relationship_changes" {
-  for_each       = toset(local.critical_role_trust_relationship_change_role_names)
-  name           = "critical-role-trust-relationship-changes-${each.key}"
+  name           = "critical-role-trust-relationship-changes"
   log_group_name = var.cloudtrail_log_group_name
 
-  pattern = "{($.eventName = \"UpdateAssumeRolePolicy\") && ($.requestParameters.roleName = \"${each.value}\") && ${local.automation_role_filter}}"
+  pattern = "{($.eventName = \"UpdateAssumeRolePolicy\") && (($.requestParameters.roleName = \"MemberInfrastructureAccess\") || ($.requestParameters.roleName = \"ModernisationPlatformAccess\")) && ${local.automation_role_filter}}"
 
   metric_transformation {
     name      = "critical-role-trust-relationship-changes"
@@ -1374,41 +1315,13 @@ resource "aws_cloudwatch_metric_alarm" "superadmin_user_access_key_creation" {
 
 # 3.28 - All Secrets Manager Actions in MP Accounts but not by MP Team Members and Not via Automation
 
-locals {
-  secrets_manager_cloudtrail_events = [
-    "BatchGetSecretValue",
-    "CancelRotateSecret",
-    "CreateSecret",
-    "DeleteResourcePolicy",
-    "DeleteSecret",
-    "DescribeSecret",
-    "GetRandomPassword",
-    "GetResourcePolicy",
-    "GetSecretValue",
-    "ListSecrets",
-    "ListSecretVersionIds",
-    "PutResourcePolicy",
-    "PutSecretValue",
-    "RemoveRegionsFromReplication",
-    "ReplicateSecretToRegions",
-    "RestoreSecret",
-    "RotateSecret",
-    "StopReplicationToReplica",
-    "TagResource",
-    "UntagResource",
-    "UpdateSecret",
-    "UpdateSecretVersionStage",
-    "ValidateResourcePolicy",
-  ]
-}
-
 # All events except by trusted automation roles
 resource "aws_cloudwatch_log_metric_filter" "secrets_manager_events_core_accounts_mp_all" {
-  for_each       = local.is_mp_workspace || local.account_name == "modernisation-platform" ? toset(local.secrets_manager_cloudtrail_events) : toset([])
-  name           = "secrets-manager-cloudtrail-events-mp-all-${each.key}"
+  count          = local.is_mp_workspace || local.account_name == "modernisation-platform" ? 1 : 0
+  name           = "secrets-manager-cloudtrail-events-mp-all"
   log_group_name = var.cloudtrail_log_group_name
 
-  pattern = "{($.eventName = \"${each.value}\") && ${local.automation_role_filter}}"
+  pattern = "{((($.eventName = \"BatchGetSecretValue\") || ($.eventName = \"CancelRotateSecret\") || ($.eventName = \"CreateSecret\") || ($.eventName = \"DeleteResourcePolicy\") || ($.eventName = \"DeleteSecret\") || ($.eventName = \"DescribeSecret\") || ($.eventName = \"GetRandomPassword\") || ($.eventName = \"GetResourcePolicy\") || ($.eventName = \"GetSecretValue\") || ($.eventName = \"ListSecrets\") || ($.eventName = \"ListSecretVersionIds\") || ($.eventName = \"PutResourcePolicy\") || ($.eventName = \"PutSecretValue\") || ($.eventName = \"RemoveRegionsFromReplication\") || ($.eventName = \"ReplicateSecretToRegions\") || ($.eventName = \"RestoreSecret\") || ($.eventName = \"RotateSecret\") || ($.eventName = \"StopReplicationToReplica\") || ($.eventName = \"TagResource\") || ($.eventName = \"UntagResource\") || ($.eventName = \"UpdateSecret\") || ($.eventName = \"UpdateSecretVersionStage\") || ($.eventName = \"ValidateResourcePolicy\")) && ${local.automation_role_filter}}"
 
   metric_transformation {
     name      = "secrets-manager-cloudtrail-events-mp-all"
@@ -1419,11 +1332,11 @@ resource "aws_cloudwatch_log_metric_filter" "secrets_manager_events_core_account
 
 # All non-automation events by MP Team members (which we will use to filter out from the alarm)
 resource "aws_cloudwatch_log_metric_filter" "secrets_manager_events_core_accounts_mp_team" {
-  for_each       = local.is_mp_workspace || local.account_name == "modernisation-platform" ? toset(local.secrets_manager_cloudtrail_events) : toset([])
-  name           = "secrets-manager-cloudtrail-events-mp-team${each.key}"
+  count          = local.is_mp_workspace || local.account_name == "modernisation-platform" ? 1 : 0
+  name           = "secrets-manager-cloudtrail-events-mp-team"
   log_group_name = var.cloudtrail_log_group_name
 
-  pattern = "{($.eventName = \"${each.value}\") && $.requestParameters.principalTags.github_team = \"*modernisation-platform-engineers*\" && ${local.automation_role_filter}}"
+  pattern = "{((($.eventName = \"BatchGetSecretValue\") || ($.eventName = \"CancelRotateSecret\") || ($.eventName = \"CreateSecret\") || ($.eventName = \"DeleteResourcePolicy\") || ($.eventName = \"DeleteSecret\") || ($.eventName = \"DescribeSecret\") || ($.eventName = \"GetRandomPassword\") || ($.eventName = \"GetResourcePolicy\") || ($.eventName = \"GetSecretValue\") || ($.eventName = \"ListSecrets\") || ($.eventName = \"ListSecretVersionIds\") || ($.eventName = \"PutResourcePolicy\") || ($.eventName = \"PutSecretValue\") || ($.eventName = \"RemoveRegionsFromReplication\") || ($.eventName = \"ReplicateSecretToRegions\") || ($.eventName = \"RestoreSecret\") || ($.eventName = \"RotateSecret\") || ($.eventName = \"StopReplicationToReplica\") || ($.eventName = \"TagResource\") || ($.eventName = \"UntagResource\") || ($.eventName = \"UpdateSecret\") || ($.eventName = \"UpdateSecretVersionStage\") || ($.eventName = \"ValidateResourcePolicy\")) && $.requestParameters.principalTags.github_team = \"*modernisation-platform-engineers*\" && ${local.automation_role_filter}}"
 
   metric_transformation {
     name      = "secrets-manager-cloudtrail-events-mp-team"
