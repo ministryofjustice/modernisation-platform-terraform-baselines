@@ -634,7 +634,7 @@ resource "aws_cloudwatch_metric_alarm" "network-gateway-changes" {
 
 resource "aws_cloudwatch_log_metric_filter" "transit-gateway-changes" {
   name           = var.transit_gateway_changes_metric_filter_name
-  pattern        = "{((($.eventName = \"CreateTransitGateway\") || ($.eventName = \"DeleteTransitGateway\") || ($.eventName = \"ModifyTransitGateway\") || ($.eventName = \"CreateTransitGatewayRouteTable\") || ($.eventName = \"DeleteTransitGatewayRouteTable\") || ($.eventName = \"AssociateTransitGatewayRouteTable\") || ($.eventName = \"DisassociateTransitGatewayRouteTable\") || ($.eventName = \"EnableTransitGatewayRouteTablePropagation\") || ($.eventName = \"DisableTransitGatewayRouteTablePropagation\") || ($.eventName = \"CreateTransitGatewayRoute\") || ($.eventName = \"DeleteTransitGatewayRoute\") || ($.eventName = \"ReplaceTransitGatewayRoute\") || ($.eventName = \"CreateTransitGatewayVpcAttachment\") || ($.eventName = \"DeleteTransitGatewayVpcAttachment\") || ($.eventName = \"ModifyTransitGatewayVpcAttachment\") || ($.eventName = \"AcceptTransitGatewayVpcAttachment\") || ($.eventName = \"RejectTransitGatewayVpcAttachment\") || ($.eventName = \"CreateTransitGatewayPeeringAttachment\") || ($.eventName = \"DeleteTransitGatewayPeeringAttachment\") || ($.eventName = \"AcceptTransitGatewayPeeringAttachment\") || ($.eventName = \"RejectTransitGatewayPeeringAttachment\") || ($.eventName = \"CreateTransitGatewayConnect\") || ($.eventName = \"DeleteTransitGatewayConnect\") || ($.eventName = \"CreateTransitGatewayConnectPeer\") || ($.eventName = \"DeleteTransitGatewayConnectPeer\")) && ${local.automation_role_filter}}"
+  pattern        = "{(($.eventName = \"*TransitGateway*\") && ${local.automation_role_filter})}"
   log_group_name = var.cloudtrail_log_group_name
 
   metric_transformation {
@@ -785,7 +785,7 @@ resource "aws_cloudwatch_metric_alarm" "vpc-changes" {
 resource "aws_cloudwatch_log_metric_filter" "network_firewall_changes" {
   count          = local.account_name == "core-network-services-production" ? 1 : 0
   name           = "network-firewall-changes"
-  pattern        = "{((($.eventName = \"AssociateAvailabilityZones\") || ($.eventName = \"AssociateSubnets\") || ($.eventName = \"CreateFirewall\") || ($.eventName = \"CreateFirewallPolicy\") || ($.eventName = \"CreateRuleGroup\") || ($.eventName = \"CreateTLSInspectionConfiguration\") || ($.eventName = \"DeleteFirewall\") || ($.eventName = \"DeleteFirewallPolicy\") || ($.eventName = \"DeleteResourcePolicy\") || ($.eventName = \"DeleteRuleGroup\") || ($.eventName = \"DeleteTLSInspectionConfiguration\") || ($.eventName = \"DisassociateAvailabilityZones\") || ($.eventName = \"DisassociateSubnets\") || ($.eventName = \"PutResourcePolicy\") || ($.eventName = \"TagResource\") || ($.eventName = \"UntagResource\") || ($.eventName = \"UpdateFirewallDeleteProtection\") || ($.eventName = \"UpdateFirewallDescription\") || ($.eventName = \"UpdateFirewallEncryptionConfiguration\") || ($.eventName = \"UpdateFirewallPolicy\") || ($.eventName = \"UpdateFirewallPolicyChangeProtection\") || ($.eventName = \"UpdateLoggingConfiguration\") || ($.eventName = \"UpdateRuleGroup\") || ($.eventName = \"UpdateSubnetChangeProtection\") || ($.eventName = \"UpdateTLSInspectionConfiguration\")) && ${local.automation_role_filter}}"
+  pattern        = "{((($.eventName = \"*Firewall*\") || ($.eventName = \"*RuleGroup*\") || ($.eventName = \"*ResourcePolicy\") || ($.eventName = \"*TLSInspectionConfiguration\") || ($.eventName = \"*AvailabilityZones\") || ($.eventName = \"*Subnets\") || ($.eventName = \"TagResource\") || ($.eventName = \"UntagResource\")) && ${local.automation_role_filter})}"
   log_group_name = var.cloudtrail_log_group_name
 
   metric_transformation {
@@ -1321,7 +1321,7 @@ resource "aws_cloudwatch_log_metric_filter" "secrets_manager_events_core_account
   name           = "secrets-manager-cloudtrail-events-mp-all"
   log_group_name = var.cloudtrail_log_group_name
 
-  pattern = "{((($.eventName = \"BatchGetSecretValue\") || ($.eventName = \"CancelRotateSecret\") || ($.eventName = \"CreateSecret\") || ($.eventName = \"DeleteResourcePolicy\") || ($.eventName = \"DeleteSecret\") || ($.eventName = \"DescribeSecret\") || ($.eventName = \"GetRandomPassword\") || ($.eventName = \"GetResourcePolicy\") || ($.eventName = \"GetSecretValue\") || ($.eventName = \"ListSecrets\") || ($.eventName = \"ListSecretVersionIds\") || ($.eventName = \"PutResourcePolicy\") || ($.eventName = \"PutSecretValue\") || ($.eventName = \"RemoveRegionsFromReplication\") || ($.eventName = \"ReplicateSecretToRegions\") || ($.eventName = \"RestoreSecret\") || ($.eventName = \"RotateSecret\") || ($.eventName = \"StopReplicationToReplica\") || ($.eventName = \"TagResource\") || ($.eventName = \"UntagResource\") || ($.eventName = \"UpdateSecret\") || ($.eventName = \"UpdateSecretVersionStage\") || ($.eventName = \"ValidateResourcePolicy\")) && ${local.automation_role_filter}}"
+  pattern = "{((($.eventName = \"*Secret*\") || ($.eventName = \"*ResourcePolicy\") || ($.eventName = \"*Replicat*\") || ($.eventName = \"GetRandomPassword\") || ($.eventName = \"TagResource\") || ($.eventName = \"UntagResource\")) && ${local.automation_role_filter})}"
 
   metric_transformation {
     name      = "secrets-manager-cloudtrail-events-mp-all"
@@ -1336,7 +1336,7 @@ resource "aws_cloudwatch_log_metric_filter" "secrets_manager_events_core_account
   name           = "secrets-manager-cloudtrail-events-mp-team"
   log_group_name = var.cloudtrail_log_group_name
 
-  pattern = "{((($.eventName = \"BatchGetSecretValue\") || ($.eventName = \"CancelRotateSecret\") || ($.eventName = \"CreateSecret\") || ($.eventName = \"DeleteResourcePolicy\") || ($.eventName = \"DeleteSecret\") || ($.eventName = \"DescribeSecret\") || ($.eventName = \"GetRandomPassword\") || ($.eventName = \"GetResourcePolicy\") || ($.eventName = \"GetSecretValue\") || ($.eventName = \"ListSecrets\") || ($.eventName = \"ListSecretVersionIds\") || ($.eventName = \"PutResourcePolicy\") || ($.eventName = \"PutSecretValue\") || ($.eventName = \"RemoveRegionsFromReplication\") || ($.eventName = \"ReplicateSecretToRegions\") || ($.eventName = \"RestoreSecret\") || ($.eventName = \"RotateSecret\") || ($.eventName = \"StopReplicationToReplica\") || ($.eventName = \"TagResource\") || ($.eventName = \"UntagResource\") || ($.eventName = \"UpdateSecret\") || ($.eventName = \"UpdateSecretVersionStage\") || ($.eventName = \"ValidateResourcePolicy\")) && $.requestParameters.principalTags.github_team = \"*modernisation-platform-engineers*\" && ${local.automation_role_filter}}"
+  pattern = "{((($.eventName = \"*Secret*\") || ($.eventName = \"*ResourcePolicy\") || ($.eventName = \"*Replicat*\") || ($.eventName = \"GetRandomPassword\") || ($.eventName = \"TagResource\") || ($.eventName = \"UntagResource\")) && $.requestParameters.principalTags.github_team = \"*modernisation-platform-engineers*\" && ${local.automation_role_filter})}"
 
   metric_transformation {
     name      = "secrets-manager-cloudtrail-events-mp-team"
