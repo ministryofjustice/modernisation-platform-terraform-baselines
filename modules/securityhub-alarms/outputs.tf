@@ -222,7 +222,7 @@ output "high_priority_alarms_topic_arn" {
 
 output "vpn_changes_metric_filter_ids" {
   description = "The IDs of the CloudWatch metric filters for VPN changes, keyed by event name"
-  value       = { for k, v in aws_cloudwatch_log_metric_filter.vpn-changes : k => v.id }
+  value       = { vpn_changes = aws_cloudwatch_log_metric_filter.vpn-changes.id }
 }
 
 output "vpn_changes_alarm_arn" {
@@ -232,11 +232,11 @@ output "vpn_changes_alarm_arn" {
 
 output "network_firewall_changes_metric_filter_ids" {
   description = "The IDs of the CloudWatch metric filters for Network Firewall changes, keyed by event name"
-  value       = { for k, v in aws_cloudwatch_log_metric_filter.network_firewall_changes : k => v.id }
+  value       = try({ network_firewall_changes = aws_cloudwatch_log_metric_filter.network_firewall_changes[0].id }, {})
 }
 
 output "network_firewall_changes_alarm_arn" {
-  value       = aws_cloudwatch_metric_alarm.network_firewall_changes.arn
+  value       = try(aws_cloudwatch_metric_alarm.network_firewall_changes[0].arn, null)
   description = "The ARN of the CloudWatch alarm for Network Firewall changes"
 }
 
@@ -252,7 +252,7 @@ output "disable_alarm_actions_events_alarm_arn" {
 
 output "critical_events_metric_filter_ids" {
   description = "The IDs of the CloudWatch metric filters for critical events, keyed by event name"
-  value       = { for k, v in aws_cloudwatch_log_metric_filter.critical_events : k => v.id }
+  value       = { critical_events = aws_cloudwatch_log_metric_filter.critical_events.id }
 }
 
 output "critical_events_alarm_arn" {
@@ -262,7 +262,7 @@ output "critical_events_alarm_arn" {
 
 output "critical_role_trust_relationship_changes_metric_filter_ids" {
   description = "The IDs of the CloudWatch metric filters for critical role trust relationship changes, keyed by role name"
-  value       = { for k, v in aws_cloudwatch_log_metric_filter.critical_role_trust_relationship_changes : k => v.id }
+  value       = { critical_role_trust_relationship_changes = aws_cloudwatch_log_metric_filter.critical_role_trust_relationship_changes.id }
 }
 
 output "critical_role_trust_relationship_changes_alarm_arn" {
