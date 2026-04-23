@@ -1196,7 +1196,7 @@ resource "aws_cloudwatch_metric_alarm" "admin_role_usage_outside_on_call_outside
 
   comparison_operator = "GreaterThanOrEqualToThreshold"
   evaluation_periods  = "1"
-  metric_name         = aws_cloudwatch_log_metric_filter.admin_role_usage_outside_on_call_hours.id
+  metric_name         = "${var.admin_role_usage_metric_filter_name}-all-usage-outside-on-call"
   namespace           = "LogMetrics"
   period              = "300"
   statistic           = "Sum"
