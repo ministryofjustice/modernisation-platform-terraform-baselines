@@ -665,7 +665,7 @@ resource "aws_cloudwatch_metric_alarm" "transit-gateway-changes" {
 
 resource "aws_cloudwatch_log_metric_filter" "vpn-changes" {
   name           = "vpn-changes"
-  pattern        = "{((($.eventName = \"CreateVpnConnection\") || ($.eventName = \"DeleteVpnConnection\") || ($.eventName = \"ModifyVpnConnection\") || ($.eventName = \"CreateVpnConnectionRoute\") || ($.eventName = \"DeleteVpnConnectionRoute\") || ($.eventName = \"CreateVpnGateway\") || ($.eventName = \"DeleteVpnGateway\") || ($.eventName = \"AttachVpnGateway\") || ($.eventName = \"DetachVpnGateway\") || ($.eventName = \"CreateCustomerGateway\") || ($.eventName = \"DeleteCustomerGateway\")) && ${local.automation_role_filter}}"
+  pattern        = "{((($.eventName = \"CreateVpnConnection\") || ($.eventName = \"DeleteVpnConnection\") || ($.eventName = \"ModifyVpnConnection\") || ($.eventName = \"CreateVpnConnectionRoute\") || ($.eventName = \"DeleteVpnConnectionRoute\") || ($.eventName = \"CreateVpnGateway\") || ($.eventName = \"DeleteVpnGateway\") || ($.eventName = \"AttachVpnGateway\") || ($.eventName = \"DetachVpnGateway\") || ($.eventName = \"CreateCustomerGateway\") || ($.eventName = \"DeleteCustomerGateway\")) && ${local.automation_role_filter})}"
   log_group_name = var.cloudtrail_log_group_name
 
   metric_transformation {
