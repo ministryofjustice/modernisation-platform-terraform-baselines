@@ -191,7 +191,7 @@ resource "aws_cloudwatch_metric_alarm" "unauthorised-api-calls" {
 
   comparison_operator = "GreaterThanOrEqualToThreshold"
   evaluation_periods  = "1"
-  metric_name         = aws_cloudwatch_log_metric_filter.unauthorised-api-calls.id
+  metric_name         = var.unauthorised_api_calls_log_metric_filter_name
   namespace           = "LogMetrics"
   period              = "180"
   statistic           = "Sum"
@@ -221,7 +221,7 @@ resource "aws_cloudwatch_metric_alarm" "sign-in-without-mfa" {
 
   comparison_operator = "GreaterThanOrEqualToThreshold"
   evaluation_periods  = "1"
-  metric_name         = aws_cloudwatch_log_metric_filter.sign-in-without-mfa.id
+  metric_name         = var.sign_in_without_mfa_metric_filter_name
   namespace           = "LogMetrics"
   period              = "300"
   statistic           = "Sum"
@@ -252,7 +252,7 @@ resource "aws_cloudwatch_metric_alarm" "root-account-usage" {
 
   comparison_operator = "GreaterThanOrEqualToThreshold"
   evaluation_periods  = "1"
-  metric_name         = aws_cloudwatch_log_metric_filter.root-account-usage.id
+  metric_name         = var.root_account_usage_metric_filter_name
   namespace           = "LogMetrics"
   period              = "300"
   statistic           = "Sum"
@@ -377,7 +377,7 @@ resource "aws_cloudwatch_metric_alarm" "sign-in-failures" {
 
   comparison_operator = "GreaterThanOrEqualToThreshold"
   evaluation_periods  = "1"
-  metric_name         = aws_cloudwatch_log_metric_filter.sign-in-failures.id
+  metric_name         = var.sign_in_failures_metric_filter_name
   namespace           = "LogMetrics"
   period              = "60"
   statistic           = "Sum"
@@ -407,7 +407,7 @@ resource "aws_cloudwatch_metric_alarm" "cmk-removal" {
 
   comparison_operator = "GreaterThanOrEqualToThreshold"
   evaluation_periods  = "1"
-  metric_name         = aws_cloudwatch_log_metric_filter.cmk-removal.id
+  metric_name         = var.cmk_removal_metric_filter_name
   namespace           = "LogMetrics"
   period              = "300"
   statistic           = "Sum"
@@ -851,7 +851,7 @@ resource "aws_cloudwatch_metric_alarm" "admin_role_usage" {
 
   comparison_operator = "GreaterThanOrEqualToThreshold"
   evaluation_periods  = "1"
-  metric_name         = aws_cloudwatch_log_metric_filter.admin_role_usage.id
+  metric_name         = var.admin_role_usage_metric_filter_name
   namespace           = "LogMetrics"
   period              = "300"
   statistic           = "Sum"
