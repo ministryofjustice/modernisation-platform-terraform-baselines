@@ -883,7 +883,7 @@ resource "aws_cloudwatch_metric_alarm" "orgaccess_role_usage" {
 
   comparison_operator = "GreaterThanOrEqualToThreshold"
   evaluation_periods  = "1"
-  metric_name         = aws_cloudwatch_log_metric_filter.orgaccess_role_usage.id
+  metric_name         = var.orgaccess_role_usage_metric_filter_name
   namespace           = "LogMetrics"
   period              = "300"
   statistic           = "Sum"
