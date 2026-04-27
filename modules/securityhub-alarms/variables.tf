@@ -144,6 +144,16 @@ variable "network_gateway_changes_alarm_name" {
   type    = string
 }
 
+variable "transit_gateway_changes_metric_filter_name" {
+  default = "transit-gateway-changes"
+  type    = string
+}
+
+variable "transit_gateway_changes_alarm_name" {
+  default = "transit-gateway-changes"
+  type    = string
+}
+
 variable "route_table_changes_metric_filter_name" {
   default = "route-table-changes"
   type    = string
