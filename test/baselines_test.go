@@ -28,20 +28,20 @@ func TestTerraformBackup(t *testing.T) {
 	BackupSNSTopicName := fmt.Sprintf("backup_failure_topic-%s", uniqueId)
 	BackupLockSNSTopicName := fmt.Sprintf("backup_vault_lock_sns_topic_name-%s", uniqueId)
 	BackupKmsAliasName := fmt.Sprintf("alias/backup-alarms-key-multi-region-%s", uniqueId)
-	
+
 	terraformOptions := &terraform.Options{
-	    TerraformDir: terraformDir,
-	    Vars: map[string]interface{}{
-	        "aws_iam_role_backup_name":             BackupIamRoleName,
-	        "aws_backup_vault_name":                BackupVaultName,
-	        "production_backup_plan_name":          ProdBackupVaultName,
-	        "production_backup_selection_name":     ProdBackupSelectionName,
-	        "non_production_backup_plan_name":      NonProdBackupPlanName,
-	        "non_production_backup_selection_name": NonProdBackupSelectionName,
-	        "backup_aws_sns_topic_name":            BackupSNSTopicName,
-	        "backup_vault_lock_sns_topic_name":     BackupLockSNSTopicName,
-	        "aws_kms_alias_name":                   BackupKmsAliasName,
-	    },
+		TerraformDir: terraformDir,
+		Vars: map[string]interface{}{
+			"aws_iam_role_backup_name":             BackupIamRoleName,
+			"aws_backup_vault_name":                BackupVaultName,
+			"production_backup_plan_name":          ProdBackupVaultName,
+			"production_backup_selection_name":     ProdBackupSelectionName,
+			"non_production_backup_plan_name":      NonProdBackupPlanName,
+			"non_production_backup_selection_name": NonProdBackupSelectionName,
+			"backup_aws_sns_topic_name":            BackupSNSTopicName,
+			"backup_vault_lock_sns_topic_name":     BackupLockSNSTopicName,
+			"aws_kms_alias_name":                   BackupKmsAliasName,
+		},
 	}
 	// Clean up resources with "terraform destroy" at the end of the test
 	defer terraform.Destroy(t, terraformOptions)
@@ -190,6 +190,8 @@ func TestTerraformSecurityHubAlarms(t *testing.T) {
 	NaclChangesMetricFilterName := fmt.Sprintf("nacl-changes-%s", uniqueId)
 	NetworkGatewayChangesAlarmName := fmt.Sprintf("network-gateway-changes-%s", uniqueId)
 	NetworkGatewayChangesMetricFilterName := fmt.Sprintf("network-gateway-changes-%s", uniqueId)
+	TransitGatewayChangesAlarmName := fmt.Sprintf("transit-gateway-changes-%s", uniqueId)
+	TransitGatewayChangesMetricFilterName := fmt.Sprintf("transit-gateway-changes-%s", uniqueId)
 	RouteTableChangesAlarmName := fmt.Sprintf("route-table-changes-%s", uniqueId)
 	RouteTableChangesMetricFilterName := fmt.Sprintf("route-table-changes-%s", uniqueId)
 	VpcChangesAlarmName := fmt.Sprintf("vpc-changes-%s", uniqueId)
@@ -200,6 +202,9 @@ func TestTerraformSecurityHubAlarms(t *testing.T) {
 	PrivatelinkServiceActiveConnectionCountAllAlarmName := fmt.Sprintf("PrivateLink-Service-ActiveConnectionCount-AllServices-%s", uniqueId)
 	AdminRoleUsageAlarmName := fmt.Sprintf("admin-role-usage-%s", uniqueId)
 	AdminRoleUsageMetricFilterName := fmt.Sprintf("admin-role-usage-%s", uniqueId)
+	HighPriorityAlarmsTopicName := fmt.Sprintf("high-priority-alarms-topic-%s", uniqueId)
+	OrgaccessRoleUsageAlarmName := fmt.Sprintf("orgaccess-role-usage-%s", uniqueId)
+	OrgaccessRoleUsageMetricFilterName := fmt.Sprintf("orgaccess-role-usage-%s", uniqueId)
 
 	terraformOptions := &terraform.Options{
 		TerraformDir: terraformDir,
@@ -209,6 +214,7 @@ func TestTerraformSecurityHubAlarms(t *testing.T) {
 			"securityhub_alarms_kms_name":                                SecurityhubAlarmsKmsName,
 			"securityhub_alarms_multi_region_kms_name":                   SecurityhubAlarmsMultiRegionKmsName,
 			"securityhub_alarms_sns_topic_name":                          SecurityhubAlarmsSNSTopicName,
+			"high_priority_sns_topic_name":                               HighPriorityAlarmsTopicName,
 			"unauthorised_api_calls_log_metric_filter_name":              UnauthorisedApiCallsFilterName,
 			"unauthorised_api_calls_alarm_name":                          UnauthorisedApiCallsAlarmName,
 			"sign_in_without_mfa_alarm_name":                             SignInWithoutMfaAlarmName,
@@ -233,6 +239,8 @@ func TestTerraformSecurityHubAlarms(t *testing.T) {
 			"nacl_changes_metric_filter_name":                            NaclChangesMetricFilterName,
 			"network_gateway_changes_alarm_name":                         NetworkGatewayChangesAlarmName,
 			"network_gateway_changes_metric_filter_name":                 NetworkGatewayChangesMetricFilterName,
+			"transit_gateway_changes_alarm_name":                         TransitGatewayChangesAlarmName,
+			"transit_gateway_changes_metric_filter_name":                 TransitGatewayChangesMetricFilterName,
 			"route_table_changes_alarm_name":                             RouteTableChangesAlarmName,
 			"route_table_changes_metric_filter_name":                     RouteTableChangesMetricFilterName,
 			"vpc_changes_alarm_name":                                     VpcChangesAlarmName,
@@ -243,6 +251,8 @@ func TestTerraformSecurityHubAlarms(t *testing.T) {
 			"privatelink_service_active_connection_count_all_alarm_name": PrivatelinkServiceActiveConnectionCountAllAlarmName,
 			"admin_role_usage_alarm_name":                                AdminRoleUsageAlarmName,
 			"admin_role_usage_metric_filter_name":                        AdminRoleUsageMetricFilterName,
+			"orgaccess_role_usage_alarm_name":                            OrgaccessRoleUsageAlarmName,
+			"orgaccess_role_usage_metric_filter_name":                    OrgaccessRoleUsageMetricFilterName,
 		},
 	}
 	// Clean up resources with "terraform destroy" at the end of the test
@@ -258,6 +268,7 @@ func TestTerraformSecurityHubAlarms(t *testing.T) {
 
 	// Define Outputs
 	SnsTopicArn := terraform.Output(t, terraformOptions, "securityhub_alarms_sns_topic_arn")
+	HighPriorityAlarmsTopicArn := terraform.Output(t, terraformOptions, "high_priority_alarms_topic_arn")
 	SecurityhubAlarmsKmsKeyArn := terraform.Output(t, terraformOptions, "securityhub_alarms_kms_key_arn")
 	SecurityhubAlarmsKmsAliasArn := terraform.Output(t, terraformOptions, "securityhub_alarms_kms_alias_arn")
 	SecurityhubAlarmsMultiRegionKmsKeyArn := terraform.Output(t, terraformOptions, "securityhub_alarms_multi_region_kms_key_arn")
@@ -286,6 +297,8 @@ func TestTerraformSecurityHubAlarms(t *testing.T) {
 	NaclChangesAlarmArn := terraform.Output(t, terraformOptions, "nacl_changes_alarm_arn")
 	NetworkGatewayChangesMetricFilterIds := terraform.OutputMap(t, terraformOptions, "network_gateway_changes_metric_filter_ids")
 	NetworkGatewayChangesAlarmArn := terraform.Output(t, terraformOptions, "network_gateway_changes_alarm_arn")
+	TransitGatewayChangesMetricFilterIds := terraform.OutputMap(t, terraformOptions, "transit_gateway_changes_metric_filter_ids")
+	TransitGatewayChangesAlarmArn := terraform.Output(t, terraformOptions, "transit_gateway_changes_alarm_arn")
 	RouteTableChangesMetricFilterIds := terraform.OutputMap(t, terraformOptions, "route_table_changes_metric_filter_ids")
 	RouteTableChangesAlarmArn := terraform.Output(t, terraformOptions, "route_table_changes_alarm_arn")
 	VpcChangesMetricFilterIds := terraform.OutputMap(t, terraformOptions, "vpc_changes_metric_filter_ids")
@@ -296,9 +309,22 @@ func TestTerraformSecurityHubAlarms(t *testing.T) {
 	PrivatelinkServiceActiveConnectionCountAllAlarmArn := terraform.Output(t, terraformOptions, "privatelink_service_active_connection_count_alarm_arn")
 	AdminRoleUsageAlarmArn := terraform.Output(t, terraformOptions, "admin_role_usage_alarm_arn")
 	AdminRoleUsageMetricFilterId := terraform.Output(t, terraformOptions, "admin_role_usage_metric_filter_id")
+	SecurityhubEventsMetricFilterIds := terraform.OutputMap(t, terraformOptions, "securityhub_events_metric_filter_ids")
+	SecurityhubEventsAlarmArn := terraform.Output(t, terraformOptions, "securityhub_events_alarm_arn")
+	CriticalRoleTrustRelationshipChangesMetricFilterIds := terraform.OutputMap(t, terraformOptions, "critical_role_trust_relationship_changes_metric_filter_ids")
+	CriticalRoleTrustRelationshipChangesAlarmArn := terraform.Output(t, terraformOptions, "critical_role_trust_relationship_changes_alarm_arn")
+	AdminRoleUsageByMpTeamMetricFilterId := terraform.Output(t, terraformOptions, "admin_role_usage_by_mp_team_metric_filter_id")
+	AdminRoleUsageNonMpTeamAlarmArn := terraform.Output(t, terraformOptions, "admin_role_usage_non_mp_team_alarm_arn")
+	AdminRoleUsageOutsideOnCallHoursMetricFilterId := terraform.Output(t, terraformOptions, "admin_role_usage_outside_on_call_hours_metric_filter_id")
+	AdminRoleUsageOutsideOnCallHoursAlarmArn := terraform.Output(t, terraformOptions, "admin_role_usage_outside_on_call_hours_alarm_arn")
+	OrgaccessRoleUsageMetricFilterId := terraform.Output(t, terraformOptions, "orgaccess_role_usage_metric_filter_id")
+	OrgaccessRoleUsageAlarmArn := terraform.Output(t, terraformOptions, "orgaccess_role_usage_alarm_arn")
+	IamUserDeletionNotByAutomationMetricFilterId := terraform.Output(t, terraformOptions, "iam_user_deletion_not_by_automation_metric_filter_id")
+	IamUserDeletionByUntrustedRoleAlarmArn := terraform.Output(t, terraformOptions, "iam_user_deletion_by_untrusted_role_alarm_arn")
 
 	// Tests (comparing outputs to regex)
 	assert.Regexp(t, regexp.MustCompile(`^arn:aws:sns:eu-west-2:[0-9]{12}:securityhub-alarms-`+uniqueId), SnsTopicArn)
+	assert.Regexp(t, regexp.MustCompile(`^arn:aws:sns:eu-west-2:[0-9]{12}:high-priority-alarms-topic-`+uniqueId), HighPriorityAlarmsTopicArn)
 	assert.Regexp(t, regexp.MustCompile(`^arn:aws:kms:eu-west-2:[0-9]{12}:key/*`), SecurityhubAlarmsKmsKeyArn)
 	assert.Regexp(t, regexp.MustCompile(`^arn:aws:kms:eu-west-2:[0-9]{12}:alias/securityhub-alarms_key-`+uniqueId), SecurityhubAlarmsKmsAliasArn)
 	assert.Regexp(t, regexp.MustCompile(`^arn:aws:kms:eu-west-2:[0-9]{12}:key/mrk-*`), SecurityhubAlarmsMultiRegionKmsKeyArn)
@@ -355,6 +381,10 @@ func TestTerraformSecurityHubAlarms(t *testing.T) {
 	assert.Regexp(t, regexp.MustCompile(`^`+regexp.QuoteMeta(NetworkGatewayChangesMetricFilterName)+`-CreateInternetGateway$`), NetworkGatewayChangesMetricFilterIds["CreateInternetGateway"])
 	assert.Regexp(t, regexp.MustCompile(`^`+regexp.QuoteMeta(NetworkGatewayChangesMetricFilterName)+`-DeleteInternetGateway$`), NetworkGatewayChangesMetricFilterIds["DeleteInternetGateway"])
 	assert.Regexp(t, regexp.MustCompile(`^arn:aws:cloudwatch:eu-west-2:[0-9]{12}:alarm:`+NetworkGatewayChangesAlarmName), NetworkGatewayChangesAlarmArn)
+	assert.NotEmpty(t, TransitGatewayChangesMetricFilterIds)
+	assert.Contains(t, TransitGatewayChangesMetricFilterIds, "transit_gateway_changes")
+	assert.Equal(t, TransitGatewayChangesMetricFilterName, TransitGatewayChangesMetricFilterIds["transit_gateway_changes"])
+	assert.Regexp(t, regexp.MustCompile(`^arn:aws:cloudwatch:eu-west-2:[0-9]{12}:alarm:`+TransitGatewayChangesAlarmName), TransitGatewayChangesAlarmArn)
 	assert.NotEmpty(t, RouteTableChangesMetricFilterIds)
 	assert.Contains(t, RouteTableChangesMetricFilterIds, "CreateRoute")
 	assert.Contains(t, RouteTableChangesMetricFilterIds, "DeleteRoute")
@@ -373,6 +403,22 @@ func TestTerraformSecurityHubAlarms(t *testing.T) {
 	assert.Regexp(t, regexp.MustCompile(`^arn:aws:cloudwatch:eu-west-2:[0-9]{12}:alarm:`+PrivatelinkServiceActiveConnectionCountAllAlarmName), PrivatelinkServiceActiveConnectionCountAllAlarmArn)
 	assert.Regexp(t, regexp.MustCompile(AdminRoleUsageMetricFilterName), AdminRoleUsageMetricFilterId)
 	assert.Regexp(t, regexp.MustCompile(`^arn:aws:cloudwatch:eu-west-2:[0-9]{12}:alarm:`+AdminRoleUsageAlarmName), AdminRoleUsageAlarmArn)
+	assert.NotEmpty(t, SecurityhubEventsMetricFilterIds)
+	assert.Contains(t, SecurityhubEventsMetricFilterIds, "securityhub_events")
+	assert.Equal(t, "securityhub-events-alerting", SecurityhubEventsMetricFilterIds["securityhub_events"])
+	assert.Regexp(t, regexp.MustCompile(`^arn:aws:cloudwatch:eu-west-2:[0-9]{12}:alarm:securityhub-events-alerting$`), SecurityhubEventsAlarmArn)
+	assert.NotEmpty(t, CriticalRoleTrustRelationshipChangesMetricFilterIds)
+	assert.Contains(t, CriticalRoleTrustRelationshipChangesMetricFilterIds, "critical_role_trust_relationship_changes")
+	assert.Equal(t, "critical-role-trust-relationship-changes", CriticalRoleTrustRelationshipChangesMetricFilterIds["critical_role_trust_relationship_changes"])
+	assert.Regexp(t, regexp.MustCompile(`^arn:aws:cloudwatch:eu-west-2:[0-9]{12}:alarm:critical-role-trust-relationship-changes$`), CriticalRoleTrustRelationshipChangesAlarmArn)
+	assert.Regexp(t, regexp.MustCompile(`^`+regexp.QuoteMeta(AdminRoleUsageMetricFilterName)+`-mp-team-usage$`), AdminRoleUsageByMpTeamMetricFilterId)
+	assert.Regexp(t, regexp.MustCompile(`^arn:aws:cloudwatch:eu-west-2:[0-9]{12}:alarm:`+AdminRoleUsageAlarmName+`-non-mp-team$`), AdminRoleUsageNonMpTeamAlarmArn)
+	assert.Regexp(t, regexp.MustCompile(`^`+regexp.QuoteMeta(AdminRoleUsageMetricFilterName)+`-all-usage-outside-on-call-hours$`), AdminRoleUsageOutsideOnCallHoursMetricFilterId)
+	assert.Regexp(t, regexp.MustCompile(`^arn:aws:cloudwatch:eu-west-2:[0-9]{12}:alarm:`+AdminRoleUsageMetricFilterName+`-all-usage-outside-on-call-hours$`), AdminRoleUsageOutsideOnCallHoursAlarmArn)
+	assert.Regexp(t, regexp.MustCompile(OrgaccessRoleUsageMetricFilterName), OrgaccessRoleUsageMetricFilterId)
+	assert.Regexp(t, regexp.MustCompile(`^arn:aws:cloudwatch:eu-west-2:[0-9]{12}:alarm:`+OrgaccessRoleUsageAlarmName), OrgaccessRoleUsageAlarmArn)
+	assert.Equal(t, "iam-user-deletion-not-by-automation", IamUserDeletionNotByAutomationMetricFilterId)
+	assert.Regexp(t, regexp.MustCompile(`^arn:aws:cloudwatch:eu-west-2:[0-9]{12}:alarm:iam-user-deletion-by-untrusted-role$`), IamUserDeletionByUntrustedRoleAlarmArn)
 }
 
 func TestTerraformSecurityHub(t *testing.T) {

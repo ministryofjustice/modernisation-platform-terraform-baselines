@@ -3,6 +3,7 @@ module "securityhub-alarms-test" {
   securityhub_alarms_kms_name                                = var.securityhub_alarms_kms_name
   securityhub_alarms_multi_region_kms_name                   = var.securityhub_alarms_multi_region_kms_name
   securityhub_alarms_sns_topic_name                          = var.securityhub_alarms_sns_topic_name
+  high_priority_sns_topic_name                               = var.high_priority_sns_topic_name
   unauthorised_api_calls_alarm_name                          = var.unauthorised_api_calls_alarm_name
   unauthorised_api_calls_log_metric_filter_name              = var.unauthorised_api_calls_log_metric_filter_name
   sign_in_without_mfa_alarm_name                             = var.sign_in_without_mfa_alarm_name
@@ -27,6 +28,8 @@ module "securityhub-alarms-test" {
   nacl_changes_metric_filter_name                            = var.nacl_changes_metric_filter_name
   network_gateway_changes_alarm_name                         = var.network_gateway_changes_alarm_name
   network_gateway_changes_metric_filter_name                 = var.network_gateway_changes_metric_filter_name
+  transit_gateway_changes_alarm_name                         = var.transit_gateway_changes_alarm_name
+  transit_gateway_changes_metric_filter_name                 = var.transit_gateway_changes_metric_filter_name
   route_table_changes_alarm_name                             = var.route_table_changes_alarm_name
   route_table_changes_metric_filter_name                     = var.route_table_changes_metric_filter_name
   vpc_changes_alarm_name                                     = var.vpc_changes_alarm_name
@@ -37,6 +40,8 @@ module "securityhub-alarms-test" {
   privatelink_service_active_connection_count_all_alarm_name = var.privatelink_service_active_connection_count_all_alarm_name
   admin_role_usage_alarm_name                                = var.admin_role_usage_alarm_name
   admin_role_usage_metric_filter_name                        = var.admin_role_usage_metric_filter_name
+  orgaccess_role_usage_alarm_name                            = var.orgaccess_role_usage_alarm_name
+  orgaccess_role_usage_metric_filter_name                    = var.orgaccess_role_usage_metric_filter_name
   cloudtrail_log_group_name                                  = aws_cloudwatch_log_group.securityhub_alarms_test.name
 }
 

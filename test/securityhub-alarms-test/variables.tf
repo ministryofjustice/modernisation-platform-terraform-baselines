@@ -13,6 +13,11 @@ variable "securityhub_alarms_sns_topic_name" {
   type    = string
 }
 
+variable "high_priority_sns_topic_name" {
+  default = "high-priority-alarms-topic"
+  type    = string
+}
+
 variable "unauthorised_api_calls_log_metric_filter_name" {
   default = "unauthorised-api-calls"
   type    = string
@@ -133,6 +138,16 @@ variable "network_gateway_changes_alarm_name" {
   type    = string
 }
 
+variable "transit_gateway_changes_metric_filter_name" {
+  default = "transit-gateway-changes"
+  type    = string
+}
+
+variable "transit_gateway_changes_alarm_name" {
+  default = "transit-gateway-changes"
+  type    = string
+}
+
 variable "route_table_changes_metric_filter_name" {
   default = "route-table-changes"
   type    = string
@@ -180,6 +195,16 @@ variable "admin_role_usage_metric_filter_name" {
 
 variable "admin_role_usage_alarm_name" {
   default = "admin-role-usage"
+  type    = string
+}
+
+variable "orgaccess_role_usage_metric_filter_name" {
+  default = "orgaccess-role-usage"
+  type    = string
+}
+
+variable "orgaccess_role_usage_alarm_name" {
+  default = "orgaccess-role-usage"
   type    = string
 }
 
