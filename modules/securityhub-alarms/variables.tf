@@ -104,6 +104,56 @@ variable "s3_bucket_policy_changes_alarm_name" {
   type    = string
 }
 
+variable "disable_alarm_actions_events_metric_filter_name" {
+  default = "disable-alarm-actions-alerting"
+  type    = string
+}
+
+variable "disable_alarm_actions_events_metric_name" {
+  default = "disable-alarm-actions"
+  type    = string
+}
+
+variable "disable_alarm_actions_events_alarm_name" {
+  default = "disable-alarms-actions-events"
+  type    = string
+}
+
+variable "secrets_manager_events_core_accounts_mp_all_metric_filter_name" {
+  default = "secrets-manager-cloudtrail-events-mp-all"
+  type    = string
+}
+
+variable "secrets_manager_events_core_accounts_mp_team_metric_filter_name" {
+  default = "secrets-manager-cloudtrail-events-mp-team"
+  type    = string
+}
+
+variable "secrets_manager_core_account_events_not_by_mp_team_alarm_name" {
+  default = "secrets-manager-events-core-account-non-mp-team"
+  type    = string
+}
+
+variable "s3_object_deletions_excluding_tf_lock_files_metric_filter_name" {
+  default = "s3-object-deletions-excluding-tf-lock-files"
+  type    = string
+}
+
+variable "s3_object_deletions_excluding_tf_lock_files_alarm_name" {
+  default = "s3-object-deletions-excluding-tf-lock-files"
+  type    = string
+}
+
+variable "ec2_termination_in_core_shared_services_metric_filter_name" {
+  default = "ec2-termination-in-core-shared-services"
+  type    = string
+}
+
+variable "ec2_termination_in_core_shared_services_alarm_name" {
+  default = "ec2-termination-in-core-shared-services"
+  type    = string
+}
+
 variable "config_configuration_changes_metric_filter_name" {
   default = "config-configuration-changes"
   type    = string
@@ -141,6 +191,36 @@ variable "network_gateway_changes_metric_filter_name" {
 
 variable "network_gateway_changes_alarm_name" {
   default = "network-gateway-changes"
+  type    = string
+}
+
+variable "vpn_changes_metric_filter_name" {
+  default = "vpn-changes"
+  type    = string
+}
+
+variable "vpn_changes_alarm_name" {
+  default = "vpn-changes"
+  type    = string
+}
+
+variable "network_firewall_changes_metric_filter_name" {
+  default = "network-firewall-changes"
+  type    = string
+}
+
+variable "network_firewall_changes_alarm_name" {
+  default = "network-firewall-changes"
+  type    = string
+}
+
+variable "transit_gateway_changes_metric_filter_name" {
+  default = "transit-gateway-changes"
+  type    = string
+}
+
+variable "transit_gateway_changes_alarm_name" {
+  default = "transit-gateway-changes"
   type    = string
 }
 
@@ -209,6 +289,16 @@ variable "admin_role_usage_alarm_name" {
   type    = string
 }
 
+variable "critical_role_trust_relationship_changes_metric_filter_name" {
+  default = "critical-role-trust-relationship-changes"
+  type    = string
+}
+
+variable "critical_role_trust_relationship_changes_alarm_name" {
+  default = "critical-role-trust-relationship-changes"
+  type    = string
+}
+
 variable "orgaccess_role_usage_metric_filter_name" {
   default = "orgaccess-role-usage"
   type    = string
@@ -216,6 +306,61 @@ variable "orgaccess_role_usage_metric_filter_name" {
 
 variable "orgaccess_role_usage_alarm_name" {
   default = "orgaccess-role-usage"
+  type    = string
+}
+
+variable "iam_user_deletion_not_by_automation_metric_filter_name" {
+  default = "iam-user-deletion-not-by-automation"
+  type    = string
+}
+
+variable "iam_user_deletion_by_untrusted_role_alarm_name" {
+  default = "iam-user-deletion-by-untrusted-role"
+  type    = string
+}
+
+variable "superadmin_role_usage_metric_filter_name" {
+  default = "modernisation-platform-superadmin-role-usage"
+  type    = string
+}
+
+variable "superadmin_role_usage_alarm_name" {
+  default = "modernisation-platform-superadmin-role-usage"
+  type    = string
+}
+
+variable "superadmin_user_deletion_metric_filter_name" {
+  default = "modernisation-platform-superadmin-user-deletion"
+  type    = string
+}
+
+variable "superadmin_user_deletion_alarm_name" {
+  default = "modernisation-platform-superadmin-user-deletion"
+  type    = string
+}
+
+variable "superadmin_user_access_key_creation_metric_filter_name" {
+  default = "modernisation-platform-superadmin-user-access-key-creation"
+  type    = string
+}
+
+variable "superadmin_user_access_key_creation_alarm_name" {
+  default = "modernisation-platform-superadmin-user-access-key-creation"
+  type    = string
+}
+
+variable "securityhub_events_metric_filter_name" {
+  default = "securityhub-events-alerting"
+  type    = string
+}
+
+variable "securityhub_events_metric_name" {
+  default = "critical-events"
+  type    = string
+}
+
+variable "securityhub_events_alarm_name" {
+  default = "securityhub-events-alerting"
   type    = string
 }
 

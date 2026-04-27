@@ -13,6 +13,11 @@ variable "securityhub_alarms_sns_topic_name" {
   type    = string
 }
 
+variable "high_priority_sns_topic_name" {
+  default = "high-priority-alarms-topic"
+  type    = string
+}
+
 variable "unauthorised_api_calls_log_metric_filter_name" {
   default = "unauthorised-api-calls"
   type    = string
@@ -93,6 +98,21 @@ variable "s3_bucket_policy_changes_alarm_name" {
   type    = string
 }
 
+variable "disable_alarm_actions_events_metric_filter_name" {
+  default = "disable-alarm-actions-alerting"
+  type    = string
+}
+
+variable "disable_alarm_actions_events_metric_name" {
+  default = "disable-alarm-actions"
+  type    = string
+}
+
+variable "disable_alarm_actions_events_alarm_name" {
+  default = "disable-alarms-actions-events"
+  type    = string
+}
+
 variable "config_configuration_changes_metric_filter_name" {
   default = "config-configuration-changes"
   type    = string
@@ -130,6 +150,26 @@ variable "network_gateway_changes_metric_filter_name" {
 
 variable "network_gateway_changes_alarm_name" {
   default = "network-gateway-changes"
+  type    = string
+}
+
+variable "vpn_changes_metric_filter_name" {
+  default = "vpn-changes"
+  type    = string
+}
+
+variable "vpn_changes_alarm_name" {
+  default = "vpn-changes"
+  type    = string
+}
+
+variable "transit_gateway_changes_metric_filter_name" {
+  default = "transit-gateway-changes"
+  type    = string
+}
+
+variable "transit_gateway_changes_alarm_name" {
+  default = "transit-gateway-changes"
   type    = string
 }
 
@@ -180,6 +220,51 @@ variable "admin_role_usage_metric_filter_name" {
 
 variable "admin_role_usage_alarm_name" {
   default = "admin-role-usage"
+  type    = string
+}
+
+variable "critical_role_trust_relationship_changes_metric_filter_name" {
+  default = "critical-role-trust-relationship-changes"
+  type    = string
+}
+
+variable "critical_role_trust_relationship_changes_alarm_name" {
+  default = "critical-role-trust-relationship-changes"
+  type    = string
+}
+
+variable "orgaccess_role_usage_metric_filter_name" {
+  default = "orgaccess-role-usage"
+  type    = string
+}
+
+variable "orgaccess_role_usage_alarm_name" {
+  default = "orgaccess-role-usage"
+  type    = string
+}
+
+variable "iam_user_deletion_not_by_automation_metric_filter_name" {
+  default = "iam-user-deletion-not-by-automation"
+  type    = string
+}
+
+variable "iam_user_deletion_by_untrusted_role_alarm_name" {
+  default = "iam-user-deletion-by-untrusted-role"
+  type    = string
+}
+
+variable "securityhub_events_metric_filter_name" {
+  default = "securityhub-events-alerting"
+  type    = string
+}
+
+variable "securityhub_events_metric_name" {
+  default = "critical-events"
+  type    = string
+}
+
+variable "securityhub_events_alarm_name" {
+  default = "securityhub-events-alerting"
   type    = string
 }
 
