@@ -209,7 +209,7 @@ output "disable_alarm_actions_events_alarm_arn" {
 }
 
 output "admin_role_usage_alarm_arn" {
-  description = "The ARN of teh CloudWatch Alarm for admin role usage"
+  description = "The ARN of the CloudWatch Alarm for admin role usage"
   value       = module.securityhub-alarms-test.admin_role_usage_alarm_arn
 }
 
