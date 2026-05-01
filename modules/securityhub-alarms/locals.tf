@@ -132,7 +132,7 @@ locals {
       "(($.userIdentity.type != \"AssumedRole\") || (($.userIdentity.sessionContext.sessionIssuer.userName != \"ModernisationPlatformAccess\") && ($.userIdentity.sessionContext.sessionIssuer.userName != \"MemberInfrastructureAccess\")))"
     )
   )
-  
+
   iam_policy_change_event_names = [
     "DeleteGroupPolicy",
     "DeleteRolePolicy",

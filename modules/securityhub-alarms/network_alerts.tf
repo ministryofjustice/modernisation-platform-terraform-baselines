@@ -247,7 +247,7 @@ resource "aws_cloudwatch_metric_alarm" "privatelink_service_active_connection_co
   evaluation_periods  = 3
   threshold           = "1000" # Adjust this threshold as needed
   alarm_description   = "This alarm monitors the total number of active connections across all VPC Endpoint Services."
-  alarm_actions = local.low_priority_alarm_action
+  alarm_actions       = local.low_priority_alarm_action
 
   metric_query {
     id          = "e1"
@@ -265,7 +265,7 @@ resource "aws_cloudwatch_metric_alarm" "privatelink_service_active_connection_co
       stat        = "Average"
     }
   }
-  tags          = var.tags
+  tags = var.tags
 }
 
 # Alerts for all change events for transit-gateway resources outside of trusted automation
