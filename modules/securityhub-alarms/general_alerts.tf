@@ -186,7 +186,7 @@ resource "aws_cloudwatch_metric_alarm" "disable_alarm_actions_events" {
 
 # All events except by trusted automation roles
 resource "aws_cloudwatch_log_metric_filter" "secrets_manager_events_core_accounts_mp_all" {
-  count          = local.is_mp_workspace || local.account_name == "modernisation-platform" ? 1 : 0
+  count          = local.is_mp_workspace || local.is_mp_account ? 1 : 0
   name           = "secrets-manager-cloudtrail-events-mp-all"
   log_group_name = var.cloudtrail_log_group_name
 
@@ -201,7 +201,7 @@ resource "aws_cloudwatch_log_metric_filter" "secrets_manager_events_core_account
 
 # All non-automation events by MP Team members (which we will use to filter out from the alarm)
 resource "aws_cloudwatch_log_metric_filter" "secrets_manager_events_core_accounts_mp_team" {
-  count          = local.is_mp_workspace || local.account_name == "modernisation-platform" ? 1 : 0
+  count          = local.is_mp_workspace || local.is_mp_account ? 1 : 0
   name           = "secrets-manager-cloudtrail-events-mp-team"
   log_group_name = var.cloudtrail_log_group_name
 
@@ -263,7 +263,7 @@ resource "aws_cloudwatch_metric_alarm" "secrets_manager_core_account_events_not_
 
 # Alerts for S3 file deletion in the MP Core Accounts
 resource "aws_cloudwatch_log_metric_filter" "s3_object_deletions_excluding_tf_lock_files" {
-  count          = local.is_mp_workspace || local.account_name == "modernisation-platform" ? 1 : 0
+  count          = local.is_mp_workspace || local.is_mp_account ? 1 : 0
   name           = "s3-object-deletions-excluding-tf-lock-files"
   log_group_name = var.cloudtrail_log_group_name
 
@@ -277,7 +277,7 @@ resource "aws_cloudwatch_log_metric_filter" "s3_object_deletions_excluding_tf_lo
 }
 
 resource "aws_cloudwatch_metric_alarm" "s3_object_deletions_excluding_tf_lock_files" {
-  count             = local.is_mp_workspace || local.account_name == "modernisation-platform" ? 1 : 0
+  count             = local.is_mp_workspace || local.is_mp_account ? 1 : 0
   alarm_name        = "s3-object-deletions-excluding-tf-lock-files"
   alarm_description = "Monitors for S3 object deletions excluding Terraform state lock files in core accounts."
   alarm_actions     = local.low_priority_alarm_action
@@ -296,7 +296,7 @@ resource "aws_cloudwatch_metric_alarm" "s3_object_deletions_excluding_tf_lock_fi
 
 # Alert for termination of ec2s from core-shared-services-production not by automation
 resource "aws_cloudwatch_log_metric_filter" "ec2_termination_in_core_shared_services" {
-  count          = local.account_name == "core-shared-services-production" ? 1 : 0
+  count          = local.account_name == "core-shared-services" ? 1 : 0
   name           = "ec2-termination-in-core-shared-services"
   log_group_name = var.cloudtrail_log_group_name
 
@@ -310,7 +310,7 @@ resource "aws_cloudwatch_log_metric_filter" "ec2_termination_in_core_shared_serv
 }
 
 resource "aws_cloudwatch_metric_alarm" "ec2_termination_in_core_shared_services" {
-  count             = local.account_name == "core-shared-services-production" ? 1 : 0
+  count             = local.account_name == "core-shared-services" ? 1 : 0
   alarm_name        = "ec2-termination-in-core-shared-services"
   alarm_description = "Monitors for termination of ec2 instances in core-shared-services"
   alarm_actions     = local.low_priority_alarm_action

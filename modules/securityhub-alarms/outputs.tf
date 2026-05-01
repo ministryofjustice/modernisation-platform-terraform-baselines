@@ -296,7 +296,7 @@ output "admin_role_usage_outside_on_call_hours_metric_filter_id" {
 }
 
 output "admin_role_usage_outside_on_call_hours_alarm_arn" {
-  value       = aws_cloudwatch_metric_alarm.admin_role_usage_outside_on_call_outside_on_call_hours.arn
+  value       = aws_cloudwatch_metric_alarm.admin_role_usage_outside_on_call_hours.arn
   description = "The ARN of the CloudWatch alarm for admin role usage outside on-call hours"
 }
 

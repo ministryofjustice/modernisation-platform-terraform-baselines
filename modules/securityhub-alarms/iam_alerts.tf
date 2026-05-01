@@ -192,7 +192,7 @@ resource "aws_cloudwatch_log_metric_filter" "admin_role_usage_outside_on_call_ho
   }
 }
 
-resource "aws_cloudwatch_metric_alarm" "admin_role_usage_outside_on_call_outside_on_call_hours" {
+resource "aws_cloudwatch_metric_alarm" "admin_role_usage_outside_on_call_hours" {
   alarm_name        = "${var.admin_role_usage_metric_filter_name}-all-usage-outside-on-call-hours"
   alarm_description = "Monitors for use of the Administrator role outside of core business and on-call hours."
   alarm_actions     = local.low_priority_alarm_action
@@ -272,7 +272,7 @@ resource "aws_cloudwatch_metric_alarm" "iam_user_deletion_by_untrusted_role" {
 
 # Filter & Alarm for use of the SuperAdmin role in the modernisation-platform account only.
 resource "aws_cloudwatch_log_metric_filter" "superadmin_role_usage" {
-  count          = local.account_name == "modernisation-platform" ? 1 : 0
+  count          = local.is_mp_account ? 1 : 0
   name           = "modernisation-platform-superadmin-role-usage"
   pattern        = "{ $.eventName = \"AssumeRole\" && $.requestParameters.roleArn = \"*SuperAdmin*\" }"
   log_group_name = var.cloudtrail_log_group_name
@@ -285,7 +285,7 @@ resource "aws_cloudwatch_log_metric_filter" "superadmin_role_usage" {
 }
 
 resource "aws_cloudwatch_metric_alarm" "superadmin_role_usage" {
-  count             = local.account_name == "modernisation-platform" ? 1 : 0
+  count             = local.is_mp_account ? 1 : 0
   alarm_name        = "modernisation-platform-superadmin-role-usage"
   alarm_description = "Monitors for use of the SuperAdmin role."
   alarm_actions     = local.low_priority_alarm_action
@@ -304,7 +304,7 @@ resource "aws_cloudwatch_metric_alarm" "superadmin_role_usage" {
 
 # Deletion of SuperAdmin Users in the modernisation-platform account manually by unknown roles
 resource "aws_cloudwatch_log_metric_filter" "superadmin_user_deletion" {
-  count          = local.account_name == "modernisation-platform" ? 1 : 0
+  count          = local.is_mp_account ? 1 : 0
   name           = "modernisation-platform-superadmin-user-deletion"
   pattern        = "{($.eventName = \"DeleteUser\") && ($.requestParameters.userName = \"*-superadmin\") && ${local.automation_role_filter}}"
   log_group_name = var.cloudtrail_log_group_name
@@ -317,7 +317,7 @@ resource "aws_cloudwatch_log_metric_filter" "superadmin_user_deletion" {
 }
 
 resource "aws_cloudwatch_metric_alarm" "superadmin_user_deletion" {
-  count             = local.account_name == "modernisation-platform" ? 1 : 0
+  count             = local.is_mp_account ? 1 : 0
   alarm_name        = "modernisation-platform-superadmin-user-deletion"
   alarm_description = "Monitors for manual deletion of IAM users with the -superadmin suffix."
   alarm_actions     = local.low_priority_alarm_action
@@ -336,7 +336,7 @@ resource "aws_cloudwatch_metric_alarm" "superadmin_user_deletion" {
 
 # SuperAdmin IAM User - Access Key Creation not via automation
 resource "aws_cloudwatch_log_metric_filter" "superadmin_user_access_key_creation" {
-  count          = local.account_name == "modernisation-platform" ? 1 : 0
+  count          = local.is_mp_account ? 1 : 0
   name           = "modernisation-platform-superadmin-user-access-key-creation"
   pattern        = "{($.eventName = \"CreateAccessKey\") && ($.requestParameters.userName = \"*-superadmin\") && ${local.automation_role_filter}}"
   log_group_name = var.cloudtrail_log_group_name
@@ -349,7 +349,7 @@ resource "aws_cloudwatch_log_metric_filter" "superadmin_user_access_key_creation
 }
 
 resource "aws_cloudwatch_metric_alarm" "superadmin_user_access_key_creation" {
-  count             = local.account_name == "modernisation-platform" ? 1 : 0
+  count             = local.is_mp_account ? 1 : 0
   alarm_name        = "modernisation-platform-superadmin-user-access-key-creation"
   alarm_description = "Monitors for creation of access keys of IAM users with the -superadmin suffix."
   alarm_actions     = local.low_priority_alarm_action
