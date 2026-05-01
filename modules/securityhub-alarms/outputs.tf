@@ -215,16 +215,6 @@ output "admin_role_usage_alarm_arn" {
   value       = aws_cloudwatch_metric_alarm.admin_role_usage.arn
 }
 
-output "admin_role_usage_all_metric_filter_id" {
-  value       = aws_cloudwatch_log_metric_filter.admin_role_usage.id
-  description = "The ID of the CloudWatch metric filter for all AdministratorAccess role usage"
-}
-
-output "admin_role_usage_all_alarm_arn" {
-  value       = aws_cloudwatch_metric_alarm.admin_role_usage.arn
-  description = "The ARN of the CloudWatch alarm for all AdministratorAccess role usage"
-}
-
 output "high_priority_alarms_topic_arn" {
   value       = aws_sns_topic.high_priority_alarms_topic.arn
   description = "The ARN of the high-priority alarms SNS topic"
