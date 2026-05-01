@@ -351,13 +351,17 @@ output "superadmin_user_access_key_creation_alarm_arn" {
 }
 
 output "secrets_manager_events_core_accounts_mp_all_metric_filter_ids" {
-  description = "The IDs of the CloudWatch metric filters for non-automation Secrets Manager events in MP accounts, keyed by event name"
-  value       = { for k, v in aws_cloudwatch_log_metric_filter.secrets_manager_events_core_accounts_mp_all : k => v.id }
+  description = "The IDs of the CloudWatch metric filters for non-automation Secrets Manager events in MP accounts, keyed by a stable resource name"
+  value = try({
+    secrets_manager_events_core_accounts_mp_all = aws_cloudwatch_log_metric_filter.secrets_manager_events_core_accounts_mp_all[0].id
+  }, {})
 }
 
 output "secrets_manager_events_core_accounts_mp_team_metric_filter_ids" {
-  description = "The IDs of the CloudWatch metric filters for non-automation Secrets Manager events by MP team members, keyed by event name"
-  value       = { for k, v in aws_cloudwatch_log_metric_filter.secrets_manager_events_core_accounts_mp_team : k => v.id }
+  description = "The IDs of the CloudWatch metric filters for non-automation Secrets Manager events by MP team members, keyed by a stable resource name"
+  value = try({
+    secrets_manager_events_core_accounts_mp_team = aws_cloudwatch_log_metric_filter.secrets_manager_events_core_accounts_mp_team[0].id
+  }, {})
 }
 
 output "secrets_manager_core_account_events_not_by_mp_team_alarm_arn" {
