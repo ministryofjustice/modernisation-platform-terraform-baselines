@@ -2,6 +2,12 @@ output "securityhub_alarms_sns_topic_arn" {
   value       = module.securityhub-alarms-test.sns_topic_arn
   description = "The ARN of the SNS topic for SecurityHub alarms"
 }
+
+output "high_priority_alarms_topic_arn" {
+  value       = module.securityhub-alarms-test.high_priority_alarms_topic_arn
+  description = "The ARN of the SNS topic for high-priority alarms"
+}
+
 output "securityhub_alarms_kms_key_arn" {
   value       = module.securityhub-alarms-test.securityhub_alarms_kms_key_arn
   description = "The ARN of the KMS key for SecurityHub alarms"
@@ -142,6 +148,16 @@ output "network_gateway_changes_alarm_arn" {
   description = "The ARN of the CloudWatch alarm for network gateway changes"
 }
 
+output "transit_gateway_changes_metric_filter_ids" {
+  value       = module.securityhub-alarms-test.transit_gateway_changes_metric_filter_ids
+  description = "Map of transit gateway change CloudWatch log metric filter IDs keyed by event name"
+}
+
+output "transit_gateway_changes_alarm_arn" {
+  value       = module.securityhub-alarms-test.transit_gateway_changes_alarm_arn
+  description = "The ARN of the CloudWatch alarm for transit gateway changes"
+}
+
 output "route_table_changes_metric_filter_ids" {
   value       = module.securityhub-alarms-test.route_table_changes_metric_filter_ids
   description = "Map of route table change CloudWatch log metric filter IDs keyed by event name"
@@ -182,12 +198,92 @@ output "privatelink_service_active_connection_count_alarm_arn" {
   value       = module.securityhub-alarms-test.privatelink_service_active_connection_count_alarm_arn
 }
 
+output "disable_alarm_actions_events_metric_filter_id" {
+  value       = module.securityhub-alarms-test.disable_alarm_actions_events_metric_filter_id
+  description = "The ID of the CloudWatch metric filter for disabled alarm actions"
+}
+
+output "disable_alarm_actions_events_alarm_arn" {
+  value       = module.securityhub-alarms-test.disable_alarm_actions_events_alarm_arn
+  description = "The ARN of the CloudWatch alarm for disabled alarm actions"
+}
+
 output "admin_role_usage_alarm_arn" {
-  description = "The ARN of teh CloudWatch Alarm for admin role usage"
+  description = "The ARN of the CloudWatch Alarm for admin role usage"
   value       = module.securityhub-alarms-test.admin_role_usage_alarm_arn
 }
 
 output "admin_role_usage_metric_filter_id" {
   description = "The ID of the CloudWatch metric filter for admin role usage"
   value       = module.securityhub-alarms-test.admin_role_usage_metric_filter_id
+}
+
+output "securityhub_events_metric_filter_ids" {
+  description = "The IDs of the CloudWatch metric filters for Security Hub protection events"
+  value       = module.securityhub-alarms-test.securityhub_events_metric_filter_ids
+}
+
+output "securityhub_events_alarm_arn" {
+  description = "The ARN of the CloudWatch alarm for Security Hub protection events"
+  value       = module.securityhub-alarms-test.securityhub_events_alarm_arn
+}
+
+output "critical_role_trust_relationship_changes_metric_filter_ids" {
+  description = "The IDs of the CloudWatch metric filters for critical role trust relationship changes"
+  value       = module.securityhub-alarms-test.critical_role_trust_relationship_changes_metric_filter_ids
+}
+
+output "critical_role_trust_relationship_changes_alarm_arn" {
+  description = "The ARN of the CloudWatch alarm for critical role trust relationship changes"
+  value       = module.securityhub-alarms-test.critical_role_trust_relationship_changes_alarm_arn
+}
+
+output "admin_role_usage_by_mp_team_metric_filter_id" {
+  description = "The ID of the CloudWatch metric filter for admin role usage by the MP team"
+  value       = module.securityhub-alarms-test.admin_role_usage_by_mp_team_metric_filter_id
+}
+
+output "admin_role_usage_non_mp_team_alarm_arn" {
+  description = "The ARN of the CloudWatch alarm for admin role usage outside the MP team"
+  value       = module.securityhub-alarms-test.admin_role_usage_non_mp_team_alarm_arn
+}
+
+output "admin_role_usage_outside_on_call_hours_metric_filter_id" {
+  description = "The ID of the CloudWatch metric filter for admin role usage outside on-call hours"
+  value       = module.securityhub-alarms-test.admin_role_usage_outside_on_call_hours_metric_filter_id
+}
+
+output "admin_role_usage_outside_on_call_hours_alarm_arn" {
+  description = "The ARN of the CloudWatch alarm for admin role usage outside on-call hours"
+  value       = module.securityhub-alarms-test.admin_role_usage_outside_on_call_hours_alarm_arn
+}
+
+output "orgaccess_role_usage_metric_filter_id" {
+  description = "The ID of the CloudWatch metric filter for OrganizationAccountAccessRole usage"
+  value       = module.securityhub-alarms-test.orgaccess_role_usage_metric_filter_id
+}
+
+output "orgaccess_role_usage_alarm_arn" {
+  description = "The ARN of the CloudWatch alarm for OrganizationAccountAccessRole usage"
+  value       = module.securityhub-alarms-test.orgaccess_role_usage_alarm_arn
+}
+
+output "iam_user_deletion_not_by_automation_metric_filter_id" {
+  description = "The ID of the CloudWatch metric filter for IAM user deletion outside automation"
+  value       = module.securityhub-alarms-test.iam_user_deletion_not_by_automation_metric_filter_id
+}
+
+output "iam_user_deletion_by_untrusted_role_alarm_arn" {
+  description = "The ARN of the CloudWatch alarm for IAM user deletion by untrusted roles"
+  value       = module.securityhub-alarms-test.iam_user_deletion_by_untrusted_role_alarm_arn
+}
+
+output "vpn_changes_metric_filter_ids" {
+  description = "The IDs of the CloudWatch metric filters for VPN changes"
+  value       = module.securityhub-alarms-test.vpn_changes_metric_filter_ids
+}
+
+output "vpn_changes_alarm_arn" {
+  description = "The ARN of the CloudWatch alarm for VPN changes"
+  value       = module.securityhub-alarms-test.vpn_changes_alarm_arn
 }
