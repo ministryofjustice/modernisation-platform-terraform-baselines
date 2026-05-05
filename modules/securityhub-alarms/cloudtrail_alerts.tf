@@ -4,7 +4,7 @@ resource "aws_cloudwatch_log_metric_filter" "cloudtrail-configuration-changes" {
   name           = "${var.cloudtrail_configuration_changes_metric_filter_name}-${each.key}"
   log_group_name = var.cloudtrail_log_group_name
 
-  pattern = "{($.eventName = \"${each.value}\") && ${local.automation_role_filter}}"
+  pattern = "{($.eventName = \"${each.value}\") && ($.requestParameters.name = \"cloudtrail\") && ${local.automation_role_filter}}"
 
   metric_transformation {
     name      = var.cloudtrail_configuration_changes_metric_filter_name
