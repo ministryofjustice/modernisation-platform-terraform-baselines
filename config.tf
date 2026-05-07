@@ -10,6 +10,7 @@ module "config-bucket" {
     aws.bucket-replication = aws.replication-region
   }
   replication_enabled = false
+  force_destroy       = true
   bucket_policy       = [data.aws_iam_policy_document.config-s3-policy.json]
   bucket_prefix       = "config-"
 
