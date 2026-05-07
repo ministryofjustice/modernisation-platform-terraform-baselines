@@ -5,7 +5,6 @@ resource "aws_iam_service_linked_role" "config" {
 
 # Add Multi-Region KMS and Policy for use by SNS
 # KMS Key & Policy for the SNS Topic. This is required for the user of a service-linked role.
-
 resource "aws_kms_key" "config-sns-key" {
   bypass_policy_lockout_safety_check = false
   description                        = "KMS key for AWS Config SNS topic"
