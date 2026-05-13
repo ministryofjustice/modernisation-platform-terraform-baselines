@@ -1,4 +1,4 @@
-# Alerts for activities that disable or remove security hub alerts outside of automation
+# Monitors for SecurityHub being disabled and GuardDuty being disabled or materially changed outside of automation
 resource "aws_cloudwatch_log_metric_filter" "securityhub_events" {
   name           = var.securityhub_events_metric_filter_name
   log_group_name = var.cloudtrail_log_group_name
