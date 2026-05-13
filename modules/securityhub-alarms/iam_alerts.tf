@@ -78,7 +78,7 @@ resource "aws_cloudwatch_log_metric_filter" "critical_role_trust_relationship_ch
 resource "aws_cloudwatch_metric_alarm" "critical_role_trust_relationship_changes" {
   alarm_name        = var.critical_role_trust_relationship_changes_alarm_name
   alarm_description = "Monitors for trust relationship changes to MemberInfrastructureAccess or ModernisationPlatformAccess."
-  alarm_actions     = local.low_priority_alarm_action
+  alarm_actions     = [aws_sns_topic.high_priority_alarms_topic.arn]
 
   comparison_operator = "GreaterThanOrEqualToThreshold"
   evaluation_periods  = "1"
@@ -140,7 +140,7 @@ resource "aws_cloudwatch_log_metric_filter" "admin_role_usage_by_mp_team" {
 resource "aws_cloudwatch_metric_alarm" "admin_role_usage_non_mp_team" {
   alarm_name        = "${var.admin_role_usage_alarm_name}-non-mp-team"
   alarm_description = "Monitors for use of the AdministratorAccess role by principals outside the MP team."
-  alarm_actions     = local.low_priority_alarm_action
+  alarm_actions     = local.high_priority_excluding_suppressed_alarm_action
 
   comparison_operator = "GreaterThanOrEqualToThreshold"
   evaluation_periods  = "1"
@@ -195,7 +195,7 @@ resource "aws_cloudwatch_log_metric_filter" "admin_role_usage_outside_on_call_ho
 resource "aws_cloudwatch_metric_alarm" "admin_role_usage_outside_on_call_hours" {
   alarm_name        = "${var.admin_role_usage_metric_filter_name}-all-usage-outside-on-call-hours"
   alarm_description = "Monitors for use of the Administrator role outside of core business and on-call hours."
-  alarm_actions     = local.low_priority_alarm_action
+  alarm_actions     = local.high_priority_excluding_suppressed_alarm_action
 
   comparison_operator = "GreaterThanOrEqualToThreshold"
   evaluation_periods  = "1"
@@ -226,7 +226,7 @@ resource "aws_cloudwatch_log_metric_filter" "orgaccess_role_usage" {
 resource "aws_cloudwatch_metric_alarm" "orgaccess_role_usage" {
   alarm_name        = var.orgaccess_role_usage_alarm_name
   alarm_description = "Monitors for use of the OrganizationAccountAccessRole role."
-  alarm_actions     = local.low_priority_alarm_action
+  alarm_actions     = [aws_sns_topic.high_priority_alarms_topic.arn]
 
   comparison_operator = "GreaterThanOrEqualToThreshold"
   evaluation_periods  = "1"
@@ -243,7 +243,7 @@ resource "aws_cloudwatch_metric_alarm" "orgaccess_role_usage" {
 # Filter & Alarm for the deletion of IAM users outside of trusted automation roles
 resource "aws_cloudwatch_log_metric_filter" "iam_user_deletion_not_by_automation" {
   name           = var.iam_user_deletion_not_by_automation_metric_filter_name
-  pattern        = "{ $.eventName = \"DeleteUser\" && ${local.automation_role_filter} }"
+  pattern        = "{ $.eventSource = \"iam.amazonaws.com\" && $.eventName = \"DeleteUser\" && ${local.automation_role_filter} }"
   log_group_name = var.cloudtrail_log_group_name
 
   metric_transformation {
@@ -256,7 +256,7 @@ resource "aws_cloudwatch_log_metric_filter" "iam_user_deletion_not_by_automation
 resource "aws_cloudwatch_metric_alarm" "iam_user_deletion_by_untrusted_role" {
   alarm_name        = var.iam_user_deletion_by_untrusted_role_alarm_name
   alarm_description = "Monitors for the deletion of IAM users other than via automation"
-  alarm_actions     = local.low_priority_alarm_action
+  alarm_actions     = [aws_sns_topic.high_priority_alarms_topic.arn]
 
   comparison_operator = "GreaterThanOrEqualToThreshold"
   evaluation_periods  = "1"
@@ -288,7 +288,7 @@ resource "aws_cloudwatch_metric_alarm" "superadmin_role_usage" {
   count             = local.is_mp_account ? 1 : 0
   alarm_name        = var.superadmin_role_usage_alarm_name
   alarm_description = "Monitors for use of the SuperAdmin role."
-  alarm_actions     = local.low_priority_alarm_action
+  alarm_actions     = [aws_sns_topic.high_priority_alarms_topic.arn]
 
   comparison_operator = "GreaterThanOrEqualToThreshold"
   evaluation_periods  = "1"
@@ -320,7 +320,7 @@ resource "aws_cloudwatch_metric_alarm" "superadmin_user_deletion" {
   count             = local.is_mp_account ? 1 : 0
   alarm_name        = var.superadmin_user_deletion_alarm_name
   alarm_description = "Monitors for manual deletion of IAM users with the -superadmin suffix."
-  alarm_actions     = local.low_priority_alarm_action
+  alarm_actions     = [aws_sns_topic.high_priority_alarms_topic.arn]
 
   comparison_operator = "GreaterThanOrEqualToThreshold"
   evaluation_periods  = "1"
@@ -352,7 +352,7 @@ resource "aws_cloudwatch_metric_alarm" "superadmin_user_access_key_creation" {
   count             = local.is_mp_account ? 1 : 0
   alarm_name        = var.superadmin_user_access_key_creation_alarm_name
   alarm_description = "Monitors for creation of access keys of IAM users with the -superadmin suffix."
-  alarm_actions     = local.low_priority_alarm_action
+  alarm_actions     = [aws_sns_topic.high_priority_alarms_topic.arn]
 
   comparison_operator = "GreaterThanOrEqualToThreshold"
   evaluation_periods  = "1"

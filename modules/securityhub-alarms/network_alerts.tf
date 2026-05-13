@@ -284,7 +284,7 @@ resource "aws_cloudwatch_log_metric_filter" "transit-gateway-changes" {
 resource "aws_cloudwatch_metric_alarm" "transit-gateway-changes" {
   alarm_name        = var.transit_gateway_changes_alarm_name
   alarm_description = "Monitors for AWS EC2 transit gateway changes."
-  alarm_actions     = local.low_priority_alarm_action
+  alarm_actions     = local.high_priority_excluding_suppressed_alarm_action
 
   comparison_operator = "GreaterThanOrEqualToThreshold"
   evaluation_periods  = "1"
@@ -314,7 +314,7 @@ resource "aws_cloudwatch_log_metric_filter" "vpn-changes" {
 resource "aws_cloudwatch_metric_alarm" "vpn-changes" {
   alarm_name        = var.vpn_changes_alarm_name
   alarm_description = "Monitors for VPN changes."
-  alarm_actions     = local.low_priority_alarm_action
+  alarm_actions     = local.high_priority_excluding_suppressed_alarm_action
 
   comparison_operator = "GreaterThanOrEqualToThreshold"
   evaluation_periods  = "1"
@@ -346,7 +346,7 @@ resource "aws_cloudwatch_metric_alarm" "network_firewall_changes" {
   count             = local.account_name == "core-network-services" ? 1 : 0
   alarm_name        = var.network_firewall_changes_alarm_name
   alarm_description = "Monitors for changes to Network Firewalls in core-network-services outside of automation"
-  alarm_actions     = local.low_priority_alarm_action
+  alarm_actions     = local.high_priority_excluding_suppressed_alarm_action
 
   comparison_operator = "GreaterThanOrEqualToThreshold"
   evaluation_periods  = "1"
