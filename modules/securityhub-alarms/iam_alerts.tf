@@ -352,7 +352,7 @@ resource "aws_cloudwatch_metric_alarm" "superadmin_user_access_key_creation" {
   count             = local.is_mp_account ? 1 : 0
   alarm_name        = var.superadmin_user_access_key_creation_alarm_name
   alarm_description = "Monitors for creation of access keys of IAM users with the -superadmin suffix."
-  alarm_actions     = l[aws_sns_topic.high_priority_alarms_topic.arn]
+  alarm_actions     = [aws_sns_topic.high_priority_alarms_topic.arn]
 
   comparison_operator = "GreaterThanOrEqualToThreshold"
   evaluation_periods  = "1"
