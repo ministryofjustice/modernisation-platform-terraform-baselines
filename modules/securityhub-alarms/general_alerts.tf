@@ -168,7 +168,7 @@ resource "aws_cloudwatch_log_metric_filter" "disable_alarm_actions_events" {
 resource "aws_cloudwatch_metric_alarm" "disable_alarm_actions_events" {
   alarm_name        = var.disable_alarm_actions_events_alarm_name
   alarm_description = "Monitors for CloudWatch alarm actions being disabled outside of automation"
-  alarm_actions     = local.low_priority_alarm_action
+  alarm_actions     = local.high_priority_excluding_suppressed_alarm_action
 
   comparison_operator = "GreaterThanOrEqualToThreshold"
   evaluation_periods  = "1"
@@ -222,7 +222,7 @@ resource "aws_cloudwatch_metric_alarm" "secrets_manager_core_account_events_not_
   count             = local.is_mp_workspace || local.account_name == "modernisation-platform" ? 1 : 0
   alarm_name        = var.secrets_manager_core_account_events_not_by_mp_team_alarm_name
   alarm_description = "Monitors for the use of non-automation Secrets Manager events by principals outside the MP team."
-  alarm_actions     = local.low_priority_alarm_action
+  alarm_actions     = local.high_priority_excluding_suppressed_alarm_action
 
   comparison_operator = "GreaterThanOrEqualToThreshold"
   evaluation_periods  = "1"
@@ -280,7 +280,7 @@ resource "aws_cloudwatch_metric_alarm" "s3_object_deletions_excluding_tf_lock_fi
   count             = local.is_mp_workspace || local.is_mp_account ? 1 : 0
   alarm_name        = var.s3_object_deletions_excluding_tf_lock_files_alarm_name
   alarm_description = "Monitors for S3 object deletions excluding Terraform state lock files in core accounts."
-  alarm_actions     = local.low_priority_alarm_action
+  alarm_actions     = local.high_priority_excluding_suppressed_alarm_action
 
   comparison_operator = "GreaterThanOrEqualToThreshold"
   evaluation_periods  = "1"
@@ -313,7 +313,7 @@ resource "aws_cloudwatch_metric_alarm" "ec2_termination_in_core_shared_services"
   count             = local.account_name == "core-shared-services" ? 1 : 0
   alarm_name        = var.ec2_termination_in_core_shared_services_alarm_name
   alarm_description = "Monitors for termination of ec2 instances in core-shared-services"
-  alarm_actions     = local.low_priority_alarm_action
+  alarm_actions     = [aws_sns_topic.high_priority_alarms_topic.arn]
 
   comparison_operator = "GreaterThanOrEqualToThreshold"
   evaluation_periods  = "1"

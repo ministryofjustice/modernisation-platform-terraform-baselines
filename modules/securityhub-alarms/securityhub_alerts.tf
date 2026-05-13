@@ -1,4 +1,4 @@
-# Alerts for activities that disable alarm actions and other critical resources outside of automation
+# Alerts for activities that disable or remove security hub alerts outside of automation
 resource "aws_cloudwatch_log_metric_filter" "securityhub_events" {
   name           = var.securityhub_events_metric_filter_name
   log_group_name = var.cloudtrail_log_group_name
@@ -15,7 +15,7 @@ resource "aws_cloudwatch_log_metric_filter" "securityhub_events" {
 resource "aws_cloudwatch_metric_alarm" "securityhub_events" {
   alarm_name        = var.securityhub_events_alarm_name
   alarm_description = "Monitors for SecurityHub being disabled and GuardDuty being disabled or materially changed."
-  alarm_actions     = local.low_priority_alarm_action
+  alarm_actions     = [aws_sns_topic.high_priority_alarms_topic.arn]
 
   comparison_operator = "GreaterThanOrEqualToThreshold"
   evaluation_periods  = "1"
