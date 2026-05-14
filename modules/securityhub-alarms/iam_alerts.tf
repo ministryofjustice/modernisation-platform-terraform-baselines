@@ -256,7 +256,7 @@ resource "aws_cloudwatch_log_metric_filter" "iam_user_deletion_not_by_automation
 resource "aws_cloudwatch_metric_alarm" "iam_user_deletion_by_untrusted_role" {
   alarm_name        = var.iam_user_deletion_by_untrusted_role_alarm_name
   alarm_description = "Monitors for the deletion of IAM users other than via automation"
-  alarm_actions     = [aws_sns_topic.high_priority_alarms_topic.arn]
+  alarm_actions     = local.low_priority_excluding_suppressed_alarm_action
 
   comparison_operator = "GreaterThanOrEqualToThreshold"
   evaluation_periods  = "1"
