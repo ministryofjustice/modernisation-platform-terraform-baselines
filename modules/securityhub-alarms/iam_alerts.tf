@@ -140,7 +140,7 @@ resource "aws_cloudwatch_log_metric_filter" "admin_role_usage_by_mp_team" {
 resource "aws_cloudwatch_metric_alarm" "admin_role_usage_non_mp_team" {
   alarm_name        = "${var.admin_role_usage_alarm_name}-non-mp-team"
   alarm_description = "Monitors for use of the AdministratorAccess role by principals outside the MP team."
-  alarm_actions     = local.high_priority_excluding_suppressed_alarm_action
+  alarm_actions     = local.low_priority_excluding_suppressed_alarm_action
 
   comparison_operator = "GreaterThanOrEqualToThreshold"
   evaluation_periods  = "1"
