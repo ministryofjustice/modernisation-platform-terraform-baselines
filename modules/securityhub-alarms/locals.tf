@@ -93,7 +93,7 @@ locals {
   ]) > 0
 
   # Combined suppression flag
-  is_suppressed_account = local.is_member_unrestricted || local.is_sandbox_environment
+  is_suppressed_account = local.is_member_unrestricted || local.is_sandbox_environment || local.is_mp_sandbox
 
   # Alarm actions
 
