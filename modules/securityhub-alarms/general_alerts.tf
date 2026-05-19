@@ -168,7 +168,7 @@ resource "aws_cloudwatch_log_metric_filter" "disable_alarm_actions_events" {
 resource "aws_cloudwatch_metric_alarm" "disable_alarm_actions_events" {
   alarm_name        = var.disable_alarm_actions_events_alarm_name
   alarm_description = "Monitors for CloudWatch alarm actions being disabled outside of automation"
-  alarm_actions     = local.high_priority_excluding_suppressed_alarm_action
+  alarm_actions     = local.low_priority_excluding_suppressed_alarm_action
 
   comparison_operator = "GreaterThanOrEqualToThreshold"
   evaluation_periods  = "1"
