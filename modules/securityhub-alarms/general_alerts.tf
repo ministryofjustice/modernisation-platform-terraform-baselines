@@ -263,7 +263,7 @@ resource "aws_cloudwatch_metric_alarm" "secrets_manager_core_account_events_not_
 
 # Alerts for S3 file deletion in the MP Core Accounts
 resource "aws_cloudwatch_log_metric_filter" "s3_object_deletions_excluding_tf_lock_files" {
-  count          = local.is_mp_account || terraform.workspace == "testing-test" || (local.is_mp_workspace && !local.is_mp_sandbox) ? 1 : 0
+  count          = local.is_mp_account || local.is_mp_workspace  ? 1 : 0
   name           = var.s3_object_deletions_excluding_tf_lock_files_metric_filter_name
   log_group_name = var.cloudtrail_log_group_name
 
@@ -277,7 +277,7 @@ resource "aws_cloudwatch_log_metric_filter" "s3_object_deletions_excluding_tf_lo
 }
 
 resource "aws_cloudwatch_metric_alarm" "s3_object_deletions_excluding_tf_lock_files" {
-  count             = local.is_mp_account || terraform.workspace == "testing-test" || (local.is_mp_workspace && !local.is_mp_sandbox) ? 1 : 0
+  count          = local.is_mp_account || local.is_mp_workspace  ? 1 : 0
   alarm_name        = var.s3_object_deletions_excluding_tf_lock_files_alarm_name
   alarm_description = "Monitors for S3 object deletions excluding Terraform state lock files in core accounts."
   alarm_actions     = local.high_priority_excluding_suppressed_alarm_action
