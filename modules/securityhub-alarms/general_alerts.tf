@@ -267,7 +267,7 @@ resource "aws_cloudwatch_log_metric_filter" "s3_object_deletions_excluding_tf_lo
   name           = var.s3_object_deletions_excluding_tf_lock_files_metric_filter_name
   log_group_name = var.cloudtrail_log_group_name
 
-  pattern = "{($.eventSource = \"s3.amazonaws.com\") && (((($.eventName = \"DeleteObject\") && ($.requestParameters.key != \"*.tflock\"))) || ($.eventName = \"DeleteObjects\"))}"
+  pattern = "{($.eventSource = \"s3.amazonaws.com\") && (((($.eventName = \"DeleteObject\") && ($.requestParameters.key != \"*.tflock\"))) || ($.eventName = \"DeleteObjects\")) && ($.userIdentity.arn != \"*AWSS3BucketReplication-terraform-state/s3-replication*\")}"
 
   metric_transformation {
     name      = var.s3_object_deletions_excluding_tf_lock_files_metric_filter_name
