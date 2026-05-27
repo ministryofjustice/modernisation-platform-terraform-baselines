@@ -21,7 +21,7 @@ variable "aws_backup_vault_name" {
 }
 
 variable "production_backup_plan_name" {
-  default = "backup-daily-retain-30-days"
+  default = "backup-daily-production-retain-30-days"
   type    = string
 }
 
@@ -30,14 +30,44 @@ variable "production_backup_selection_name" {
   type    = string
 }
 
+variable "prod_backup_retention_days" {
+  default     = 30
+  description = "Production backup plan lifecycle delete_after (days)"
+  type        = number
+}
+
 variable "non_production_backup_plan_name" {
-  default = "backup-daily-cold-storage-monthly-retain-30-days"
+  default = "backup-daily-non-production-retain-30-days"
   type    = string
 }
 
 variable "non_production_backup_selection_name" {
   default = "non-production-backup"
   type    = string
+}
+
+variable "production_cold_storage_backup_plan_name" {
+  default     = "backup-daily-production-cold-storage-90-days"
+  description = "Additional production plan: cold storage lifecycle, 90-day retention"
+  type        = string
+}
+
+variable "production_cold_storage_backup_selection_name" {
+  default     = "is-production-true-cold-storage-90-days"
+  description = "Selection for production_cold_storage_backup_plan_name (requires tag backup-cold-storage=true)"
+  type        = string
+}
+
+variable "non_production_cold_storage_backup_plan_name" {
+  default     = "backup-daily-non-production-cold-storage-90-days"
+  description = "Additional non-production plan: cold storage lifecycle, 90-day retention"
+  type        = string
+}
+
+variable "non_production_cold_storage_backup_selection_name" {
+  default     = "non-production-backup-cold-storage-90-days"
+  description = "Selection for non_production_cold_storage_backup_plan_name (non-production + backup + backup-cold-storage=true)"
+  type        = string
 }
 
 variable "backup_aws_sns_topic_name" {
@@ -57,8 +87,8 @@ variable "backup_vault_lock_sns_topic_name" {
 }
 
 variable "max_vault_retention_days" {
-  default     = 30
-  description = "AWS Backup Vault config value for the max retention in days"
+  default     = 90
+  description = "AWS Backup Vault lock max retention in days (must be >= cold-storage plan delete_after)"
   type        = number
 }
 
