@@ -59,6 +59,12 @@ locals {
 
   is_mp_sandbox = length(regexall(join("|", local.mp_sandbox_workspaces), terraform.workspace)) > 0
 
+  member_suppressed_workspaces = [
+    "cloud-platform-development"
+  ]
+
+  is_member_suppressed = length(regexall(join("|", local.member_suppressed_workspaces), terraform.workspace)) > 0
+
   # Derive the application name by stripping the trailing -<environment> suffix.
   account_name = terraform.workspace == "default" ? "" : replace(terraform.workspace, regex("-[^-]*$", terraform.workspace), "")
 
@@ -93,7 +99,7 @@ locals {
   ]) > 0
 
   # Combined suppression flag
-  is_suppressed_account = local.is_member_unrestricted || local.is_sandbox_environment || local.is_mp_sandbox
+  is_suppressed_account = local.is_member_unrestricted || local.is_sandbox_environment || local.is_mp_sandbox || local.is_member_suppressed
 
   # Alarm actions
 
