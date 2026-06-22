@@ -1,18 +1,23 @@
 module "backup-test" {
-  source                               = "../../modules/backup"
-  iam_role_arn                         = aws_iam_role.backup.arn
-  aws_backup_vault_name                = var.aws_backup_vault_name
-  production_backup_plan_name          = var.production_backup_plan_name
-  production_backup_selection_name     = var.production_backup_selection_name
-  non_production_backup_plan_name      = var.non_production_backup_plan_name
-  non_production_backup_selection_name = var.non_production_backup_selection_name
-  backup_aws_sns_topic_name            = var.backup_aws_sns_topic_name
-  non_prod_backup_retention_days       = var.non_prod_backup_retention_days
-  max_vault_retention_days             = var.max_vault_retention_days
-  min_vault_retention_days             = var.min_vault_retention_days
-  backup_vault_lock_sns_topic_name     = var.backup_vault_lock_sns_topic_name
-  aws_kms_alias_name                   = var.aws_kms_alias_name
-  reduced_preprod_backup_retention     = var.reduced_preprod_backup_retention
+  source                                            = "../../modules/backup"
+  iam_role_arn                                      = aws_iam_role.backup.arn
+  aws_backup_vault_name                             = var.aws_backup_vault_name
+  production_backup_plan_name                       = var.production_backup_plan_name
+  production_backup_selection_name                  = var.production_backup_selection_name
+  prod_backup_retention_days                        = var.prod_backup_retention_days
+  non_production_backup_plan_name                   = var.non_production_backup_plan_name
+  non_production_backup_selection_name              = var.non_production_backup_selection_name
+  backup_aws_sns_topic_name                         = var.backup_aws_sns_topic_name
+  non_prod_backup_retention_days                    = var.non_prod_backup_retention_days
+  max_vault_retention_days                          = var.max_vault_retention_days
+  min_vault_retention_days                          = var.min_vault_retention_days
+  backup_vault_lock_sns_topic_name                  = var.backup_vault_lock_sns_topic_name
+  aws_kms_alias_name                                = var.aws_kms_alias_name
+  reduced_preprod_backup_retention                  = var.reduced_preprod_backup_retention
+  production_cold_storage_backup_plan_name          = var.production_cold_storage_backup_plan_name
+  production_cold_storage_backup_selection_name     = var.production_cold_storage_backup_selection_name
+  non_production_cold_storage_backup_plan_name      = var.non_production_cold_storage_backup_plan_name
+  non_production_cold_storage_backup_selection_name = var.non_production_cold_storage_backup_selection_name
 }
 
 /*
