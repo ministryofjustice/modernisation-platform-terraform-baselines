@@ -22,18 +22,6 @@ variable "session_manager_idle_timeout_minutes" {
   default     = 60
 }
 
-variable "create_session_manager_logging_iam_policy" {
-  description = "Create the IAM policy that allows EC2 instance roles to write Session Manager transcript logs to CloudWatch Logs. This should only be enabled once per account."
-  type        = bool
-  default     = false
-}
-
-variable "session_manager_logging_regions" {
-  description = "Regions where Session Manager transcript log groups are created. Used to scope the supporting IAM policy."
-  type        = set(string)
-  default     = ["eu-west-1", "eu-west-2"]
-}
-
 variable "tags" {
   description = "Tags to apply to resources that support tagging."
   type        = map(any)

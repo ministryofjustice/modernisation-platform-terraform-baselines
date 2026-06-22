@@ -54,37 +54,3 @@ resource "aws_ssm_document" "session_manager_run_shell" {
 
   tags = var.tags
 }
-
-data "aws_caller_identity" "current" {}
-
-data "aws_partition" "current" {}
-
-data "aws_iam_policy_document" "session_manager_cloudwatch_logs" {
-  count = var.create_session_manager_logging_iam_policy ? 1 : 0
-
-  statement {
-    sid = "AllowSessionManagerTranscriptLogging"
-
-    actions = [
-      "logs:CreateLogStream",
-      "logs:DescribeLogGroups",
-      "logs:DescribeLogStreams",
-      "logs:PutLogEvents",
-    ]
-
-    resources = flatten([
-      for region in var.session_manager_logging_regions : [
-        "arn:${data.aws_partition.current.partition}:logs:${region}:${data.aws_caller_identity.current.account_id}:log-group:session-manager-logs",
-        "arn:${data.aws_partition.current.partition}:logs:${region}:${data.aws_caller_identity.current.account_id}:log-group:session-manager-logs:log-stream:*",
-      ]
-    ])
-  }
-}
-
-resource "aws_iam_policy" "session_manager_cloudwatch_logs" {
-  count = var.create_session_manager_logging_iam_policy ? 1 : 0
-
-  name        = "session-manager-cloudwatch-logs"
-  description = "Allows EC2 instance roles to write Session Manager transcript logs to CloudWatch Logs."
-  policy      = data.aws_iam_policy_document.session_manager_cloudwatch_logs[0].json
-}
