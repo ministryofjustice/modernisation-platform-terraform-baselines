@@ -29,7 +29,7 @@ Terraform module for enabling and configuring the [MoJ Security Guidance](https:
 - [x] [SecurityHub alarms](modules/securityhub-alarms/README.md)
 - [x] [VPC logging for default VPCs](modules/vpc/README.md)
 - [x] [IMDSv2 by default](modules/imdsv2/README.md)
-- [x] [Systems Manager - block public sharing](modules/ssm/README.md)
+- [x] [Systems Manager baseline](modules/ssm/README.md)
 
 ## Usage
 
@@ -95,6 +95,11 @@ Set `enable_securityhub_event_forwarding = true`, `securityhub_central_event_bus
 |    enabled_guardduty_regions    |                      Regions to enable GuardDuty in                       |  list  |   []    | no       |
 |   enabled_securityhub_regions   |                     Regions to enable SecurityHub in                      |  list  |   []    | no       |
 |       enabled_vpc_regions       |     Regions to enable default VPC configuration and VPC Flow Logs in      |  list  |   []    | no       |
+|  enable_session_manager_logging |        Enable central Session Manager transcript logging baseline         |  bool  |  false  | no       |
+| session_manager_logging_regions | Regions where central Session Manager transcript logging is enabled | set(string) | [\"eu-west-1\", \"eu-west-2\"] | no |
+| session_manager_log_kms_key_id  | Optional KMS key ARN or ID used to encrypt central Session Manager logs   | string |  null   | no       |
+| session_manager_idle_timeout_minutes |       Idle timeout in minutes for central Session Manager shell sessions  | number |   60    | no       |
+| session_manager_logging_excluded_applications | Applications excluded because they already manage session logging through environments repo baseline preset | set(string) | see variables.tf | no |
 
 ## Outputs
 
