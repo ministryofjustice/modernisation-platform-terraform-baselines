@@ -90,6 +90,47 @@ variable "enabled_ssm_baseline_regions" {
   default     = ["eu-west-1", "eu-west-2", "eu-west-3", "eu-central-1", "us-east-1"]
 }
 
+variable "enable_session_manager_logging" {
+  description = "Enable central Session Manager transcript logging baseline."
+  type        = bool
+  default     = false
+}
+
+variable "session_manager_logging_regions" {
+  description = "Regions where central Session Manager transcript logging is enabled. The wider SSM baseline can still run in other regions."
+  type        = set(string)
+  default     = ["eu-west-1", "eu-west-2"]
+}
+
+variable "session_manager_log_kms_key_id" {
+  description = "Optional KMS key ARN or ID used to encrypt central Session Manager transcript log groups."
+  type        = string
+  default     = null
+}
+
+variable "session_manager_idle_timeout_minutes" {
+  description = "Idle timeout in minutes for central Session Manager shell sessions."
+  type        = number
+  default     = 60
+}
+
+variable "session_manager_logging_excluded_applications" {
+  description = "Applications excluded from central Session Manager transcript logging because they already manage it through the environments repo baseline preset."
+  type        = set(string)
+  default = [
+    "hmpps-oem",
+    "nomis-data-hub",
+    "corporate-staff-rostering",
+    "nomis",
+    "oasys-national-reporting",
+    "oasys",
+    "nomis-combined-reporting",
+    "hmpps-domain-services",
+    "planetfm",
+    "prison-retail",
+  ]
+}
+
 # The following deal with the provision of slack alerts for CRITICAL and other levels for the CORE accounts only.
 variable "securityhub_slack_alerts_pagerduty_integration_key" {
   default     = ""
