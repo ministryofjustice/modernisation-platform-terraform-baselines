@@ -98,7 +98,6 @@ Set `enable_securityhub_event_forwarding = true`, `securityhub_central_event_bus
 |  enable_session_manager_logging |        Enable central Session Manager transcript logging baseline         |  bool  |  false  | no       |
 | session_manager_logging_regions | Regions where central Session Manager transcript logging is enabled | set(string) | [\"eu-west-1\", \"eu-west-2\"] | no |
 | session_manager_log_kms_key_id  | Optional KMS key ARN or ID used to encrypt central Session Manager logs   | string |  null   | no       |
-| session_manager_idle_timeout_minutes |       Idle timeout in minutes for central Session Manager shell sessions  | number |   60    | no       |
 | session_manager_logging_excluded_applications | Applications excluded because they already manage session logging through environments repo baseline preset | set(string) | see variables.tf | no |
 
 ## Outputs

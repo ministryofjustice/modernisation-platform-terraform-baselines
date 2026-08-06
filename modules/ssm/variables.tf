@@ -19,7 +19,12 @@ variable "session_manager_log_kms_key_id" {
 variable "session_manager_idle_timeout_minutes" {
   description = "Idle timeout in minutes for Session Manager shell sessions."
   type        = number
-  default     = 60
+  default     = 20
+
+  validation {
+    condition     = var.session_manager_idle_timeout_minutes >= 1 && var.session_manager_idle_timeout_minutes <= 60
+    error_message = "session_manager_idle_timeout_minutes must be between 1 and 60."
+  }
 }
 
 variable "tags" {
