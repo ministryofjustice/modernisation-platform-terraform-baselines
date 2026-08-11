@@ -1,6 +1,8 @@
 locals {
-  cold_storage_after = 30
-  is_production      = can(regex("production|default", terraform.workspace))
+  is_production = can(regex("production|default", terraform.workspace))
+  # AWS Backup cold tier: DeleteAfterDays must be >= MoveToColdStorageAfterDays + 90.
+  cold_storage_move_after_days   = 0
+  cold_storage_delete_after_days = local.cold_storage_move_after_days + 90
 }
 
 data "aws_caller_identity" "current" {}
@@ -82,7 +84,7 @@ resource "aws_backup_vault_lock_configuration" "default" {
 
 
 # Production backups
-resource "aws_backup_plan" "default" {
+resource "aws_backup_plan" "production" {
   #checkov:skip=CKV_AWS_166: "Ensure Backup Vault is encrypted at rest using KMS CMK - Tricky to implement, hence using AWS managed KMS key"
 
   name = var.production_backup_plan_name
@@ -98,12 +100,9 @@ resource "aws_backup_plan" "default" {
     start_window = (1 * 60)
     ## Complete the backup within 6 hours of starting
     completion_window = (6 * 60)
-    # The lifecycle only supports EFS file system backups at present.
-    # There is a minimum amount of days a backup must be in cold storage (90 days)
-    # before being deleted.
-    # See: https://docs.aws.amazon.com/aws-backup/latest/devguide/API_Lifecycle.html
+    # Backups stay in standard (warm) storage until delete_after.
     lifecycle {
-      delete_after = local.cold_storage_after
+      delete_after = var.prod_backup_retention_days
     }
   }
 
@@ -120,7 +119,7 @@ resource "aws_backup_plan" "default" {
 resource "aws_backup_selection" "production" {
   name         = var.production_backup_selection_name
   iam_role_arn = var.iam_role_arn
-  plan_id      = aws_backup_plan.default.id
+  plan_id      = aws_backup_plan.production.id
   resources    = ["*"]
 
   condition {
@@ -131,6 +130,60 @@ resource "aws_backup_selection" "production" {
     string_not_equals {
       key   = "aws:ResourceTag/backup"
       value = "false"
+    }
+    string_not_equals {
+      key   = "aws:ResourceTag/backup-cold-storage"
+      value = "true"
+    }
+  }
+}
+
+resource "aws_backup_plan" "production_cold_storage" {
+  #checkov:skip=CKV_AWS_166: "Ensure Backup Vault is encrypted at rest using KMS CMK - Tricky to implement, hence using AWS managed KMS key"
+
+  name = var.production_cold_storage_backup_plan_name
+  rule {
+    rule_name         = "backup-daily-production-cold-storage-90-days"
+    target_vault_name = aws_backup_vault.default.name
+
+    schedule          = "cron(30 0 * * ? *)"
+    start_window      = (1 * 60)
+    completion_window = (6 * 60)
+
+    lifecycle {
+      cold_storage_after = local.cold_storage_move_after_days
+      delete_after       = local.cold_storage_delete_after_days
+    }
+  }
+
+  advanced_backup_setting {
+    backup_options = {
+      WindowsVSS = "enabled"
+    }
+    resource_type = "EC2"
+  }
+
+  tags = var.tags
+}
+
+resource "aws_backup_selection" "production_cold_storage" {
+  name         = var.production_cold_storage_backup_selection_name
+  iam_role_arn = var.iam_role_arn
+  plan_id      = aws_backup_plan.production_cold_storage.id
+  resources    = ["*"]
+
+  condition {
+    string_equals {
+      key   = "aws:ResourceTag/is-production"
+      value = "true"
+    }
+    string_not_equals {
+      key   = "aws:ResourceTag/backup"
+      value = "false"
+    }
+    string_equals {
+      key   = "aws:ResourceTag/backup-cold-storage"
+      value = "true"
     }
   }
 }
@@ -180,6 +233,61 @@ resource "aws_backup_selection" "non_production" {
     }
     string_equals {
       key   = "aws:ResourceTag/backup"
+      value = "true"
+    }
+    string_not_equals {
+      key   = "aws:ResourceTag/backup-cold-storage"
+      value = "true"
+    }
+  }
+}
+
+resource "aws_backup_plan" "non_production_cold_storage" {
+  #checkov:skip=CKV_AWS_166: "Ensure Backup Vault is encrypted at rest using KMS CMK - Tricky to implement, hence using AWS managed KMS key"
+
+  name = var.non_production_cold_storage_backup_plan_name
+
+  rule {
+    rule_name         = "backup-daily-non-production-cold-storage-90-days"
+    target_vault_name = aws_backup_vault.default.name
+
+    schedule          = "cron(30 0 * * ? *)"
+    start_window      = (1 * 60)
+    completion_window = (6 * 60)
+
+    lifecycle {
+      cold_storage_after = local.cold_storage_move_after_days
+      delete_after       = local.cold_storage_delete_after_days
+    }
+  }
+
+  advanced_backup_setting {
+    backup_options = {
+      WindowsVSS = "enabled"
+    }
+    resource_type = "EC2"
+  }
+
+  tags = var.tags
+}
+
+resource "aws_backup_selection" "non_production_cold_storage" {
+  name         = var.non_production_cold_storage_backup_selection_name
+  iam_role_arn = var.iam_role_arn
+  plan_id      = aws_backup_plan.non_production_cold_storage.id
+  resources    = ["*"]
+
+  condition {
+    string_not_equals {
+      key   = "aws:ResourceTag/is-production"
+      value = "true"
+    }
+    string_equals {
+      key   = "aws:ResourceTag/backup"
+      value = "true"
+    }
+    string_equals {
+      key   = "aws:ResourceTag/backup-cold-storage"
       value = "true"
     }
   }

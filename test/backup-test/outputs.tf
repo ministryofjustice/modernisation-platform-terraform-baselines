@@ -10,12 +10,28 @@ output "aws_backup_plan_non_production" {
   value = module.backup-test.aws_backup_plan_non_production
 }
 
+output "aws_backup_plan_production_cold_storage" {
+  value = module.backup-test.aws_backup_plan_production_cold_storage
+}
+
+output "aws_backup_plan_non_production_cold_storage" {
+  value = module.backup-test.aws_backup_plan_non_production_cold_storage
+}
+
 output "aws_backup_selection_production" {
   value = module.backup-test.aws_backup_selection_production
 }
 
 output "aws_backup_selection_non_production" {
   value = module.backup-test.aws_backup_selection_non_production
+}
+
+output "aws_backup_selection_production_cold_storage" {
+  value = module.backup-test.aws_backup_selection_production_cold_storage
+}
+
+output "aws_backup_selection_non_production_cold_storage" {
+  value = module.backup-test.aws_backup_selection_non_production_cold_storage
 }
 
 output "backup_aws_sns_topic_arn" {
