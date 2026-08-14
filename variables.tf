@@ -108,12 +108,6 @@ variable "session_manager_log_kms_key_id" {
   default     = null
 }
 
-variable "session_manager_idle_timeout_minutes" {
-  description = "Idle timeout in minutes for central Session Manager shell sessions."
-  type        = number
-  default     = 60
-}
-
 variable "session_manager_logging_excluded_applications" {
   description = "Applications excluded from central Session Manager transcript logging because they already manage it through the environments repo baseline preset."
   type        = set(string)
