@@ -122,7 +122,6 @@ variable "session_manager_logging_excluded_applications" {
     "hmpps-domain-services",
     "planetfm",
     "prison-retail",
-    "moj-network-operations-centre",
   ]
 }
 
