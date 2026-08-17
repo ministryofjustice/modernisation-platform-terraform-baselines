@@ -15,8 +15,13 @@ module "ssm-baseline-eu-west-2" {
   source    = "./modules/ssm"
   providers = { aws = aws.eu-west-2 }
 
-  enable_session_manager_logging        = local.enable_session_manager_logging && contains(var.session_manager_logging_regions, "eu-west-2")
-  session_manager_idle_timeout_minutes  = local.session_manager_idle_timeout_minutes
+  enable_session_manager_logging       = local.enable_session_manager_logging && contains(var.session_manager_logging_regions, "eu-west-2")
+  session_manager_idle_timeout_minutes = local.session_manager_idle_timeout_minutes
+  session_manager_log_forwarding_destination_arn = lookup(
+    var.session_manager_log_forwarding_destination_arns,
+    "eu-west-2",
+    null
+  )
   session_manager_log_kms_key_id        = var.session_manager_log_kms_key_id
   session_manager_log_retention_in_days = local.session_manager_log_retention_in_days
   tags                                  = var.tags

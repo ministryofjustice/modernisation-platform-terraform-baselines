@@ -27,6 +27,12 @@ variable "session_manager_idle_timeout_minutes" {
   }
 }
 
+variable "session_manager_log_forwarding_destination_arn" {
+  description = "Optional CloudWatch Logs destination ARN used to forward Session Manager transcript logs to core logging."
+  type        = string
+  default     = null
+}
+
 variable "tags" {
   description = "Tags to apply to resources that support tagging."
   type        = map(any)
