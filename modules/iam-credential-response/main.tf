@@ -101,6 +101,12 @@ resource "aws_iam_role_policy" "credential_responder" {
 }
 
 resource "aws_lambda_function" "credential_responder" {
+  #checkov:skip=CKV_AWS_173: "Environment variable contains an SNS topic ARN only, no sensitive value"
+  #checkov:skip=CKV_AWS_116: "EventBridge retries failed invocations and failures are visible through Lambda metrics/logs"
+  #checkov:skip=CKV_AWS_272: "Code signing is not currently implemented for this internal packaged Lambda"
+  #checkov:skip=CKV_AWS_115: "Reserved concurrency is not required for this low-volume EventBridge-triggered responder"
+  #checkov:skip=CKV_AWS_117: "Lambda responds to AWS Health/EventBridge events and does not require VPC access"
+  #checkov:skip=CKV_AWS_50: "X-Ray tracing is not required for this low-volume operational responder"
   function_name    = var.credential_responder_lambda_name
   description      = "Disables exposed IAM keys, quarantines users, and raises alerts via SNS"
   role             = aws_iam_role.credential_responder.arn
