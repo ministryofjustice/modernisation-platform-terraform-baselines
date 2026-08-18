@@ -108,6 +108,12 @@ variable "session_manager_log_kms_key_id" {
   default     = null
 }
 
+variable "session_manager_log_forwarding_destination_arns" {
+  description = "Map of region to CloudWatch Logs destination ARN used to forward Session Manager transcript logs to core logging."
+  type        = map(string)
+  default     = {}
+}
+
 variable "session_manager_logging_excluded_applications" {
   description = "Applications excluded from central Session Manager transcript logging because they already manage it through the environments repo baseline preset."
   type        = set(string)
@@ -157,5 +163,6 @@ variable "securityhub_central_event_bus_arn" {
 
 variable "securityhub_forwarding_scope" {
   description = "List of Security Hub severity labels that should be forwarded to the central EventBridge bus."
+  type        = list(string)
   default     = ["CRITICAL", "HIGH"]
 }
