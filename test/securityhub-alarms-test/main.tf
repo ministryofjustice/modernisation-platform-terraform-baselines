@@ -58,6 +58,8 @@ module "securityhub-alarms-test" {
 }
 
 resource "aws_cloudwatch_log_group" "securityhub_alarms_test" {
+  #checkov:skip=CKV_AWS_158: "Test fixture log group only"
+  #checkov:skip=CKV_AWS_338: "Test fixture uses short retention to minimise test resource lifetime"
   name              = var.cloudtrail_log_group_name
   retention_in_days = 1
 }
