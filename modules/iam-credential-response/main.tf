@@ -1,6 +1,9 @@
 data "aws_caller_identity" "current" {}
 
 data "aws_iam_policy_document" "iam_credential_response_kms" {
+  #checkov:skip=CKV_AWS_356: "KMS key policy root delegation; resource must be '*' as the policy is attached to the key itself"
+  #checkov:skip=CKV_AWS_109: "Root delegation is the AWS-recommended pattern for KMS key policies so access can be granted via IAM"
+  #checkov:skip=CKV_AWS_111: "Root delegation is the AWS-recommended pattern for KMS key policies so access can be granted via IAM"
   statement {
     effect    = "Allow"
     actions   = ["kms:*"]
@@ -14,6 +17,9 @@ data "aws_iam_policy_document" "iam_credential_response_kms" {
 }
 
 data "aws_iam_policy_document" "iam_credential_response_multi_region_kms" {
+  #checkov:skip=CKV_AWS_356: "KMS key policy root delegation; resource must be '*' as the policy is attached to the key itself"
+  #checkov:skip=CKV_AWS_109: "Root delegation is the AWS-recommended pattern for KMS key policies so access can be granted via IAM"
+  #checkov:skip=CKV_AWS_111: "Root delegation is the AWS-recommended pattern for KMS key policies so access can be granted via IAM"
   statement {
     effect    = "Allow"
     actions   = ["kms:*"]
