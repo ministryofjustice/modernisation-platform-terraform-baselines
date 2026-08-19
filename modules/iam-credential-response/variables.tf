@@ -20,3 +20,15 @@ variable "credential_responder_lambda_name" {
   description = "Name for the credential responder Lambda function. Override in tests to avoid naming collisions."
   type        = string
 }
+
+variable "iam_credential_response_kms_name" {
+  default     = "alias/iam-credential-response"
+  description = "Alias name for the IAM credential response KMS key. Must be prefixed with 'alias/'."
+  type        = string
+}
+
+variable "iam_credential_response_multi_region_kms_name" {
+  default     = "alias/iam-credential-response-multi-region"
+  description = "Alias name for the IAM credential response multi-region KMS key. Must be prefixed with 'alias/'."
+  type        = string
+}
