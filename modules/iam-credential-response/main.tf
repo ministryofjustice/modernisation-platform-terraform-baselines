@@ -1,8 +1,68 @@
-# tfsec:ignore:aws-sns-enable-topic-encryption
+data "aws_caller_identity" "current" {}
+
+data "aws_iam_policy_document" "iam_credential_response_kms" {
+  #checkov:skip=CKV_AWS_356: "KMS key policy root delegation; resource must be '*' as the policy is attached to the key itself"
+  #checkov:skip=CKV_AWS_109: "Root delegation is the AWS-recommended pattern for KMS key policies so access can be granted via IAM"
+  #checkov:skip=CKV_AWS_111: "Root delegation is the AWS-recommended pattern for KMS key policies so access can be granted via IAM"
+  statement {
+    effect    = "Allow"
+    actions   = ["kms:*"]
+    resources = ["*"]
+
+    principals {
+      type        = "AWS"
+      identifiers = ["arn:aws:iam::${data.aws_caller_identity.current.account_id}:root"]
+    }
+  }
+}
+
+data "aws_iam_policy_document" "iam_credential_response_multi_region_kms" {
+  #checkov:skip=CKV_AWS_356: "KMS key policy root delegation; resource must be '*' as the policy is attached to the key itself"
+  #checkov:skip=CKV_AWS_109: "Root delegation is the AWS-recommended pattern for KMS key policies so access can be granted via IAM"
+  #checkov:skip=CKV_AWS_111: "Root delegation is the AWS-recommended pattern for KMS key policies so access can be granted via IAM"
+  statement {
+    effect    = "Allow"
+    actions   = ["kms:*"]
+    resources = ["*"]
+
+    principals {
+      type        = "AWS"
+      identifiers = ["arn:aws:iam::${data.aws_caller_identity.current.account_id}:root"]
+    }
+  }
+}
+
+resource "aws_kms_key" "iam_credential_response" {
+  deletion_window_in_days = 7
+  description             = "IAM credential response SNS topic encryption key"
+  enable_key_rotation     = true
+  policy                  = data.aws_iam_policy_document.iam_credential_response_kms.json
+  tags                    = var.tags
+}
+
+resource "aws_kms_alias" "iam_credential_response" {
+  name          = var.iam_credential_response_kms_name
+  target_key_id = aws_kms_key.iam_credential_response.id
+}
+
+resource "aws_kms_key" "iam_credential_response_multi_region" {
+  deletion_window_in_days = 7
+  description             = "IAM credential response multi-region encryption key"
+  enable_key_rotation     = true
+  policy                  = data.aws_iam_policy_document.iam_credential_response_multi_region_kms.json
+  multi_region            = true
+  tags                    = var.tags
+}
+
+resource "aws_kms_alias" "iam_credential_response_multi_region" {
+  name          = var.iam_credential_response_multi_region_kms_name
+  target_key_id = aws_kms_key.iam_credential_response_multi_region.id
+}
+
 resource "aws_sns_topic" "iam_credential_alert" {
-  #checkov:skip=CKV_AWS_26:"encrypted topics do not work with pagerduty subscription"
-  name = "iam-credential-exposed-alert"
-  tags = var.tags
+  name              = "iam-credential-exposed-alert"
+  kms_master_key_id = aws_kms_key.iam_credential_response.arn
+  tags              = var.tags
 }
 
 module "pagerduty_iam_credential_alert" {
@@ -85,6 +145,15 @@ resource "aws_iam_role_policy" "credential_responder" {
         Effect   = "Allow"
         Action   = "sns:Publish"
         Resource = aws_sns_topic.iam_credential_alert.arn
+      },
+      {
+        Sid    = "UseSNSKMSKey"
+        Effect = "Allow"
+        Action = [
+          "kms:GenerateDataKey",
+          "kms:Decrypt"
+        ]
+        Resource = aws_kms_key.iam_credential_response.arn
       },
       {
         Sid    = "BasicLambdaLogs"

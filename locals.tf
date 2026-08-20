@@ -16,7 +16,7 @@ locals {
 
   enable_session_manager_logging = var.enable_session_manager_logging && !local.session_manager_logging_excluded_by_env_repo_opt_in
 
-  session_manager_log_retention_in_days = endswith(local.workspace_name, "-production") ? 400 : 30
+  session_manager_log_retention_in_days = endswith(local.workspace_name, "-production") ? 90 : 30
 
   session_manager_idle_timeout_exceptions = {
     ccms-ebs-development     = 60
