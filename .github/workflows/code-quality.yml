@@ -1,6 +1,8 @@
 name: Code Quality
 
 on:
+  push:
+    branches: [main]
   pull_request:
     branches: [main]
     types: [opened, edited, reopened, synchronize]
@@ -18,7 +20,7 @@ jobs:
       issues: write
       pull-requests: write
       security-events: write
-    uses: ministryofjustice/modernisation-platform-github-actions/.github/workflows/reusable-code-quality.yml@f8ab8e9ee8784b90840cd07d21936bfa8a4484be # v6.2.1
+    uses: ministryofjustice/modernisation-platform-github-actions/.github/workflows/reusable-code-quality.yml@c200bef33d9b15fcbece9da5c2ccbd74c3062dc8 # v6.2.4
     with:
       validate_all_codebase: ${{ github.event_name != 'pull_request' && 'true' || 'false' }}
       checkov_arguments: >-
