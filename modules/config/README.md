@@ -11,8 +11,9 @@ module "config" {
 ```
 
 ## Inputs
+
 | Name | Description | Type | Default | Required |
-|------|-------------|------|---------|----------|
+| ------ | ------------- | ------ | --------- | ---------- |
 | cloudtrail | CloudTrail variables for: SNS topic, AWS S3 bucket, and CloudWatch Log Group to configure the Config rule to check it's configured correctly | map | | yes |
 | root_account_id | The AWS Organisations root account ID that this account should be part of | string | | yes |
 | iam_role_arn | IAM role ARN for the AWS Config service role | string | | yes |
@@ -23,6 +24,7 @@ module "config" {
 | tags | Tags to apply to resources | map | {} | no |
 
 ## Outputs
+
 | Name | Description | Sensitive |
 |------|-------------|-----------|
 | sns_topic_arn | SNS topic ARN that AWS Config publishes to | no |

@@ -11,6 +11,7 @@ module "access-analyzer" {
 ```
 
 ## Inputs
+
 | Name | Description                | Type | Default | Required |
 |------|----------------------------|------|---------|----------|
 | tags | Tags to apply to resources | map  | {}      | no       |
