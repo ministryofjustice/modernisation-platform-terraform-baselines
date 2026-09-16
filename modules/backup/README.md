@@ -29,6 +29,7 @@ module "backup" {
 ```
 
 ## Inputs
+
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|----------|
 | iam_role_arn | IAM role ARN for the AWS Backup service role | string | | yes |
