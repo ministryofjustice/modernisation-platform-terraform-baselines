@@ -1,3 +1,4 @@
+---
 vulnerabilities:
   - id: GHSA-m425-mq94-257g
   - id: CVE-2017-20146
