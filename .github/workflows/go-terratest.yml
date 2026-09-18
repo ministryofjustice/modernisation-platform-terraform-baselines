@@ -1,4 +1,6 @@
-on:
+---
+name: Unit-Tests
+"on":
   pull_request:
     types: [opened, edited, reopened, synchronize]
 
@@ -30,6 +32,8 @@ jobs:
     needs: fetch-secrets
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
 
       - name: Decrypt Secrets
         uses: ministryofjustice/modernisation-platform-github-actions/decrypt-secrets@2cc1ba90676147f4ebf93b67a56463473af39f1e # v6.2.3
@@ -41,7 +45,7 @@ jobs:
         run: |
           ACCOUNT_NUMBER=$(jq -r -e '.account_ids["testing-test"]' <<< "$ENVIRONMENT_MANAGEMENT")
           echo "::add-mask::$ACCOUNT_NUMBER"
-          echo ACCOUNT_NUMBER=$ACCOUNT_NUMBER >> $GITHUB_ENV
+          echo "ACCOUNT_NUMBER=$ACCOUNT_NUMBER" >> "$GITHUB_ENV"
 
       - name: Configure AWS credentials (OIDC)
         uses: aws-actions/configure-aws-credentials@cbe3b392738ccf3f987d68400dafcf4b0624a56c # v6.2.4
@@ -66,4 +70,4 @@ jobs:
         run: |
           chmod 700 ../scripts/redact-output.sh
           go test -v | ../scripts/redact-output.sh
-          exit ${PIPESTATUS[0]}
+          exit "${PIPESTATUS[0]}"
