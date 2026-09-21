@@ -12,17 +12,20 @@ Terraform module for creating an IAM Password Policy that complies with the CIS 
 
 ## Usage
 
-```
+```terraform
 module "iam" {
   source = "github.com/ministryofjustice/modernisation-platform-terraform-baselines//modules/iam"
 }
 ```
 
 ## Inputs
+
 None.
 
 ## Outputs
+
 None.
 
 ## Looking for issues?
+
 If you're looking to raise an issue with this module, please create a new issue in the [Modernisation Platform repository](https://github.com/ministryofjustice/modernisation-platform/issues).
