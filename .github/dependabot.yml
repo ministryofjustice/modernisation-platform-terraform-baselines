@@ -1,37 +1,83 @@
 ---
 # This file is auto-generated, do not manually amend.
-# https://github.com/ministryofjustice/modernisation-platform-terraform-baselines/blob/main/scripts/generate-dependabot-file.sh
+# scripts/generate-dependabot-file.sh
 
 version: 2
 
 updates:
+  # Dependency management strategy:
+  # ministryofjustice/modernisation-platform#8211
+  #
+  # Major and minor/patch version updates are grouped separately, with both
+  # checked monthly to reduce routine Dependabot PR noise.
+  #
+  # Monthly is a compromise, not the ticket's proposed fortnightly major
+  # and six-monthly minor/patch cadence.
+  #
+  # Dependabot alerts and security updates must be enabled separately in
+  # repository/org settings; security updates do not wait for this schedule.
+
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
-      interval: "daily"
+      interval: "monthly"
     cooldown:
       default-days: 7
     groups:
-      action-dependencies:
-        patterns:
-          - "*"
+      action-major:
+        update-types:
+          - "major"
+      action-minor-patch:
+        update-types:
+          - "minor"
+          - "patch"
+
   - package-ecosystem: "terraform"
     directories:
-      - "./**/*"
-      - "modules/**/*"
-      - "test/**/*"
+      - "/"
+      - "/modules/access-analyzer"
+      - "/modules/backup"
+      - "/modules/cloudtrail"
+      - "/modules/config"
+      - "/modules/ebs"
+      - "/modules/guardduty"
+      - "/modules/iam"
+      - "/modules/iam-credential-response"
+      - "/modules/imdsv2"
+      - "/modules/securityhub"
+      - "/modules/securityhub-alarms"
+      - "/modules/ssm"
+      - "/modules/support"
+      - "/test/backup-test"
+      - "/test/cloudtrail-test"
+      - "/test/iam-credential-response-test"
+      - "/test/securityhub-alarms-test"
+      - "/test/securityhub-test"
+      - "/test/support-test"
     schedule:
-      interval: "daily"
-    cooldown:
-      default-days: 7
-  - package-ecosystem: "gomod"
-    directories:
-      - "test/**/*"
-    schedule:
-      interval: "daily"
+      interval: "monthly"
     cooldown:
       default-days: 7
     groups:
-      gomod-dependencies:
-        patterns:
-          - "*"
+      terraform-major:
+        update-types:
+          - "major"
+      terraform-minor-patch:
+        update-types:
+          - "minor"
+          - "patch"
+  - package-ecosystem: "gomod"
+    directories:
+      - "/test"
+    schedule:
+      interval: "monthly"
+    cooldown:
+      default-days: 7
+    groups:
+      gomod-major:
+        update-types:
+          - "major"
+      gomod-minor-patch:
+        update-types:
+          - "minor"
+          - "patch"
