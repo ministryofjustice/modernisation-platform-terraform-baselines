@@ -378,3 +378,13 @@ output "ec2_termination_in_core_shared_services_alarm_arn" {
   value       = try(aws_cloudwatch_metric_alarm.ec2_termination_in_core_shared_services[0].arn, null)
   description = "The ARN of the CloudWatch alarm for EC2 termination in core-shared-services"
 }
+
+output "iam_user_creation_metric_filter_id" {
+  value       = try(aws_cloudwatch_log_metric_filter.iam_user_creation[0].id, null)
+  description = "The ID of the CloudWatch metric filter for IAM user creation"
+}
+
+output "iam_user_creation_alarm_arn" {
+  value       = try(aws_cloudwatch_metric_alarm.iam_user_creation[0].arn, null)
+  description = "The ARN of the CloudWatch alarm for IAM user creation"
+}

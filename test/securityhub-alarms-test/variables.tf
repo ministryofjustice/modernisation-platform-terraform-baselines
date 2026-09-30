@@ -272,3 +272,21 @@ variable "cloudtrail_log_group_name" {
   description = "CloudWatch Logs log group name used by CloudTrail metric filters"
   type        = string
 }
+
+variable "enable_iam_user_creation_alarm" {
+  description = "Enable CloudWatch alarm for IAM user creation events"
+  type        = bool
+  default     = false
+}
+
+variable "iam_user_creation_metric_filter_name" {
+  description = "Name of the CloudWatch log metric filter for IAM user creation"
+  type        = string
+  default     = "iam-user-creation"
+}
+
+variable "iam_user_creation_alarm_name" {
+  description = "Name of the CloudWatch alarm for IAM user creation"
+  type        = string
+  default     = "iam-user-creation"
+}

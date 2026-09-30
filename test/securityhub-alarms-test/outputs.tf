@@ -287,3 +287,13 @@ output "vpn_changes_alarm_arn" {
   description = "The ARN of the CloudWatch alarm for VPN changes"
   value       = module.securityhub-alarms-test.vpn_changes_alarm_arn
 }
+
+output "iam_user_creation_metric_filter_id" {
+  description = "The ID of the CloudWatch metric filter for IAM user creation"
+  value       = module.securityhub-alarms-test.iam_user_creation_metric_filter_id
+}
+
+output "iam_user_creation_alarm_arn" {
+  description = "The ARN of the CloudWatch alarm for IAM user creation"
+  value       = module.securityhub-alarms-test.iam_user_creation_alarm_arn
+}
