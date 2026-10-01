@@ -8,8 +8,55 @@ import (
 
 	"github.com/gruntwork-io/terratest/modules/random"
 	"github.com/gruntwork-io/terratest/modules/terraform"
+	"github.com/hashicorp/hcl/v2"
+	"github.com/hashicorp/hcl/v2/hclparse"
+	"github.com/hashicorp/hcl/v2/hclsyntax"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
+	"github.com/zclconf/go-cty/cty"
 )
+
+func terraformBlock(t *testing.T, path string, blockType string, labels ...string) *hclsyntax.Block {
+	t.Helper()
+
+	parsed, diagnostics := hclparse.NewParser().ParseHCLFile(path)
+	require.False(t, diagnostics.HasErrors(), diagnostics.Error())
+	body, ok := parsed.Body.(*hclsyntax.Body)
+	require.True(t, ok)
+
+	for _, block := range body.Blocks {
+		if block.Type == blockType && strings.Join(block.Labels, "\x00") == strings.Join(labels, "\x00") {
+			return block
+		}
+	}
+
+	require.FailNow(t, "Terraform block not found", "%s %v in %s", blockType, labels, path)
+	return nil
+}
+
+func TestIamUserCreationAlarmConfiguration(t *testing.T) {
+	t.Parallel()
+
+	variable := terraformBlock(t, "../modules/securityhub-alarms/variables.tf", "variable", "enable_iam_user_creation_alarm")
+	defaultValue, diagnostics := variable.Body.Attributes["default"].Expr.Value(nil)
+	require.False(t, diagnostics.HasErrors(), diagnostics.Error())
+	assert.Equal(t, cty.False, defaultValue)
+
+	filter := terraformBlock(t, "../modules/securityhub-alarms/iam_alerts.tf", "resource", "aws_cloudwatch_log_metric_filter", "iam_user_creation")
+	countVariables := filter.Body.Attributes["count"].Expr.Variables()
+	require.Len(t, countVariables, 1)
+	countTraversal := countVariables[0]
+	require.Len(t, countTraversal, 2)
+	assert.Equal(t, "var", countTraversal.RootName())
+	countAttribute, ok := countTraversal[1].(hcl.TraverseAttr)
+	require.True(t, ok)
+	assert.Equal(t, "enable_iam_user_creation_alarm", countAttribute.Name)
+
+	patternValue, diagnostics := filter.Body.Attributes["pattern"].Expr.Value(nil)
+	require.False(t, diagnostics.HasErrors(), diagnostics.Error())
+	assert.Equal(t, `{ $.eventSource = "iam.amazonaws.com" && $.eventName = "CreateUser" }`, patternValue.AsString())
+	assert.NotContains(t, patternValue.AsString(), "userIdentity")
+}
 
 // Backup Module Unit Testing
 func TestTerraformBackup(t *testing.T) {
@@ -349,6 +396,8 @@ func TestTerraformSecurityHubAlarms(t *testing.T) {
 	OrgaccessRoleUsageAlarmArn := terraform.Output(t, terraformOptions, "orgaccess_role_usage_alarm_arn")
 	IamUserDeletionNotByAutomationMetricFilterId := terraform.Output(t, terraformOptions, "iam_user_deletion_not_by_automation_metric_filter_id")
 	IamUserDeletionByUntrustedRoleAlarmArn := terraform.Output(t, terraformOptions, "iam_user_deletion_by_untrusted_role_alarm_arn")
+	IamUserCreationMetricFilterId := terraform.Output(t, terraformOptions, "iam_user_creation_metric_filter_id")
+	IamUserCreationAlarmArn := terraform.Output(t, terraformOptions, "iam_user_creation_alarm_arn")
 
 	// Tests (comparing outputs to regex)
 	assert.Regexp(t, regexp.MustCompile(`^arn:aws:sns:eu-west-2:[0-9]{12}:securityhub-alarms-`+uniqueId), SnsTopicArn)
@@ -453,6 +502,8 @@ func TestTerraformSecurityHubAlarms(t *testing.T) {
 	assert.Regexp(t, regexp.MustCompile(`^arn:aws:cloudwatch:eu-west-2:[0-9]{12}:alarm:`+OrgaccessRoleUsageAlarmName), OrgaccessRoleUsageAlarmArn)
 	assert.Equal(t, IamUserDeletionNotByAutomationMetricFilterName, IamUserDeletionNotByAutomationMetricFilterId)
 	assert.Regexp(t, regexp.MustCompile(`^arn:aws:cloudwatch:eu-west-2:[0-9]{12}:alarm:`+IamUserDeletionByUntrustedRoleAlarmName), IamUserDeletionByUntrustedRoleAlarmArn)
+	assert.Empty(t, IamUserCreationMetricFilterId)
+	assert.Empty(t, IamUserCreationAlarmArn)
 }
 
 func TestTerraformSecurityHub(t *testing.T) {
