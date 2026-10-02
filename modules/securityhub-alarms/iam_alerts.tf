@@ -365,3 +365,35 @@ resource "aws_cloudwatch_metric_alarm" "superadmin_user_access_key_creation" {
 
   tags = var.tags
 }
+
+# IAM User Creation Alert - disabled by default
+resource "aws_cloudwatch_log_metric_filter" "iam_user_creation_not_by_automation" {
+  count          = var.enable_iam_user_creation_alarm ? 1 : 0
+  name           = var.iam_user_creation_not_by_automation_metric_filter_name
+  pattern        = "{($.eventName = \"CreateUser\") && ${local.automation_role_filter}}"
+  log_group_name = var.cloudtrail_log_group_name
+
+  metric_transformation {
+    name      = var.iam_user_creation_not_by_automation_metric_filter_name
+    namespace = "LogMetrics"
+    value     = 1
+  }
+}
+
+resource "aws_cloudwatch_metric_alarm" "iam_user_creation_by_untrusted_role" {
+  count             = var.enable_iam_user_creation_alarm ? 1 : 0
+  alarm_name        = var.iam_user_creation_by_untrusted_role_alarm_name
+  alarm_description = "Monitors for the creation of IAM users other than via automation"
+  alarm_actions     = [aws_sns_topic.securityhub-alarms.arn]
+
+  comparison_operator = "GreaterThanOrEqualToThreshold"
+  evaluation_periods  = "1"
+  metric_name         = var.iam_user_creation_not_by_automation_metric_filter_name
+  namespace           = "LogMetrics"
+  period              = "300"
+  statistic           = "Sum"
+  threshold           = "1"
+  treat_missing_data  = "notBreaching"
+
+  tags = var.tags
+}
