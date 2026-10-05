@@ -374,3 +374,19 @@ variable "cloudtrail_log_group_name" {
   type        = string
   default     = "cloudtrail"
 }
+
+variable "enable_iam_user_creation_alarm" {
+  description = "Enable CloudWatch alarm for IAM user creation outside automation. Defaults to false."
+  type        = bool
+  default     = false
+}
+
+variable "iam_user_creation_not_by_automation_metric_filter_name" {
+  default = "iam-user-creation-not-by-automation"
+  type    = string
+}
+
+variable "iam_user_creation_by_untrusted_role_alarm_name" {
+  default = "iam-user-creation-by-untrusted-role"
+  type    = string
+}
