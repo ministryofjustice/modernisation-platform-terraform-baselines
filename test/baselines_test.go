@@ -217,6 +217,8 @@ func TestTerraformSecurityHubAlarms(t *testing.T) {
 	SecurityhubEventsMetricFilterName := fmt.Sprintf("securityhub-events-alerting-%s", uniqueId)
 	SecurityhubEventsMetricName := fmt.Sprintf("critical-events-%s", uniqueId)
 	SecurityhubEventsAlarmName := fmt.Sprintf("securityhub-events-alerting-%s", uniqueId)
+	IamUserCreationNotByAutomationMetricFilterName := fmt.Sprintf("iam-user-creation-not-by-automation-%s", uniqueId)
+	IamUserCreationByUntrustedRoleAlarmName := fmt.Sprintf("iam-user-creation-by-untrusted-role-%s", uniqueId)
 
 	terraformOptions := &terraform.Options{
 		TerraformDir: terraformDir,
@@ -277,6 +279,9 @@ func TestTerraformSecurityHubAlarms(t *testing.T) {
 			"securityhub_events_alarm_name":                               SecurityhubEventsAlarmName,
 			"securityhub_events_metric_filter_name":                       SecurityhubEventsMetricFilterName,
 			"securityhub_events_metric_name":                              SecurityhubEventsMetricName,
+			"enable_iam_user_creation_alarm":                              true,
+			"iam_user_creation_not_by_automation_metric_filter_name":      IamUserCreationNotByAutomationMetricFilterName,
+			"iam_user_creation_by_untrusted_role_alarm_name":              IamUserCreationByUntrustedRoleAlarmName,
 		},
 	}
 	// Clean up resources with "terraform destroy" at the end of the test
@@ -349,6 +354,8 @@ func TestTerraformSecurityHubAlarms(t *testing.T) {
 	OrgaccessRoleUsageAlarmArn := terraform.Output(t, terraformOptions, "orgaccess_role_usage_alarm_arn")
 	IamUserDeletionNotByAutomationMetricFilterId := terraform.Output(t, terraformOptions, "iam_user_deletion_not_by_automation_metric_filter_id")
 	IamUserDeletionByUntrustedRoleAlarmArn := terraform.Output(t, terraformOptions, "iam_user_deletion_by_untrusted_role_alarm_arn")
+	IamUserCreationNotByAutomationMetricFilterId := terraform.Output(t, terraformOptions, "iam_user_creation_not_by_automation_metric_filter_id")
+	IamUserCreationByUntrustedRoleAlarmArn := terraform.Output(t, terraformOptions, "iam_user_creation_by_untrusted_role_alarm_arn")
 
 	// Tests (comparing outputs to regex)
 	assert.Regexp(t, regexp.MustCompile(`^arn:aws:sns:eu-west-2:[0-9]{12}:securityhub-alarms-`+uniqueId), SnsTopicArn)
@@ -453,6 +460,8 @@ func TestTerraformSecurityHubAlarms(t *testing.T) {
 	assert.Regexp(t, regexp.MustCompile(`^arn:aws:cloudwatch:eu-west-2:[0-9]{12}:alarm:`+OrgaccessRoleUsageAlarmName), OrgaccessRoleUsageAlarmArn)
 	assert.Equal(t, IamUserDeletionNotByAutomationMetricFilterName, IamUserDeletionNotByAutomationMetricFilterId)
 	assert.Regexp(t, regexp.MustCompile(`^arn:aws:cloudwatch:eu-west-2:[0-9]{12}:alarm:`+IamUserDeletionByUntrustedRoleAlarmName), IamUserDeletionByUntrustedRoleAlarmArn)
+	assert.Equal(t, IamUserCreationNotByAutomationMetricFilterName, IamUserCreationNotByAutomationMetricFilterId)
+	assert.Regexp(t, regexp.MustCompile(`^arn:aws:cloudwatch:eu-west-2:[0-9]{12}:alarm:`+IamUserCreationByUntrustedRoleAlarmName), IamUserCreationByUntrustedRoleAlarmArn)
 }
 
 func TestTerraformSecurityHub(t *testing.T) {
