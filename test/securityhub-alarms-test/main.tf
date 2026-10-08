@@ -54,6 +54,9 @@ module "securityhub-alarms-test" {
   securityhub_events_alarm_name                               = var.securityhub_events_alarm_name
   securityhub_events_metric_filter_name                       = var.securityhub_events_metric_filter_name
   securityhub_events_metric_name                              = var.securityhub_events_metric_name
+  enable_iam_user_creation_alarm                              = var.enable_iam_user_creation_alarm
+  iam_user_creation_not_by_automation_metric_filter_name      = var.iam_user_creation_not_by_automation_metric_filter_name
+  iam_user_creation_by_untrusted_role_alarm_name              = var.iam_user_creation_by_untrusted_role_alarm_name
   cloudtrail_log_group_name                                   = aws_cloudwatch_log_group.securityhub_alarms_test.name
 }
 
