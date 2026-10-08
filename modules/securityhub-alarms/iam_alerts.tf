@@ -270,6 +270,38 @@ resource "aws_cloudwatch_metric_alarm" "iam_user_deletion_by_untrusted_role" {
   tags = var.tags
 }
 
+# Filter & Alarm for the creation of IAM users outside of trusted automation roles
+resource "aws_cloudwatch_log_metric_filter" "iam_user_creation_not_by_automation" {
+  count          = var.enable_iam_user_creation_alarm ? 1 : 0
+  name           = var.iam_user_creation_not_by_automation_metric_filter_name
+  pattern        = "{ $.eventSource = \"iam.amazonaws.com\" && $.eventName = \"CreateUser\" && ${local.automation_role_filter} }"
+  log_group_name = var.cloudtrail_log_group_name
+
+  metric_transformation {
+    name      = var.iam_user_creation_not_by_automation_metric_filter_name
+    namespace = "LogMetrics"
+    value     = 1
+  }
+}
+
+resource "aws_cloudwatch_metric_alarm" "iam_user_creation_by_untrusted_role" {
+  count             = var.enable_iam_user_creation_alarm ? 1 : 0
+  alarm_name        = var.iam_user_creation_by_untrusted_role_alarm_name
+  alarm_description = "Monitors for the creation of IAM users other than via automation"
+  alarm_actions     = local.low_priority_excluding_suppressed_alarm_action
+
+  comparison_operator = "GreaterThanOrEqualToThreshold"
+  evaluation_periods  = "1"
+  metric_name         = var.iam_user_creation_not_by_automation_metric_filter_name
+  namespace           = "LogMetrics"
+  period              = "300"
+  statistic           = "Sum"
+  threshold           = "1"
+  treat_missing_data  = "notBreaching"
+
+  tags = var.tags
+}
+
 # Filter & Alarm for use of the SuperAdmin role in the modernisation-platform account only.
 resource "aws_cloudwatch_log_metric_filter" "superadmin_role_usage" {
   count          = local.is_mp_account ? 1 : 0
