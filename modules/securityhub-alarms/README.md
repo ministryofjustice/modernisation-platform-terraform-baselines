@@ -86,6 +86,35 @@ The module exports SNS topic ARNs, KMS ARNs, metric filter IDs, and alarm ARNs f
 
 Most alert resource names are configurable through inputs in `variables.tf`. For alerts where the CloudWatch metric name differs from the log metric filter resource name, the module exposes separate `*_metric_name` inputs alongside the usual `*_metric_filter_name` and `*_alarm_name` inputs.
 
+## Console Sign-In Failure Alarm Configuration
+
+The module includes a CloudWatch alarm that monitors AWS Management Console authentication failures to detect potential brute force attacks. The alarm is configurable through two variables:
+
+- `sign_in_failures_threshold` (default: 5) – Number of failed console sign-in attempts that trigger the alarm. Must be a positive integer.
+- `sign_in_failures_period` (default: 60) – Period in seconds over which to evaluate failed attempts. Must be a positive integer divisible by 60, maximum 86400.
+
+The alarm evaluates the metric filter pattern `{($.eventName=ConsoleLogin) && ($.errorMessage="Failed authentication")}` against CloudTrail logs. Representative CloudTrail events:
+
+- **Failed authentication**: `{"eventName": "ConsoleLogin", "errorMessage": "Failed authentication", "userIdentity": {...}}`
+- **Successful authentication**: `{"eventName": "ConsoleLogin", "responseElements": {"ConsoleLogin": "Success"}, "userIdentity": {...}}`
+
+### Configuration Example
+
+To configure a threshold of 3 failures within 300 seconds:
+
+```hcl
+module "securityhub-alarms" {
+  source = "./modules/securityhub-alarms"
+  sign_in_failures_threshold = 3
+  sign_in_failures_period    = 300
+  # ... other inputs
+}
+```
+
+### Offline Validation and Limits
+
+This module supports offline Terraform formatting and validation checks (e.g., `terraform fmt`, `terraform validate`). These checks verify syntax, input validation constraints, and configuration structure but do not prove notification delivery or deployed AWS behavior. Before relying on this alarm in production, verify the existing SNS subscription and Slack routing separately. Do not perform console login experiments or apply Terraform changes as part of draft-only testing.
+
 ## Looking for Issues?
 
 If you're looking to raise an issue with this module, please create a new issue in the [Modernisation Platform repository](https://github.com/ministryofjustice/modernisation-platform/issues).
