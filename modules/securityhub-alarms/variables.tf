@@ -349,6 +349,26 @@ variable "superadmin_user_access_key_creation_alarm_name" {
   type    = string
 }
 
+variable "iam_user_creation_metric_filter_name" {
+  default = "iam-user-creation"
+  type    = string
+}
+
+variable "iam_user_creation_alarm_name" {
+  default = "iam-user-creation"
+  type    = string
+}
+
+variable "iam_user_deletion_metric_filter_name" {
+  default = "iam-user-deletion"
+  type    = string
+}
+
+variable "iam_user_deletion_alarm_name" {
+  default = "iam-user-deletion"
+  type    = string
+}
+
 variable "securityhub_events_metric_filter_name" {
   default = "securityhub-events-alerting"
   type    = string

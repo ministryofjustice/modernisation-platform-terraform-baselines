@@ -365,3 +365,65 @@ resource "aws_cloudwatch_metric_alarm" "superadmin_user_access_key_creation" {
 
   tags = var.tags
 }
+
+# IAM-17 - Ensure a log metric filter and alarm exist for IAM user creation
+resource "aws_cloudwatch_log_metric_filter" "iam_user_creation" {
+  name           = var.iam_user_creation_metric_filter_name
+  log_group_name = var.cloudtrail_log_group_name
+
+  pattern = "{($.eventName = \"CreateUser\") && ${local.automation_role_filter}}"
+
+  metric_transformation {
+    name      = var.iam_user_creation_metric_filter_name
+    namespace = "LogMetrics"
+    value     = 1
+  }
+}
+
+resource "aws_cloudwatch_metric_alarm" "iam_user_creation" {
+  alarm_name        = var.iam_user_creation_alarm_name
+  alarm_description = "Monitors for IAM user creation events outside of approved automation roles."
+  alarm_actions     = [aws_sns_topic.high_priority_alarms_topic.arn]
+
+  comparison_operator = "GreaterThanOrEqualToThreshold"
+  evaluation_periods  = "1"
+  metric_name         = var.iam_user_creation_metric_filter_name
+  namespace           = "LogMetrics"
+  period              = "300"
+  statistic           = "Sum"
+  threshold           = "1"
+  treat_missing_data  = "notBreaching"
+
+  tags = var.tags
+}
+
+# IAM-17 - Ensure a log metric filter and alarm exist for IAM user deletion
+resource "aws_cloudwatch_log_metric_filter" "iam_user_deletion" {
+  name           = var.iam_user_deletion_metric_filter_name
+  log_group_name = var.cloudtrail_log_group_name
+
+  pattern = "{($.eventName = \"DeleteUser\") && ${local.automation_role_filter}}"
+
+  metric_transformation {
+    name      = var.iam_user_deletion_metric_filter_name
+    namespace = "LogMetrics"
+    value     = 1
+  }
+}
+
+resource "aws_cloudwatch_metric_alarm" "iam_user_deletion" {
+  alarm_name        = var.iam_user_deletion_alarm_name
+  alarm_description = "Monitors for IAM user deletion events outside of approved automation roles."
+  alarm_actions     = [aws_sns_topic.high_priority_alarms_topic.arn]
+
+  comparison_operator = "GreaterThanOrEqualToThreshold"
+  evaluation_periods  = "1"
+  metric_name         = var.iam_user_deletion_metric_filter_name
+  namespace           = "LogMetrics"
+  period              = "300"
+  statistic           = "Sum"
+  threshold           = "1"
+  treat_missing_data  = "notBreaching"
+
+  tags = var.tags
+}
