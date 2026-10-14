@@ -80,6 +80,58 @@ Security Hub has dedicated controls which check that these alarms and metric fil
 - Some resources are conditional through `count` or `for_each`, so the exact set of created alarms depends on the current workspace and account classification.
 - Some alarms intentionally use empty `alarm_actions` lists. Those alarms still evaluate and change state, but they do not publish notifications.
 
+## Console Sign-In Failure Alerts
+
+The module includes a configurable CloudWatch alarm for AWS Management Console sign-in failures (CIS 3.6). The alarm monitors CloudTrail events matching `{($.eventName=ConsoleLogin) && ($.errorMessage="Failed authentication")}` and triggers when the threshold is exceeded within the evaluation period.
+
+### Configuration
+
+- `sign_in_failures_threshold` (default: `5`) – Number of console sign-in failures that trigger the alarm. Must be a positive integer.
+- `sign_in_failures_period` (default: `60`) – Period in seconds over which to evaluate sign-in failures. Must be a positive integer divisible by 60 and at most 86400.
+
+### Example: Detect Three Failures in Five Minutes
+
+```hcl
+module "securityhub-alarms" {
+  source = "./modules/securityhub-alarms"
+
+  sign_in_failures_threshold = 3
+  sign_in_failures_period    = 300
+
+  # ... other required inputs
+}
+```
+
+### CloudTrail Event Examples
+
+**Failed authentication:**
+```json
+{
+  "eventName": "ConsoleLogin",
+  "errorMessage": "Failed authentication",
+  "userIdentity": { "type": "IAMUser", "userName": "example-user" },
+  "sourceIPAddress": "203.0.113.42"
+}
+```
+
+**Successful authentication:**
+```json
+{
+  "eventName": "ConsoleLogin",
+  "userIdentity": { "type": "IAMUser", "userName": "example-user" },
+  "responseElements": { "ConsoleLogin": "Success" },
+  "sourceIPAddress": "203.0.113.42"
+}
+```
+
+### Verification
+
+Before production rollout:
+
+1. Subscribe to the low-priority SNS topic created by this module.
+2. Verify SNS-to-Slack routing is configured and operational.
+3. Perform controlled console login experiments in the approved test target to confirm alarm triggers and notification delivery.
+
 ## Outputs
 
 The module exports SNS topic ARNs, KMS ARNs, metric filter IDs, and alarm ARNs from `outputs.tf`.

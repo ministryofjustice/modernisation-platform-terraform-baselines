@@ -84,6 +84,28 @@ variable "sign_in_failures_alarm_name" {
   type    = string
 }
 
+variable "sign_in_failures_threshold" {
+  description = "Number of console sign-in failures that trigger the alarm"
+  type        = number
+  default     = 5
+
+  validation {
+    condition     = var.sign_in_failures_threshold > 0 && floor(var.sign_in_failures_threshold) == var.sign_in_failures_threshold
+    error_message = "sign_in_failures_threshold must be a positive integer."
+  }
+}
+
+variable "sign_in_failures_period" {
+  description = "Period in seconds over which to evaluate sign-in failures (must be divisible by 60, max 86400)"
+  type        = number
+  default     = 60
+
+  validation {
+    condition     = var.sign_in_failures_period > 0 && var.sign_in_failures_period <= 86400 && var.sign_in_failures_period % 60 == 0 && floor(var.sign_in_failures_period) == var.sign_in_failures_period
+    error_message = "sign_in_failures_period must be a positive integer divisible by 60 and at most 86400."
+  }
+}
+
 variable "cmk_removal_metric_filter_name" {
   default = "cmk-removal"
   type    = string

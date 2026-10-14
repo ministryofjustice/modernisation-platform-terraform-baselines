@@ -56,6 +56,9 @@ module "securityhub-alarms" {
   securityhub_events_metric_filter_name                           = "securityhub-events-alerting-${local.workspace_name}"
   securityhub_events_metric_name                                  = "critical-events-${local.workspace_name}"
 
+  sign_in_failures_threshold = var.sign_in_failures_threshold
+  sign_in_failures_period    = var.sign_in_failures_period
+
   high_priority_pagerduty_key = var.high_priority_pagerduty_integration_key
 
   tags = var.tags
