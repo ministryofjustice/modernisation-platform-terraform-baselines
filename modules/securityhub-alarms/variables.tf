@@ -374,3 +374,35 @@ variable "cloudtrail_log_group_name" {
   type        = string
   default     = "cloudtrail"
 }
+
+variable "enable_iam_user_creation_deletion_alerts" {
+  description = "Enable opt-in alerting for IAM user creation and deletion events. Requires explicit GitHub OIDC role ARN exclusions."
+  type        = bool
+  default     = false
+}
+
+variable "iam_user_alerts_github_oidc_role_arns" {
+  description = "List of GitHub OIDC session-issuer role ARNs to exclude from IAM user creation/deletion alerts. Must be non-empty when enable_iam_user_creation_deletion_alerts is true."
+  type        = list(string)
+  default     = []
+}
+
+variable "iam_user_creation_metric_filter_name" {
+  default = "iam-user-creation"
+  type    = string
+}
+
+variable "iam_user_creation_alarm_name" {
+  default = "iam-user-creation"
+  type    = string
+}
+
+variable "iam_user_deletion_metric_filter_name" {
+  default = "iam-user-deletion"
+  type    = string
+}
+
+variable "iam_user_deletion_alarm_name" {
+  default = "iam-user-deletion"
+  type    = string
+}

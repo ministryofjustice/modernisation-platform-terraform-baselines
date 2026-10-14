@@ -365,3 +365,69 @@ resource "aws_cloudwatch_metric_alarm" "superadmin_user_access_key_creation" {
 
   tags = var.tags
 }
+
+# Opt-in IAM user creation alerting (SIP #119)
+resource "aws_cloudwatch_log_metric_filter" "iam_user_creation" {
+  count = var.enable_iam_user_creation_deletion_alerts && length(var.iam_user_alerts_github_oidc_role_arns) > 0 ? 1 : 0
+  name  = var.iam_user_creation_metric_filter_name
+
+  pattern        = "{($.eventName = \"CreateUser\") && ($.userIdentity.sessionContext.sessionIssuer.arn != \"${join("\" && $.userIdentity.sessionContext.sessionIssuer.arn != \"", var.iam_user_alerts_github_oidc_role_arns)}\")}"
+  log_group_name = var.cloudtrail_log_group_name
+
+  metric_transformation {
+    name      = var.iam_user_creation_metric_filter_name
+    namespace = "LogMetrics"
+    value     = 1
+  }
+}
+
+resource "aws_cloudwatch_metric_alarm" "iam_user_creation" {
+  count             = var.enable_iam_user_creation_deletion_alerts && length(var.iam_user_alerts_github_oidc_role_arns) > 0 ? 1 : 0
+  alarm_name        = var.iam_user_creation_alarm_name
+  alarm_description = "Monitors for IAM user creation events, excluding configured GitHub OIDC session-issuer roles."
+  alarm_actions     = [aws_sns_topic.high_priority_alarms_topic.arn]
+
+  comparison_operator = "GreaterThanOrEqualToThreshold"
+  evaluation_periods  = "1"
+  metric_name         = var.iam_user_creation_metric_filter_name
+  namespace           = "LogMetrics"
+  period              = "300"
+  statistic           = "Sum"
+  threshold           = "1"
+  treat_missing_data  = "notBreaching"
+
+  tags = var.tags
+}
+
+# Opt-in IAM user deletion alerting (SIP #119)
+resource "aws_cloudwatch_log_metric_filter" "iam_user_deletion" {
+  count = var.enable_iam_user_creation_deletion_alerts && length(var.iam_user_alerts_github_oidc_role_arns) > 0 ? 1 : 0
+  name  = var.iam_user_deletion_metric_filter_name
+
+  pattern        = "{($.eventName = \"DeleteUser\") && ($.userIdentity.sessionContext.sessionIssuer.arn != \"${join("\" && $.userIdentity.sessionContext.sessionIssuer.arn != \"", var.iam_user_alerts_github_oidc_role_arns)}\")}"
+  log_group_name = var.cloudtrail_log_group_name
+
+  metric_transformation {
+    name      = var.iam_user_deletion_metric_filter_name
+    namespace = "LogMetrics"
+    value     = 1
+  }
+}
+
+resource "aws_cloudwatch_metric_alarm" "iam_user_deletion" {
+  count             = var.enable_iam_user_creation_deletion_alerts && length(var.iam_user_alerts_github_oidc_role_arns) > 0 ? 1 : 0
+  alarm_name        = var.iam_user_deletion_alarm_name
+  alarm_description = "Monitors for IAM user deletion events, excluding configured GitHub OIDC session-issuer roles."
+  alarm_actions     = [aws_sns_topic.high_priority_alarms_topic.arn]
+
+  comparison_operator = "GreaterThanOrEqualToThreshold"
+  evaluation_periods  = "1"
+  metric_name         = var.iam_user_deletion_metric_filter_name
+  namespace           = "LogMetrics"
+  period              = "300"
+  statistic           = "Sum"
+  threshold           = "1"
+  treat_missing_data  = "notBreaching"
+
+  tags = var.tags
+}

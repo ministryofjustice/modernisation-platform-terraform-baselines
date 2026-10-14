@@ -58,5 +58,8 @@ module "securityhub-alarms" {
 
   high_priority_pagerduty_key = var.high_priority_pagerduty_integration_key
 
+  enable_iam_user_creation_deletion_alerts = var.enable_iam_user_creation_deletion_alerts
+  iam_user_alerts_github_oidc_role_arns    = var.iam_user_alerts_github_oidc_role_arns
+
   tags = var.tags
 }

@@ -118,3 +118,9 @@ If you're looking to raise an issue with this module, please create a new issue 
 [SCA Link]: https://github.com/ministryofjustice/modernisation-platform-terraform-baselines/actions/workflows/code-scanning.yml
 [Terraform SCA Icon]: https://img.shields.io/github/actions/workflow/status/ministryofjustice/modernisation-platform-terraform-baselines/code-scanning.yml?branch=main&labelColor=231f20&style=for-the-badge&label=Terraform%20Static%20Code%20Analysis
 [Terraform SCA Link]: https://github.com/ministryofjustice/modernisation-platform-terraform-baselines/actions/workflows/terraform-static-analysis.yml
+
+## IAM User Creation and Deletion Alerting
+
+This baseline includes opt-in alerting for IAM user creation and deletion events. The feature is disabled by default and requires explicit configuration. See the [securityhub-alarms module README](modules/securityhub-alarms/README.md#iam-user-creation-and-deletion-alerting-opt-in) for configuration details, exclusion behavior, and validation procedures.
+
+**Note:** This implementation provides alerting only. Preventive restrictions on manual IAM user creation require a separate Service Control Policy (SCP) approval.
