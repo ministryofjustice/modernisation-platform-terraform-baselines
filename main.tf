@@ -22,6 +22,9 @@ module "securityhub-alarms" {
 
   depends_on = [module.cloudtrail]
 
+  sign_in_failures_threshold = var.sign_in_failures_threshold
+  sign_in_failures_period    = var.sign_in_failures_period
+
   # Add alias to alarm names
   unauthorised_api_calls_log_metric_filter_name                   = "unauthorised-api-calls-${local.workspace_name}"
   sign_in_without_mfa_metric_filter_name                          = "sign-in-without-mfa-${local.workspace_name}"
