@@ -86,6 +86,68 @@ The module exports SNS topic ARNs, KMS ARNs, metric filter IDs, and alarm ARNs f
 
 Most alert resource names are configurable through inputs in `variables.tf`. For alerts where the CloudWatch metric name differs from the log metric filter resource name, the module exposes separate `*_metric_name` inputs alongside the usual `*_metric_filter_name` and `*_alarm_name` inputs.
 
+## Console Sign-In Failure Alarm Configuration
+
+The module includes a CloudWatch alarm that monitors AWS Management Console sign-in failures to detect potential brute force attacks. The alarm is configurable through two variables:
+
+- `sign_in_failures_threshold` (default: `5`): Number of failed console sign-in attempts that trigger the alarm. Must be a positive integer.
+- `sign_in_failures_period` (default: `60`): Period in seconds over which to evaluate failed sign-in attempts. Must be a positive integer divisible by 60, with a maximum of 86400 (24 hours).
+
+The alarm evaluates CloudTrail events matching the pattern `{($.eventName=ConsoleLogin) && ($.errorMessage="Failed authentication")}` and triggers when the sum of failures meets or exceeds the threshold within the specified period.
+
+### Configuration Example
+
+To configure the alarm to trigger on three or more failures within five minutes:
+
+```hcl
+module "securityhub-alarms" {
+  source = "./modules/securityhub-alarms"
+
+  sign_in_failures_threshold = 3
+  sign_in_failures_period    = 300
+
+  # ... other required inputs
+}
+```
+
+### Representative CloudTrail Events
+
+**Failed Authentication:**
+```json
+{
+  "eventName": "ConsoleLogin",
+  "errorMessage": "Failed authentication",
+  "userIdentity": { "type": "IAMUser", "userName": "example-user" },
+  "sourceIPAddress": "203.0.113.42"
+}
+```
+
+**Successful Authentication:**
+```json
+{
+  "eventName": "ConsoleLogin",
+  "userIdentity": { "type": "IAMUser", "userName": "example-user" },
+  "sourceIPAddress": "203.0.113.42",
+  "responseElements": { "ConsoleLogin": "Success" }
+}
+```
+
+### Offline Validation and Limitations
+
+This module has been validated using offline Terraform formatting and automated review. These checks verify:
+
+- Input validation constraints (positive integers, period divisibility, maximum values)
+- Root-to-module variable wiring
+- Preservation of existing alarm behavior and notification routing
+
+**Important:** Offline validation does **not** prove notification delivery in a deployed AWS environment. Before relying on this alarm in production:
+
+1. Verify the existing SNS subscription and Slack routing are correctly configured in your target account.
+2. Test the alarm in a non-production environment by reviewing CloudWatch metrics and alarm state transitions.
+3. Do **not** perform console login experiments or apply Terraform changes as part of this draft-only validation.
+
+Any production rollout requires separate approval and testing in the designated test target.
+
 ## Looking for Issues?
 
 If you're looking to raise an issue with this module, please create a new issue in the [Modernisation Platform repository](https://github.com/ministryofjustice/modernisation-platform/issues).
