@@ -166,3 +166,25 @@ variable "securityhub_forwarding_scope" {
   type        = list(string)
   default     = ["CRITICAL", "HIGH"]
 }
+
+variable "sign_in_failures_threshold" {
+  description = "Number of failed sign-in attempts that trigger the alarm. Must be a positive whole number. Default 5 preserves current behavior. Example: 3 failures in 300 seconds is a configurable option, not a deployed default."
+  type        = number
+  default     = 5
+
+  validation {
+    condition     = var.sign_in_failures_threshold > 0 && floor(var.sign_in_failures_threshold) == var.sign_in_failures_threshold
+    error_message = "sign_in_failures_threshold must be a positive whole number."
+  }
+}
+
+variable "sign_in_failures_period" {
+  description = "Evaluation period in seconds for the sign-in failures alarm. Must be a positive multiple of 60, maximum 86400 (24 hours). Default 60 preserves current behavior. Example: 300 seconds is a configurable option, not a deployed default."
+  type        = number
+  default     = 60
+
+  validation {
+    condition     = var.sign_in_failures_period > 0 && var.sign_in_failures_period % 60 == 0 && var.sign_in_failures_period <= 86400
+    error_message = "sign_in_failures_period must be a positive multiple of 60 seconds, with a maximum of 86400 (24 hours)."
+  }
+}
