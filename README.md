@@ -118,3 +118,9 @@ If you're looking to raise an issue with this module, please create a new issue 
 [SCA Link]: https://github.com/ministryofjustice/modernisation-platform-terraform-baselines/actions/workflows/code-scanning.yml
 [Terraform SCA Icon]: https://img.shields.io/github/actions/workflow/status/ministryofjustice/modernisation-platform-terraform-baselines/code-scanning.yml?branch=main&labelColor=231f20&style=for-the-badge&label=Terraform%20Static%20Code%20Analysis
 [Terraform SCA Link]: https://github.com/ministryofjustice/modernisation-platform-terraform-baselines/actions/workflows/terraform-static-analysis.yml
+
+## IAM User Creation and Deletion Alerting
+
+The `securityhub-alarms` module includes opt-in alerting for IAM user creation and deletion events (SIP #119). This feature monitors CloudTrail events and excludes configured GitHub OIDC session-issuer roles from triggering alerts. See the [securityhub-alarms module README](modules/securityhub-alarms/README.md#iam-user-creation-and-deletion-alerting-opt-in) for configuration details, exclusion behavior, validation procedures, and limitations.
+
+**Note:** This is a draft implementation for testing in approved test accounts only (e.g., `sprinkler-development`). Do not enable in production or member accounts without explicit approval. This feature provides alerting visibility only and does not prevent manual IAM user creation; preventive controls require separate SCP approval.

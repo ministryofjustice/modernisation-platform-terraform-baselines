@@ -86,6 +86,43 @@ The module exports SNS topic ARNs, KMS ARNs, metric filter IDs, and alarm ARNs f
 
 Most alert resource names are configurable through inputs in `variables.tf`. For alerts where the CloudWatch metric name differs from the log metric filter resource name, the module exposes separate `*_metric_name` inputs alongside the usual `*_metric_filter_name` and `*_alarm_name` inputs.
 
+## IAM User Creation and Deletion Alerting (Opt-in)
+
+The module supports opt-in alerting for IAM user creation and deletion events (SIP #119). This feature monitors CloudTrail `CreateUser` and `DeleteUser` events and publishes alarms to the existing `securityhub-alarms` SNS topic.
+
+### Configuration
+
+To enable IAM user alerting:
+
+1. Set `enable_iam_user_creation_deletion_alerts = true`
+2. Provide a **non-empty** list of GitHub OIDC session-issuer role ARNs in `iam_user_alerts_github_oidc_role_arns`
+
+Both conditions must be met for the metric filters and alarms to be created.
+
+### Exclusion Behavior
+
+The metric filter pattern explicitly excludes events where `$.userIdentity.sessionContext.sessionIssuer.arn` matches any ARN in the configured exclusion list. This prevents alerts for automated IAM user operations performed by approved GitHub Actions workflows.
+
+**Important:** The exclusion list filters by session-issuer role ARN, not by every assumed role. Only add role ARNs that are explicitly approved for automated IAM user management (e.g., GitHub OIDC roles used by infrastructure-as-code pipelines).
+
+### Validation Procedure (Non-destructive)
+
+To validate the alerting configuration in a test account (e.g., `sprinkler-development`):
+
+1. Enable the feature with an explicit exclusion list in the test account's Terraform configuration
+2. Apply the Terraform changes to create the metric filters and alarms
+3. Use the AWS CLI or Console to simulate a `CreateUser` event from a non-excluded principal (e.g., a test IAM role)
+4. Verify that the CloudWatch alarm transitions to `ALARM` state and that a notification is published to the SNS topic
+5. Confirm that events from excluded GitHub OIDC roles do **not** trigger the alarm
+
+**Do not enable this feature in production or member accounts without explicit approval.** This is a draft implementation for testing the alerting mechanism only.
+
+### Limitations
+
+- **Alerting only:** This feature provides visibility into IAM user creation and deletion events. It does **not** prevent manual IAM user creation. Preventive controls (e.g., Service Control Policies) require separate approval and are outside the scope of this alerting implementation.
+- **CloudTrail dependency:** The metric filters require a CloudWatch Logs log group receiving CloudTrail events. Ensure `cloudtrail_log_group_name` matches your account's CloudTrail configuration.
+- **Exclusion scope:** The exclusion list applies to the session-issuer role ARN, not to every role assumption. Review your GitHub OIDC role ARNs carefully before adding them to the exclusion list.
+
 ## Looking for Issues?
 
 If you're looking to raise an issue with this module, please create a new issue in the [Modernisation Platform repository](https://github.com/ministryofjustice/modernisation-platform/issues).
