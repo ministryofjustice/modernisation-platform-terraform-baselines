@@ -166,3 +166,15 @@ variable "securityhub_forwarding_scope" {
   type        = list(string)
   default     = ["CRITICAL", "HIGH"]
 }
+
+variable "enable_iam_user_creation_deletion_alerts" {
+  description = "Enable opt-in alerting for IAM user creation and deletion events. Requires explicit GitHub OIDC role ARN exclusions."
+  type        = bool
+  default     = false
+}
+
+variable "iam_user_alerts_github_oidc_role_arns" {
+  description = "List of GitHub OIDC session-issuer role ARNs to exclude from IAM user creation/deletion alerts. Must be non-empty when enable_iam_user_creation_deletion_alerts is true."
+  type        = list(string)
+  default     = []
+}
