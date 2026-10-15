@@ -80,6 +80,51 @@ Security Hub has dedicated controls which check that these alarms and metric fil
 - Some resources are conditional through `count` or `for_each`, so the exact set of created alarms depends on the current workspace and account classification.
 - Some alarms intentionally use empty `alarm_actions` lists. Those alarms still evaluate and change state, but they do not publish notifications.
 
+## Console Sign-In Failure Alarm Configuration
+
+The module includes a configurable alarm for AWS Management Console sign-in failures (CIS 3.6). The alarm monitors CloudTrail events matching `{($.eventName=ConsoleLogin) && ($.errorMessage="Failed authentication")}` and triggers when the threshold is exceeded within the evaluation period.
+
+### Configuration Variables
+
+- `sign_in_failures_threshold` (default: `5`) – Number of failed console sign-in attempts that trigger the alarm. Must be a positive integer.
+- `sign_in_failures_period` (default: `60`) – Period in seconds over which to evaluate failed attempts. Must be a positive integer divisible by 60, maximum 86400.
+
+### Representative CloudTrail Events
+
+**Failed authentication:**
+```json
+{
+  "eventName": "ConsoleLogin",
+  "errorMessage": "Failed authentication",
+  "userIdentity": { "type": "IAMUser", "userName": "example-user" }
+}
+```
+
+**Successful authentication:**
+```json
+{
+  "eventName": "ConsoleLogin",
+  "responseElements": { "ConsoleLogin": "Success" },
+  "userIdentity": { "type": "IAMUser", "userName": "example-user" }
+}
+```
+
+### Configuration Example
+
+To detect three failures in five minutes:
+```hcl
+module "securityhub-alarms" {
+  source = "./modules/securityhub-alarms"
+  sign_in_failures_threshold = 3
+  sign_in_failures_period    = 300
+  # ... other required inputs
+}
+```
+
+### Offline Validation and Limits
+
+This module has been validated using offline Terraform formatting and automated review. These checks verify input validation, variable wiring, and preservation of existing alarm behavior. **Offline validation does not prove notification delivery or deployed AWS behavior.** Before any separately approved rollout, verify the existing SNS subscription and Slack routing in the target environment. Do not create subscriptions, apply Terraform, or perform login experiments as part of draft-only testing.
+
 ## Outputs
 
 The module exports SNS topic ARNs, KMS ARNs, metric filter IDs, and alarm ARNs from `outputs.tf`.
