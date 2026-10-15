@@ -166,3 +166,25 @@ variable "securityhub_forwarding_scope" {
   type        = list(string)
   default     = ["CRITICAL", "HIGH"]
 }
+
+variable "sign_in_failures_threshold" {
+  description = "Number of failed console sign-in attempts that trigger the alarm"
+  type        = number
+  default     = 5
+
+  validation {
+    condition     = var.sign_in_failures_threshold > 0 && floor(var.sign_in_failures_threshold) == var.sign_in_failures_threshold
+    error_message = "sign_in_failures_threshold must be a positive integer."
+  }
+}
+
+variable "sign_in_failures_period" {
+  description = "Period in seconds over which to evaluate failed console sign-in attempts (must be divisible by 60, maximum 86400)"
+  type        = number
+  default     = 60
+
+  validation {
+    condition     = var.sign_in_failures_period > 0 && floor(var.sign_in_failures_period) == var.sign_in_failures_period && var.sign_in_failures_period % 60 == 0 && var.sign_in_failures_period <= 86400
+    error_message = "sign_in_failures_period must be a positive integer divisible by 60 and at most 86400."
+  }
+}

@@ -82,9 +82,9 @@ resource "aws_cloudwatch_metric_alarm" "sign-in-failures" {
   evaluation_periods  = "1"
   metric_name         = var.sign_in_failures_metric_filter_name
   namespace           = "LogMetrics"
-  period              = "60"
+  period              = var.sign_in_failures_period
   statistic           = "Sum"
-  threshold           = "5"
+  threshold           = var.sign_in_failures_threshold
   treat_missing_data  = "notBreaching"
 
   tags = var.tags
