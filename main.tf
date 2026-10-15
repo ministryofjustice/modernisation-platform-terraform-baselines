@@ -58,5 +58,8 @@ module "securityhub-alarms" {
 
   high_priority_pagerduty_key = var.high_priority_pagerduty_integration_key
 
+  sign_in_failures_threshold = var.sign_in_failures_threshold
+  sign_in_failures_period    = var.sign_in_failures_period
+
   tags = var.tags
 }

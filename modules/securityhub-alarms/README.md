@@ -80,6 +80,59 @@ Security Hub has dedicated controls which check that these alarms and metric fil
 - Some resources are conditional through `count` or `for_each`, so the exact set of created alarms depends on the current workspace and account classification.
 - Some alarms intentionally use empty `alarm_actions` lists. Those alarms still evaluate and change state, but they do not publish notifications.
 
+## Configurable Console Sign-In Failure Alerts
+
+The module exposes two inputs to tune the console sign-in failure alarm (CIS 3.6):
+
+- **`sign_in_failures_threshold`** (default `5`): Number of console sign-in failures required to trigger the alarm. Must be a positive integer.
+- **`sign_in_failures_period`** (default `60`): Period in seconds over which to evaluate console sign-in failures. Must be a positive integer, divisible by 60, and at most 86400.
+
+The alarm monitors CloudTrail events matching `{($.eventName=ConsoleLogin) && ($.errorMessage="Failed authentication")}`. A representative **Failed authentication** event looks like:
+
+```json
+{
+  "eventVersion": "1.08",
+  "eventName": "ConsoleLogin",
+  "errorMessage": "Failed authentication",
+  "responseElements": {"ConsoleLogin": "Failure"},
+  "userIdentity": {"type": "IAMUser", "principalId": "...", "userName": "..."},
+  "eventTime": "2024-01-15T10:30:00Z"
+}
+```
+
+A successful login event (not matched by the filter) has `"responseElements": {"ConsoleLogin": "Success"}` and no `errorMessage` field.
+
+### Configuration Example
+
+To trigger an alarm after three failures in five minutes:
+
+```hcl
+module "baselines" {
+  source = "github.com/ministryofjustice/modernisation-platform-terraform-baselines"
+
+  sign_in_failures_threshold = 3
+  sign_in_failures_period    = 300
+  # ... other inputs
+}
+```
+
+### Verification and Offline Validation
+
+This module has been validated offline using `terraform fmt -check -recursive` and automated full-diff review. These checks verify:
+
+- Input validation (positive integers, period divisible by 60, maximum 86400)
+- Root wiring through the `securityhub-alarms` module
+- Preservation of existing alarm behavior (resource identity, metric filter, suppression, notification routing)
+- Required documentation
+
+**Offline validation does not prove deployed AWS behavior or notification delivery.** Before any separately approved rollout:
+
+1. Verify the existing SNS subscription and Slack routing in the target account.
+2. Review CloudTrail logs for representative `ConsoleLogin` events (both `Failed authentication` and `Success`).
+3. Confirm the alarm configuration in the AWS Console after applying Terraform.
+
+**Do not create a subscription, apply Terraform to production, or perform login experiments as part of this draft-only test.**
+
 ## Outputs
 
 The module exports SNS topic ARNs, KMS ARNs, metric filter IDs, and alarm ARNs from `outputs.tf`.
